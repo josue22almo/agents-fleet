@@ -16,5 +16,8 @@
     "@types/node": "^22.15.3",
     "typescript": "5.9.2",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.3"
   }
 }
