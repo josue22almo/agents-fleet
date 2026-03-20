@@ -3,7 +3,8 @@
 ## Architecture
 
 - All backend code MUST follow the architecture defined in [docs/backend-architecture.md](docs/backend-architecture.md)
-- Read the architecture document before writing or modifying any backend code
+- All frontend code MUST follow the architecture defined in [docs/frontend-architecture.md](docs/frontend-architecture.md)
+- Read the relevant architecture document before writing or modifying code
 
 ## Git Conventions
 
