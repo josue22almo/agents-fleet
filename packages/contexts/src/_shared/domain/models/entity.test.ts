@@ -2,8 +2,12 @@ import { describe, it, expect } from "vitest";
 import { Entity } from "./entity.js";
 
 class TestEntity extends Entity {
-  constructor(id: string, readonly name: string) {
+  constructor(id: string, private _name: string) {
     super(id);
+  }
+
+  toPrimitives() {
+    return { id: this.id, name: this._name };
   }
 }
 

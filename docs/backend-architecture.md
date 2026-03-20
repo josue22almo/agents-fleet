@@ -266,6 +266,14 @@ export class AppModule {}
 - Controllers (in apps): `{Resource}Controller`
 - Guards (in apps): `{Concern}Guard`
 
+### Encapsulation
+
+- **Never expose internal state** on entities — no raw getters for enums, statuses, or data properties
+- Use **behavioral getters** instead: `isOwner`, `isAdmin`, `canManage`, `isPending`, `isAccepted`
+- Callers should ask entities questions, not inspect their data. If you need to check something, add a method to the entity
+- Entities expose a **`toPrimitives()`** method that returns a plain object with primitive types — this is the only way to access internal data, used for persistence and serialization
+- Each entity defines a `{Entity}Primitives` interface for the return type of `toPrimitives()`
+
 ### Use Case Pattern
 
 ```typescript
@@ -345,57 +353,35 @@ export class Organization {
 
 ### Read Models (for queries/lists)
 
-Read models are domain-level projections used by query use cases. They live in the domain layer alongside entities but represent a read-optimized view. Controllers/CLI map them to their output format just like any other domain object.
+Read models are domain-level projections used by query use cases. They follow the same encapsulation rules as entities: all fields are private, behavior is exposed through getters, and `toPrimitives()` is the only way to access data for serialization.
+
+They differ from entities in that they are **immutable** (no mutation methods) and **not persisted** — they are constructed from query results.
 
 ```typescript
 // domain/read-models/organization-summary.ts
 export class OrganizationSummary {
-  constructor(
-    readonly id: string,
-    readonly name: string,
-    readonly slug: string,
-    readonly type: OrgType,
-    readonly memberCount: number,
-    readonly userRole: MemberRole,
-  ) {}
-}
+  private _id: string;
+  private _name: string;
+  private _type: OrgType;
+  private _memberCount: number;
+  private _currentUserRole: MemberRole;
 
-// ports/repositories/organization-repository.ts
-export interface OrganizationRepository {
-  findById(id: string): Promise<Organization | null>;
-  findBySlug(slug: string): Promise<Organization | null>;
-  findByUserId(userId: string): Promise<OrganizationSummary[]>;
-  save(organization: Organization): Promise<void>;
-  delete(id: string): Promise<void>;
-}
+  private constructor(props: OrganizationSummaryProps) { ... }
 
-// application/use-cases/list-organizations.ts
-export class ListOrganizations {
-  constructor(private readonly orgRepo: OrganizationRepository) {}
-
-  async execute(userId: string): Promise<OrganizationSummary[]> {
-    return this.orgRepo.findByUserId(userId);
+  get isPersonal(): boolean { return this._type === OrgType.INDIVIDUAL; }
+  get canCurrentUserManage(): boolean {
+    return this._currentUserRole === MemberRole.OWNER || this._currentUserRole === MemberRole.ADMIN;
   }
+
+  toPrimitives(): OrganizationSummaryPrimitives { ... }
+  static create(props: OrganizationSummaryProps): OrganizationSummary { ... }
 }
 
-// Controller maps to JSON — that's the app's job
+// Controller calls toPrimitives() and parses fields if needed — that's the app's job
 @Get()
 async list(@CurrentUser() user) {
   const orgs = await this.listOrganizations.execute(user.id);
-  return orgs.map(org => ({
-    id: org.id,
-    name: org.name,
-    slug: org.slug,
-    type: org.type,
-    member_count: org.memberCount,
-    your_role: org.userRole,
-  }));
-}
-
-// CLI maps to table — same use case, different output
-async run(userId: string) {
-  const orgs = await this.listOrganizations.execute(userId);
-  console.table(orgs.map(o => ({ Name: o.name, Type: o.type, Role: o.userRole })));
+  return orgs.map(org => org.toPrimitives());
 }
 ```
 
