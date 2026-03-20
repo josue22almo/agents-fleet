@@ -24,7 +24,7 @@ COPY . .
 RUN pnpm run build --filter=api
 
 # ---
-FROM node:22-alpine AS runner
+FROM base AS runner
 
 WORKDIR /app
 
@@ -33,11 +33,17 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nestjs
 
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/package.json ./package.json
+COPY --from=builder /app/apps/api/dist ./dist
+COPY --from=builder /app/apps/api/package.json ./package.json
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /tmp/root/
+COPY --from=builder /app/apps/api/package.json /tmp/root/apps/api/package.json
 
+RUN cd /tmp/root && pnpm install --frozen-lockfile --prod --filter=api && \
+    cp -rL /tmp/root/node_modules /app/node_modules && \
+    cp -rL /tmp/root/apps/api/node_modules /app/api_modules 2>/dev/null || true && \
+    rm -rf /tmp/root
+
+RUN chown -R nestjs:nodejs /app
 USER nestjs
 
 EXPOSE 4000
