@@ -6,7 +6,9 @@
     "dev": "nest start --watch",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/main.js",
-    "lint": "eslint --max-warnings 0"
+    "lint": "eslint --max-warnings 0",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
@@ -19,6 +21,7 @@
     "@nestjs/cli": "^11.0.0",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.15.3",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vitest": "^3.2.4"
   }
 }
