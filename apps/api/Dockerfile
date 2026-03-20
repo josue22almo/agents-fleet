@@ -39,8 +39,7 @@ COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.ya
 COPY --from=builder /app/apps/api/package.json /tmp/root/apps/api/package.json
 
 RUN cd /tmp/root && pnpm install --frozen-lockfile --prod --filter=api && \
-    cp -rL /tmp/root/node_modules /app/node_modules && \
-    cp -rL /tmp/root/apps/api/node_modules /app/api_modules 2>/dev/null || true && \
+    cp -rL /tmp/root/apps/api/node_modules /app/node_modules && \
     rm -rf /tmp/root
 
 RUN chown -R nestjs:nodejs /app
