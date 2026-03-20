@@ -33,14 +33,12 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nestjs
 
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/package.json ./package.json
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /tmp/root/
-COPY --from=builder /app/apps/api/package.json /tmp/root/apps/api/package.json
+COPY --from=builder /app /tmp/build
 
-RUN cd /tmp/root && pnpm install --frozen-lockfile --prod --filter=api && \
-    cp -rL /tmp/root/apps/api/node_modules /app/node_modules && \
-    rm -rf /tmp/root
+RUN cd /tmp/build && pnpm --filter=api deploy --prod /app && \
+    rm -rf /tmp/build
+
+COPY --from=builder /app/apps/api/dist ./dist
 
 RUN chown -R nestjs:nodejs /app
 USER nestjs
