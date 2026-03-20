@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accept Invitation — Agents Fleet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(240 10% 3.9%)',
+            card: 'hsl(0 0% 100%)',
+            primary: 'hsl(262 83% 58%)',
+            'primary-foreground': 'hsl(0 0% 100%)',
+            muted: 'hsl(240 4.8% 95.9%)',
+            'muted-foreground': 'hsl(240 3.8% 46.1%)',
+            border: 'hsl(240 5.9% 90%)',
+            input: 'hsl(240 5.9% 90%)',
+            ring: 'hsl(262 83% 58%)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background: hsl(240 4.8% 95.9%); color: hsl(240 10% 3.9%); font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-sm mx-auto px-4">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-primary text-primary-foreground mb-4">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+      </div>
+      <h1 class="text-2xl font-semibold tracking-tight">You've been invited</h1>
+      <p class="text-sm text-muted-foreground mt-2">Join an organization on Agents Fleet</p>
+    </div>
+
+    <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center h-14 w-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-lg font-semibold mb-3">AC</div>
+        <h2 class="text-lg font-semibold">Acme Corp</h2>
+        <p class="text-sm text-muted-foreground mt-1">
+          <span class="font-medium text-foreground">John Doe</span> invited you to join as a <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-xs font-medium">Member</span>
+        </p>
+      </div>
+
+      <div class="rounded-lg bg-muted p-4 mb-6">
+        <div class="flex items-center gap-3">
+          <svg class="h-5 w-5 text-muted-foreground flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          <div>
+            <p class="text-sm font-medium">4 members</p>
+            <p class="text-xs text-muted-foreground">You'll be able to view shared agents, metrics, and alarms</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Existing user -->
+      <div class="space-y-3">
+        <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-10 px-4 py-2 w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm">
+          Accept Invitation
+        </button>
+        <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-10 px-4 py-2 w-full border border-input bg-background hover:bg-muted transition-colors">
+          Decline
+        </button>
+      </div>
+    </div>
+
+    <p class="text-center text-sm text-muted-foreground mt-6">
+      Don't have an account?
+      <a href="signup.html" class="text-primary font-medium hover:underline underline-offset-4">Sign up first</a>
+    </p>
+  </div>
+</body>
+</html>

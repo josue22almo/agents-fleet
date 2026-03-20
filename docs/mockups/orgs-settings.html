@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organization Settings — Agents Fleet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(240 10% 3.9%)',
+            card: 'hsl(0 0% 100%)',
+            'card-foreground': 'hsl(240 10% 3.9%)',
+            primary: 'hsl(262 83% 58%)',
+            'primary-foreground': 'hsl(0 0% 100%)',
+            secondary: 'hsl(240 4.8% 95.9%)',
+            'secondary-foreground': 'hsl(240 5.9% 10%)',
+            muted: 'hsl(240 4.8% 95.9%)',
+            'muted-foreground': 'hsl(240 3.8% 46.1%)',
+            border: 'hsl(240 5.9% 90%)',
+            input: 'hsl(240 5.9% 90%)',
+            ring: 'hsl(262 83% 58%)',
+            accent: 'hsl(262 83% 96%)',
+            'accent-foreground': 'hsl(262 83% 40%)',
+            destructive: 'hsl(0 84% 60%)',
+            'destructive-foreground': 'hsl(0 0% 100%)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background: hsl(240 4.8% 95.9%); color: hsl(240 10% 3.9%); font-family: system-ui, -apple-system, sans-serif; }
+    input::placeholder { color: hsl(240 3.8% 46.1%); }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-border flex flex-col">
+      <div class="p-4 border-b border-border">
+        <button class="flex items-center justify-between w-full rounded-lg border border-input bg-background px-3 py-2 text-sm hover:bg-muted transition-colors">
+          <div class="flex items-center gap-2">
+            <div class="h-6 w-6 rounded-md bg-gradient-to-br from-blue-500 to-cyan-500 text-white flex items-center justify-center text-xs font-semibold">AC</div>
+            <span class="font-medium">Acme Corp</span>
+          </div>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+        </button>
+      </div>
+      <nav class="flex-1 p-3 space-y-1">
+        <a href="dashboard.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+          Metrics
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Agents
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          Alarms
+        </a>
+        <a href="orgs.html" class="flex items-center gap-3 rounded-lg bg-accent text-accent-foreground px-3 py-2 text-sm font-medium transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+          Organizations
+        </a>
+      </nav>
+      <div class="p-3 border-t border-border">
+        <div class="flex items-center gap-3 rounded-lg px-3 py-2">
+          <div class="h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-medium text-white">JD</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate">John Doe</p>
+            <p class="text-xs text-muted-foreground truncate">john@example.com</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-8">
+      <div class="max-w-2xl">
+        <a href="orgs.html" class="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+          <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+          Back to organizations
+        </a>
+
+        <div class="flex items-center gap-4 mb-8">
+          <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white flex items-center justify-center text-lg font-semibold">AC</div>
+          <div>
+            <h1 class="text-3xl font-semibold tracking-tight">Acme Corp</h1>
+            <p class="text-muted-foreground">Manage organization settings and members</p>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-border mb-8">
+          <nav class="flex gap-6 -mb-px">
+            <button class="pb-3 text-sm font-medium border-b-2 border-primary text-foreground">General</button>
+            <button class="pb-3 text-sm font-medium border-b-2 border-transparent text-muted-foreground hover:text-foreground transition-colors">Members</button>
+          </nav>
+        </div>
+
+        <!-- General settings -->
+        <div class="space-y-6">
+          <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <h2 class="text-lg font-medium mb-4">Organization Details</h2>
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <label class="text-sm font-medium leading-none" for="name">Name</label>
+                <input
+                  id="name"
+                  type="text"
+                  value="Acme Corp"
+                  class="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                />
+              </div>
+              <div class="space-y-2">
+                <label class="text-sm font-medium leading-none" for="slug">URL Slug</label>
+                <input
+                  id="slug"
+                  type="text"
+                  value="acme-corp"
+                  class="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                />
+              </div>
+              <div class="flex justify-end">
+                <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm">
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Members section -->
+          <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-medium">Members</h2>
+              <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-3 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm">
+                <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                Invite Member
+              </button>
+            </div>
+
+            <!-- Invite form -->
+            <div class="rounded-lg border border-violet-200 bg-violet-50 p-4 mb-4">
+              <div class="flex gap-3">
+                <input
+                  type="email"
+                  placeholder="email@example.com"
+                  class="flex h-10 flex-1 rounded-lg border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                />
+                <select class="h-10 rounded-lg border border-input bg-white px-3 py-2 text-sm">
+                  <option>Member</option>
+                  <option>Admin</option>
+                </select>
+                <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm">
+                  Send Invite
+                </button>
+              </div>
+            </div>
+
+            <!-- Members list -->
+            <div class="space-y-0 divide-y divide-border">
+              <!-- Owner -->
+              <div class="flex items-center justify-between py-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-medium text-white">JD</div>
+                  <div>
+                    <p class="text-sm font-medium">John Doe</p>
+                    <p class="text-xs text-muted-foreground">john@example.com</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-700 px-2.5 py-0.5 text-xs font-medium">Owner</span>
+              </div>
+
+              <!-- Admin -->
+              <div class="flex items-center justify-between py-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-xs font-medium text-white">AS</div>
+                  <div>
+                    <p class="text-sm font-medium">Alice Smith</p>
+                    <p class="text-xs text-muted-foreground">alice@acme.com</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <select class="h-8 rounded-lg border border-input bg-background px-2 py-1 text-xs">
+                    <option selected>Admin</option>
+                    <option>Member</option>
+                  </select>
+                  <button class="inline-flex items-center justify-center rounded-lg h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-red-50 transition-colors">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Member -->
+              <div class="flex items-center justify-between py-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-xs font-medium text-white">BJ</div>
+                  <div>
+                    <p class="text-sm font-medium">Bob Johnson</p>
+                    <p class="text-xs text-muted-foreground">bob@acme.com</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <select class="h-8 rounded-lg border border-input bg-background px-2 py-1 text-xs">
+                    <option selected>Member</option>
+                    <option>Admin</option>
+                  </select>
+                  <button class="inline-flex items-center justify-center rounded-lg h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-red-50 transition-colors">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Member -->
+              <div class="flex items-center justify-between py-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-xs font-medium text-white">CW</div>
+                  <div>
+                    <p class="text-sm font-medium">Carol Wilson</p>
+                    <p class="text-xs text-muted-foreground">carol@acme.com</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <select class="h-8 rounded-lg border border-input bg-background px-2 py-1 text-xs">
+                    <option selected>Member</option>
+                    <option>Admin</option>
+                  </select>
+                  <button class="inline-flex items-center justify-center rounded-lg h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-red-50 transition-colors">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="rounded-xl border border-red-200 bg-red-50 p-6">
+            <h2 class="text-lg font-medium text-red-700 mb-2">Danger Zone</h2>
+            <p class="text-sm text-red-600/80 mb-4">Permanently delete this organization and all its data. This action cannot be undone.</p>
+            <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-10 px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm">
+              Delete Organization
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

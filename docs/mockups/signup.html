@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up — Agents Fleet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(240 10% 3.9%)',
+            card: 'hsl(0 0% 100%)',
+            'card-foreground': 'hsl(240 10% 3.9%)',
+            primary: 'hsl(262 83% 58%)',
+            'primary-foreground': 'hsl(0 0% 100%)',
+            secondary: 'hsl(240 4.8% 95.9%)',
+            'secondary-foreground': 'hsl(240 5.9% 10%)',
+            muted: 'hsl(240 4.8% 95.9%)',
+            'muted-foreground': 'hsl(240 3.8% 46.1%)',
+            border: 'hsl(240 5.9% 90%)',
+            input: 'hsl(240 5.9% 90%)',
+            ring: 'hsl(262 83% 58%)',
+            accent: 'hsl(262 83% 96%)',
+            'accent-foreground': 'hsl(262 83% 40%)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background: hsl(240 4.8% 95.9%); color: hsl(240 10% 3.9%); font-family: system-ui, -apple-system, sans-serif; }
+    input::placeholder { color: hsl(240 3.8% 46.1%); }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-sm mx-auto px-4">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-primary text-primary-foreground mb-4">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+      </div>
+      <h1 class="text-2xl font-semibold tracking-tight">Create your account</h1>
+      <p class="text-sm text-muted-foreground mt-2">Start monitoring your agents in minutes</p>
+    </div>
+
+    <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="text-sm font-medium leading-none" for="name">Full Name</label>
+          <input
+            id="name"
+            type="text"
+            placeholder="John Doe"
+            class="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-medium leading-none" for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="name@example.com"
+            class="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-medium leading-none" for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Create a password"
+            class="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          />
+          <p class="text-xs text-muted-foreground">Must be at least 8 characters</p>
+        </div>
+
+        <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-10 px-4 py-2 w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm">
+          Create Account
+        </button>
+      </div>
+    </div>
+
+    <p class="text-center text-sm text-muted-foreground mt-6">
+      Already have an account?
+      <a href="login.html" class="text-primary font-medium hover:underline underline-offset-4">Sign in</a>
+    </p>
+  </div>
+</body>
+</html>
