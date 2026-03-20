@@ -1,4 +1,5 @@
 import { Entity } from "../../../_shared/domain/models/entity.js";
+import { InvitationAlreadyRespondedError } from "../errors/invitation-already-responded.error.js";
 import { InvitationExpiredError } from "../errors/invitation-expired.error.js";
 import { Email } from "../value-objects/email.js";
 import { MemberRole } from "../value-objects/member-role.js";
@@ -88,7 +89,7 @@ export class Invitation extends Entity {
       throw new InvitationExpiredError(this._token);
     }
     if (this._status !== InvitationStatus.PENDING) {
-      throw new Error(`Invitation has already been ${this._status}`);
+      throw new InvitationAlreadyRespondedError(this._status);
     }
   }
 
