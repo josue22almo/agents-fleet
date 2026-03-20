@@ -259,6 +259,7 @@ export class AppModule {}
 ### Naming
 
 - Use cases: verb-noun (e.g., `CreateOrganization`, `InviteMember`)
+- Domain events: `{context}.{entity}.{past_tense_verb}` (e.g., `iam.organization.created`, `iam.member.invited`, `iam.invitation.accepted`). Always past tense — events describe something that already happened
 - Event handlers: `On{Event}EventHandler` (e.g., `OnMemberInvitedEventHandler`, `OnOrganizationCreatedEventHandler`)
 - Port interfaces: `{Entity}Repository`, `AuthService`, `EmailService`
 - Implementations (in contexts): `Supabase{Entity}Repository`, `SmtpEmailService`
