@@ -1,4 +1,16 @@
 services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "9091:4000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+
   web:
     build:
       context: .
@@ -7,4 +19,13 @@ services:
       - "9090:3000"
     environment:
       - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    depends_on:
+      - api
     restart: unless-stopped
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    driver: bridge
