@@ -1,5 +1,19 @@
 # Backend Architecture
 
+## Table of Contents
+
+- [Principles](#principles)
+- [Layers](#layers)
+- [Package Structure](#package-structure)
+- [Dependency Flow](#dependency-flow)
+- [Conventions](#conventions)
+- [Event-Driven Architecture](#event-driven-architecture)
+- [Error Handling](#error-handling)
+- [Testing Strategy](#testing-strategy)
+- [Shared Contracts](#shared-contracts-packagescontracts)
+- [Authentication](#authentication)
+- [Future Contexts](#future-contexts)
+
 ## Principles
 
 - **DDD (Domain-Driven Design)**: Code is organized by bounded contexts, not technical layers

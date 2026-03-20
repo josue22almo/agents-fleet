@@ -1,5 +1,20 @@
 # Frontend Architecture
 
+## Table of Contents
+
+- [Principles](#principles)
+- [Tech Stack](#tech-stack)
+- [Folder Structure](#folder-structure)
+- [Route Groups](#route-groups)
+- [API Client](#api-client)
+- [Data Fetching with TanStack Query](#data-fetching-with-tanstack-query)
+- [Auth on the Client](#auth-on-the-client)
+- [Component Conventions](#component-conventions)
+- [Error Handling](#error-handling)
+- [Styling](#styling)
+- [Testing](#testing)
+- [Future Considerations](#future-considerations)
+
 ## Principles
 
 - **Web is API-agnostic** — knows nothing about Supabase, database, or backend implementation. Communicates only via `@repo/contracts` types and `fetch`
@@ -16,7 +31,8 @@
 | Styling | Tailwind CSS |
 | Data fetching | TanStack Query |
 | Validation | Zod (via `@repo/contracts`) |
-| Testing | Vitest |
+| Unit testing | Vitest |
+| E2E testing | Playwright |
 
 ## Folder Structure
 
@@ -253,11 +269,35 @@ components/
 
 ## Testing
 
-- **Vitest** as test runner (same as backend)
+### Unit Tests (Vitest)
+
+- **Test runner**: Vitest (same as backend)
 - **Test files** live side by side: `login-form.tsx` → `login-form.test.tsx`
 - **Unit tests** for hooks and utility functions
 - **Component tests** for interactive components (forms, org switcher)
-- **E2E tests** in the API app cover full-stack flows
+
+### E2E Tests (Playwright)
+
+- **Test files** live in `apps/web/e2e/` — one file per user flow
+- **Naming**: `{flow}.spec.ts` (e.g., `sign-up.spec.ts`, `create-organization.spec.ts`)
+- **Each test covers a full user journey**, not individual page interactions
+- **Test against running API + Web** — Playwright starts the dev servers before running
+- **Use test fixtures** for common setup (authenticated user, existing org)
+
+```
+apps/web/
+  e2e/
+    sign-up.spec.ts                # signup → personal org created → dashboard
+    sign-in.spec.ts                # login → dashboard → logout → login page
+    forgot-password.spec.ts        # forgot → email → reset → login
+    create-organization.spec.ts    # create team org → appears in list
+    invite-member.spec.ts          # invite → accept → member sees org
+    org-settings.spec.ts           # edit org, change roles, remove member
+    profile.spec.ts                # edit name, change password
+    fixtures/
+      auth.ts                      # login helper, test user setup
+  playwright.config.ts
+```
 
 ## Future Considerations
 
