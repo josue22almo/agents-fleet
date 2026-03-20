@@ -9,10 +9,9 @@ import {
   type OrganizationRepository,
   type InvitationRepository,
   type UserRepository,
-  type EmailService,
   type TokenGenerator,
 } from "@repo/contexts/iam";
-import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
+import type { IdGenerator, EventBus, EmailService } from "@repo/contexts/_shared";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
 

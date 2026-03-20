@@ -35,7 +35,6 @@ export type { UserRepository } from "./ports/repositories/user-repository.js";
 export type { OrganizationRepository } from "./ports/repositories/organization-repository.js";
 export type { InvitationRepository } from "./ports/repositories/invitation-repository.js";
 export type { AuthService, AuthTokens, AuthUser } from "./ports/services/auth-service.js";
-export type { EmailService } from "./ports/services/email-service.js";
 export type { TokenGenerator } from "./ports/services/token-generator.js";
 
 // Use Cases

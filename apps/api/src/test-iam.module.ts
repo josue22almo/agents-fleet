@@ -79,7 +79,7 @@ function createMockAuthService(): AuthService {
     },
     {
       provide: "EmailService",
-      useValue: { sendInvitation: async () => {} },
+      useValue: { send: async () => {} },
     },
   ],
   exports: ["AuthService"],

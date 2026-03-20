@@ -3,7 +3,7 @@ import { InMemoryUserRepository } from "../../infrastructure/persistence/in-memo
 import { InMemoryOrganizationRepository } from "../../infrastructure/persistence/in-memory-organization-repository.js";
 import { InMemoryInvitationRepository } from "../../infrastructure/persistence/in-memory-invitation-repository.js";
 import type { AuthService, AuthTokens, AuthUser } from "../../ports/services/auth-service.js";
-import type { EmailService } from "../../ports/services/email-service.js";
+import type { EmailService } from "../../../_shared/domain/models/email-service.js";
 import type { IdGenerator } from "../../../_shared/domain/models/id-generator.js";
 import type { TokenGenerator } from "../../ports/services/token-generator.js";
 
@@ -43,7 +43,7 @@ export function createTestDeps() {
   };
 
   const emailService: EmailService = {
-    sendInvitation: async () => {},
+    send: async () => {},
   };
 
   return {

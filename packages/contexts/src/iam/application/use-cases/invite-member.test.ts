@@ -45,7 +45,7 @@ describe("InviteMember", () => {
   it("creates an invitation and sends email", async () => {
     const deps = createTestDeps();
     await seedOrgAndUser(deps);
-    const sendSpy = vi.spyOn(deps.emailService, "sendInvitation");
+    const sendSpy = vi.spyOn(deps.emailService, "send");
 
     const useCase = new InviteMember(
       deps.orgRepo,

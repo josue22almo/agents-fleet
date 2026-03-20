@@ -10,7 +10,8 @@ import type { TokenGenerator } from "../../ports/services/token-generator.js";
 import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
 import type { InvitationRepository } from "../../ports/repositories/invitation-repository.js";
 import type { UserRepository } from "../../ports/repositories/user-repository.js";
-import type { EmailService } from "../../ports/services/email-service.js";
+import type { EmailService } from "../../../_shared/domain/models/email-service.js";
+import { Mail } from "../../../_shared/domain/models/mail.js";
 
 interface InviteMemberParams {
   organizationId: string;
@@ -60,12 +61,13 @@ export class InviteMember {
     const inviter = await this.userRepo.findById(params.invitedBy);
     const inviterName = inviter ? inviter.toPrimitives().fullName ?? "A team member" : "A team member";
 
-    await this.emailService.sendInvitation({
-      to: params.email,
-      organizationName: orgPrimitives.name,
-      invitedByName: inviterName,
-      token,
-    });
+    await this.emailService.send(
+      Mail.create({
+        to: params.email,
+        subject: `You've been invited to join ${orgPrimitives.name}`,
+        body: `${inviterName} invited you to join ${orgPrimitives.name}. Use this token to accept: ${token}`,
+      }),
+    );
 
     await this.eventBus.publish([
       new MemberInvitedEvent(

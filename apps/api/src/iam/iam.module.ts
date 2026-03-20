@@ -1,4 +1,5 @@
 import { Module, Scope } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
 
@@ -8,7 +9,7 @@ import {
   SupabaseOrganizationRepository,
   SupabaseInvitationRepository,
 } from "@repo/contexts/iam";
-import { InMemoryEventBus } from "@repo/contexts/_shared";
+import { InMemoryEventBus, SmtpEmailService } from "@repo/contexts/_shared";
 
 import { SUPABASE_ADMIN, supabaseAdminProvider } from "../common/providers/supabase-admin.provider";
 import { SupabaseRequestClient } from "../common/providers/supabase-request.provider";
@@ -61,7 +62,15 @@ import { InvitationsController } from "./controllers/invitations.controller";
     },
     {
       provide: "EmailService",
-      useValue: { sendInvitation: async () => {} },
+      useFactory: (config: ConfigService) =>
+        new SmtpEmailService({
+          host: config.get("SMTP_HOST", "mail.smtp2go.com"),
+          port: config.get("SMTP_PORT", 587),
+          username: config.get("SMTP_USERNAME", ""),
+          password: config.get("SMTP_PASSWORD", ""),
+          from: config.get("SMTP_FROM", "noreply@multasapp.com"),
+        }),
+      inject: [ConfigService],
     },
   ],
   exports: ["AuthService"],
