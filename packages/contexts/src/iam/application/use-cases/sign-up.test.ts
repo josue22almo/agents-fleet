@@ -12,18 +12,17 @@ function setupSignUp(deps: ReturnType<typeof createTestDeps>) {
 }
 
 describe("SignUp", () => {
-  it("returns auth tokens after signup", async () => {
+  it("completes without error", async () => {
     const deps = createTestDeps();
     const signUp = setupSignUp(deps);
 
-    const tokens = await signUp.execute({
-      email: "josue@example.com",
-      password: "password123",
-      fullName: "Josue",
-    });
-
-    expect(tokens.accessToken).toBe("access-token");
-    expect(tokens.refreshToken).toBe("refresh-token");
+    await expect(
+      signUp.execute({
+        email: "josue@example.com",
+        password: "password123",
+        fullName: "Josue",
+      }),
+    ).resolves.toBeUndefined();
   });
 
   it("creates a user profile via event handler", async () => {

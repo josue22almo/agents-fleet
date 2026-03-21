@@ -45,11 +45,12 @@ export class AuthController {
   @Post("signup")
   async handleSignUp(@Body() body: unknown) {
     const data = SignUpRequestSchema.parse(body);
-    return this.signUp.execute({
+    await this.signUp.execute({
       email: data.email,
       password: data.password,
       fullName: data.fullName ?? null,
     });
+    return { message: "Account created" };
   }
 
   @Post("login")
