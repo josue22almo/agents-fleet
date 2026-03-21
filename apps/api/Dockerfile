@@ -9,6 +9,8 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/package.json
+COPY packages/contexts/package.json ./packages/contexts/package.json
+COPY packages/contracts/package.json ./packages/contracts/package.json
 COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
 
 RUN pnpm install --frozen-lockfile
