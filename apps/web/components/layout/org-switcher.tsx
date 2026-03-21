@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { ChevronsUpDown, Plus } from "lucide-react";
 import Link from "next/link";
-import { api } from "@/lib/api-client";
+import { useOrgSwitcher } from "@/hooks/use-org-switcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,29 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface OrgItem {
-  id: string;
-  name: string;
-  slug: string;
-  type: string;
-  memberCount: number;
-  canCurrentUserManage: boolean;
-}
-
 export function OrgSwitcher() {
-  const [orgs, setOrgs] = useState<OrgItem[]>([]);
-  const [selected, setSelected] = useState<OrgItem | null>(null);
+  const { orgs, currentOrg, selectOrg } = useOrgSwitcher();
 
-  useEffect(() => {
-    api.get<OrgItem[]>("/organizations").then((data) => {
-      setOrgs(data);
-      if (data.length > 0 && !selected) {
-        setSelected(data[0]!);
-      }
-    }).catch(() => {});
-  }, []);
-
-  const initial = selected?.name?.[0]?.toUpperCase() ?? "?";
+  const initial = currentOrg?.name?.[0]?.toUpperCase() ?? "?";
 
   return (
     <DropdownMenu>
@@ -43,13 +23,13 @@ export function OrgSwitcher() {
             <div className="h-6 w-6 rounded-md bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">
               {initial}
             </div>
-            <span className="font-medium truncate">{selected?.name ?? "Select org"}</span>
+            <span className="font-medium truncate">{currentOrg?.name ?? "Select org"}</span>
           </div>
           <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">
         {orgs.map((org) => (
-          <DropdownMenuItem key={org.id} onClick={() => setSelected(org)}>
+          <DropdownMenuItem key={org.id} onClick={() => selectOrg(org)}>
             <div className="flex items-center gap-2">
               <div className="h-5 w-5 rounded bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
                 {org.name[0]?.toUpperCase()}

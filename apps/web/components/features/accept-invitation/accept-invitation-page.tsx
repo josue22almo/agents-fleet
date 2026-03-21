@@ -1,63 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Zap, CheckCircle, XCircle } from "lucide-react";
-import { api, ApiError } from "@/lib/api-client";
+import { ApiError } from "@/lib/api-client";
+import { useInvitation, useAcceptInvitation, useDeclineInvitation } from "@/hooks/use-invitation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { isAuthenticated } from "@/lib/auth";
 
-interface InviteDetails {
-  organizationName: string;
-  email: string;
-  role: string;
-  invitedBy: string;
-  expiresAt: string;
-}
-
 export function AcceptInvitationPage({ token }: { token: string }) {
   const router = useRouter();
-  const [invite, setInvite] = useState<InviteDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [accepted, setAccepted] = useState(false);
-  const [declined, setDeclined] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const { data: invite, isLoading: loading, error: queryError } = useInvitation(token);
+  const acceptMutation = useAcceptInvitation();
+  const declineMutation = useDeclineInvitation();
 
-  useEffect(() => {
-    api.get<InviteDetails>(`/invites/${token}`)
-      .then(setInvite)
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Invitation not found"))
-      .finally(() => setLoading(false));
-  }, [token]);
+  const error = queryError
+    ? (queryError instanceof ApiError ? queryError.message : "Invitation not found")
+    : acceptMutation.error
+      ? (acceptMutation.error instanceof ApiError ? acceptMutation.error.message : "Failed to accept invitation")
+      : declineMutation.error
+        ? (declineMutation.error instanceof ApiError ? declineMutation.error.message : "Failed to decline invitation")
+        : "";
+
+  const submitting = acceptMutation.isPending || declineMutation.isPending;
 
   async function handleAccept() {
     if (!isAuthenticated()) {
       router.push(`/login?redirect=/invite/${token}`);
       return;
     }
-    setSubmitting(true);
-    try {
-      await api.post(`/invites/${token}/accept`);
-      setAccepted(true);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to accept invitation");
-    } finally {
-      setSubmitting(false);
-    }
+    acceptMutation.mutate(token);
   }
 
   async function handleDecline() {
-    setSubmitting(true);
-    try {
-      await api.post(`/invites/${token}/decline`);
-      setDeclined(true);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to decline invitation");
-    } finally {
-      setSubmitting(false);
-    }
+    declineMutation.mutate(token);
   }
 
   if (loading) {
@@ -87,7 +63,7 @@ export function AcceptInvitationPage({ token }: { token: string }) {
     );
   }
 
-  if (accepted) {
+  if (acceptMutation.isSuccess) {
     return (
       <>
         <div className="text-center mb-8">
@@ -106,7 +82,7 @@ export function AcceptInvitationPage({ token }: { token: string }) {
     );
   }
 
-  if (declined) {
+  if (declineMutation.isSuccess) {
     return (
       <div className="text-center mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Invitation Declined</h1>
@@ -139,7 +115,7 @@ export function AcceptInvitationPage({ token }: { token: string }) {
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Invited by</span>
-            <span className="font-medium">{invite?.invitedBy}</span>
+            <span className="font-medium">{invite?.invitedByName}</span>
           </div>
         </div>
 

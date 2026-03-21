@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Zap, CheckCircle } from "lucide-react";
-import { ForgotPasswordRequestSchema } from "@repo/contracts/iam";
-import { api, ApiError } from "@/lib/api-client";
+import { useForgotPasswordForm } from "@/hooks/use-forgot-password-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,34 +10,12 @@ import { FieldError } from "@/components/ui/field-error";
 import { FormError } from "@/components/ui/form-error";
 
 export function ForgotPasswordForm() {
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
-  const [formError, setFormError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sent, setSent] = useState(false);
+  const { fieldErrors, formError, isSubmitting, sent, handleSubmit } =
+    useForgotPasswordForm();
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setFieldErrors({});
-    setFormError("");
-
-    const formData = new FormData(e.currentTarget);
-    const data = { email: formData.get("email") as string };
-
-    const result = ForgotPasswordRequestSchema.safeParse(data);
-    if (!result.success) {
-      setFieldErrors(result.error.flatten().fieldErrors as Record<string, string[]>);
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await api.post("/auth/forgot-password", result.data);
-      setSent(true);
-    } catch (error) {
-      setFormError(error instanceof ApiError ? error.message : "An unexpected error occurred");
-    } finally {
-      setIsSubmitting(false);
-    }
+    handleSubmit(new FormData(e.currentTarget));
   }
 
   return (
@@ -55,7 +31,7 @@ export function ForgotPasswordForm() {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           <FormError message={formError} />
 
           <div className="space-y-2">

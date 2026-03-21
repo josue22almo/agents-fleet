@@ -1,31 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Building2, User } from "lucide-react";
-import { api } from "@/lib/api-client";
+import { useOrganizations } from "@/hooks/use-organizations";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
-interface OrgItem {
-  id: string;
-  name: string;
-  slug: string;
-  type: string;
-  memberCount: number;
-  canCurrentUserManage: boolean;
-}
+import { ErrorState } from "@/components/ui/error-state";
 
 export default function OrganizationsPage() {
-  const [orgs, setOrgs] = useState<OrgItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api.get<OrgItem[]>("/organizations")
-      .then(setOrgs)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: orgs, isLoading, error, refetch } = useOrganizations();
 
   return (
     <>
@@ -40,9 +23,11 @@ export default function OrganizationsPage() {
         </Link>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <p className="text-muted-foreground">Loading...</p>
-      ) : orgs.length === 0 ? (
+      ) : error ? (
+        <ErrorState message={error.message} onRetry={() => refetch()} />
+      ) : !orgs || orgs.length === 0 ? (
         <div className="rounded-xl border border-border border-dashed bg-card p-16 text-center shadow-sm">
           <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium mb-1">No organizations yet</h3>
