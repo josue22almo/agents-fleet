@@ -54,6 +54,18 @@ async function seed() {
     userIds[user.email] = await createUser(user.email, user.password, user.fullName);
   }
 
+  // Create profiles (since the trigger was removed, app layer handles this)
+  console.log("\nCreating profiles...");
+  for (const user of TEST_USERS) {
+    const { error } = await supabase.from("profiles").upsert({
+      id: userIds[user.email],
+      email: user.email,
+      full_name: user.fullName,
+    });
+    if (error) console.error(`  Profile ${user.email}:`, error.message);
+    else console.log(`  Created profile for ${user.email}`);
+  }
+
   const alice = userIds["alice@test.com"]!;
   const bob = userIds["bob@test.com"]!;
   const carol = userIds["carol@test.com"]!;
