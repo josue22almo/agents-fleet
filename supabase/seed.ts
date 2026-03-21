@@ -103,6 +103,33 @@ async function seed() {
   const bob = userIds["bob@test.com"]!;
   const carol = userIds["carol@test.com"]!;
 
+  // Create personal organizations for each user
+  console.log("\nCreating personal organizations...");
+  for (const user of TEST_USERS) {
+    const userId = userIds[user.email]!;
+    const personalOrgId = crypto.randomUUID();
+    const slug = user.fullName.toLowerCase().replace(/\s+/g, "-") + "-personal-" + userId.substring(0, 8);
+
+    const { error: orgError } = await supabase.from("organizations").insert({
+      id: personalOrgId,
+      name: `${user.fullName}'s Space`,
+      slug,
+      type: "individual",
+    });
+    if (orgError) {
+      console.error(`  Personal org for ${user.email}:`, orgError.message);
+      continue;
+    }
+
+    const { error: memberError } = await supabase.from("organization_members").insert({
+      organization_id: personalOrgId,
+      user_id: userId,
+      role: "owner",
+    });
+    if (memberError) console.error(`  Personal org membership for ${user.email}:`, memberError.message);
+    else console.log(`  Created personal org for ${user.email}`);
+  }
+
   console.log("\nCreating team organizations...");
 
   const { error: acmeError } = await supabase.from("organizations").insert({
