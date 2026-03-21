@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
-"@tailwindcss/postcss": "^4.2.2",
+    "@repo/contracts": "workspace:^",
+    "@tailwindcss/postcss": "^4.2.2",
     "@tanstack/react-query": "^5.91.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
