@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug API",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx",
+      "args": ["--env-file=../../.env", "src/main.ts"],
+      "cwd": "${workspaceFolder}/apps/api",
+      "console": "integratedTerminal",
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Debug API (e2e)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx",
+      "args": ["--env-file=../../.env", "src/main.ts"],
+      "cwd": "${workspaceFolder}/apps/api",
+      "env": { "NODE_ENV": "e2e" },
+      "console": "integratedTerminal",
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
+    }
+  ]
+}
