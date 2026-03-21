@@ -1,4 +1,5 @@
-import { Module, Scope } from "@nestjs/common";
+import { Module, Scope, type OnModuleInit } from "@nestjs/common";
+import { Inject } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
@@ -11,7 +12,8 @@ import {
   CreateProfileOnUserSignedUpEventHandler,
   CreatePersonalOrgOnUserSignedUpEventHandler,
 } from "@repo/contexts/iam";
-import { InMemoryEventBus, SmtpEmailService } from "@repo/contexts/_shared";
+import type { EventBus } from "@repo/contexts/_shared";
+import { SmtpEmailService } from "@repo/contexts/_shared";
 
 import { SUPABASE_ADMIN, supabaseAdminProvider } from "../common/providers/supabase-admin.provider";
 import { SupabaseRequestClient } from "../common/providers/supabase-request.provider";
@@ -51,20 +53,13 @@ import { InvitationsController } from "./controllers/invitations.controller";
       inject: [SupabaseRequestClient],
     },
     {
-      provide: "EventBus",
-      useFactory: (adminClient: SupabaseClient) => {
-        const eventBus = new InMemoryEventBus();
-        eventBus.register(
-          new CreateProfileOnUserSignedUpEventHandler(new SupabaseUserRepository(adminClient)),
-        );
-        eventBus.register(
-          new CreatePersonalOrgOnUserSignedUpEventHandler(
-            new SupabaseOrganizationRepository(adminClient),
-            { generate: () => randomUUID() },
-          ),
-        );
-        return eventBus;
-      },
+      provide: "AdminUserRepository",
+      useFactory: (client: SupabaseClient) => new SupabaseUserRepository(client),
+      inject: [SUPABASE_ADMIN],
+    },
+    {
+      provide: "AdminOrganizationRepository",
+      useFactory: (client: SupabaseClient) => new SupabaseOrganizationRepository(client),
       inject: [SUPABASE_ADMIN],
     },
     {
@@ -90,4 +85,22 @@ import { InvitationsController } from "./controllers/invitations.controller";
   ],
   exports: ["AuthService"],
 })
-export class IamModule {}
+export class IamModule implements OnModuleInit {
+  constructor(
+    @Inject("EventBus") private readonly eventBus: EventBus,
+    @Inject("AdminUserRepository") private readonly userRepo: SupabaseUserRepository,
+    @Inject("AdminOrganizationRepository") private readonly orgRepo: SupabaseOrganizationRepository,
+  ) {}
+
+  onModuleInit() {
+    this.eventBus.register(
+      new CreateProfileOnUserSignedUpEventHandler(this.userRepo),
+    );
+    this.eventBus.register(
+      new CreatePersonalOrgOnUserSignedUpEventHandler(
+        this.orgRepo,
+        { generate: () => randomUUID() },
+      ),
+    );
+  }
+}
