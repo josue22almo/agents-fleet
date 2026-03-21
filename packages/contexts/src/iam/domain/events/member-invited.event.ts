@@ -1,5 +1,5 @@
-import { DomainEvent } from "../../../_shared/domain/events/domain-event.js";
-import type { MemberRole } from "../value-objects/member-role.js";
+import { DomainEvent } from "../../../_shared/domain/events/domain-event";
+import type { MemberRole } from "../value-objects/member-role";
 
 export class MemberInvitedEvent extends DomainEvent {
   static readonly EVENT_NAME = "iam.member.invited";

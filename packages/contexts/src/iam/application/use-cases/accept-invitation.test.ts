@@ -1,14 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { Invitation } from "../../domain/entities/invitation.js";
-import { Organization } from "../../domain/entities/organization.js";
-import { OrganizationMember } from "../../domain/entities/organization-member.js";
-import { Email } from "../../domain/value-objects/email.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import { OrgType } from "../../domain/value-objects/org-type.js";
-import { Slug } from "../../domain/value-objects/slug.js";
-import { InvalidTokenError } from "../../domain/errors/invalid-token.error.js";
-import { createTestDeps } from "./_test-helpers.js";
-import { AcceptInvitation } from "./accept-invitation.js";
+import { Invitation } from "../../domain/entities/invitation";
+import { Organization } from "../../domain/entities/organization";
+import { OrganizationMember } from "../../domain/entities/organization-member";
+import { Email } from "../../domain/value-objects/email";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import { OrgType } from "../../domain/value-objects/org-type";
+import { Slug } from "../../domain/value-objects/slug";
+import { InvalidTokenError } from "../../domain/errors/invalid-token.error";
+import { createTestDeps } from "./_test-helpers";
+import { AcceptInvitation } from "./accept-invitation";
 
 async function seedInvitation(deps: ReturnType<typeof createTestDeps>) {
   const org = Organization.create({

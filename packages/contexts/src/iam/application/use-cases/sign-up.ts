@@ -1,14 +1,14 @@
-import type { EventBus } from "../../../_shared/domain/events/event-bus.js";
-import { Organization } from "../../domain/entities/organization.js";
-import { User } from "../../domain/entities/user.js";
-import { UserSignedUpEvent } from "../../domain/events/user-signed-up.event.js";
-import { OrganizationCreatedEvent } from "../../domain/events/organization-created.event.js";
-import { Email } from "../../domain/value-objects/email.js";
-import { OrgType } from "../../domain/value-objects/org-type.js";
-import type { AuthService } from "../../ports/services/auth-service.js";
-import type { IdGenerator } from "../../../_shared/domain/models/id-generator.js";
-import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
-import type { UserRepository } from "../../ports/repositories/user-repository.js";
+import type { EventBus } from "../../../_shared/domain/events/event-bus";
+import { Organization } from "../../domain/entities/organization";
+import { User } from "../../domain/entities/user";
+import { UserSignedUpEvent } from "../../domain/events/user-signed-up.event";
+import { OrganizationCreatedEvent } from "../../domain/events/organization-created.event";
+import { Email } from "../../domain/value-objects/email";
+import { OrgType } from "../../domain/value-objects/org-type";
+import type { AuthService } from "../../ports/services/auth-service";
+import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
+import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
+import type { UserRepository } from "../../ports/repositories/user-repository";
 
 interface SignUpParams {
   email: string;

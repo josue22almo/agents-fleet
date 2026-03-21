@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { Organization } from "../../domain/entities/organization.js";
-import { OrganizationMember } from "../../domain/entities/organization-member.js";
-import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error.js";
-import { InsufficientPermissionsError } from "../../domain/errors/insufficient-permissions.error.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import { OrgType } from "../../domain/value-objects/org-type.js";
-import { Slug } from "../../domain/value-objects/slug.js";
-import { createTestDeps } from "./_test-helpers.js";
-import { DeleteOrganization } from "./delete-organization.js";
+import { Organization } from "../../domain/entities/organization";
+import { OrganizationMember } from "../../domain/entities/organization-member";
+import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
+import { InsufficientPermissionsError } from "../../domain/errors/insufficient-permissions.error";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import { OrgType } from "../../domain/value-objects/org-type";
+import { Slug } from "../../domain/value-objects/slug";
+import { createTestDeps } from "./_test-helpers";
+import { DeleteOrganization } from "./delete-organization";
 
 describe("DeleteOrganization", () => {
   it("allows owner to delete", async () => {

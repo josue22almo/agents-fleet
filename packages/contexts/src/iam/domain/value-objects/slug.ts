@@ -1,4 +1,4 @@
-import { ValueObject } from "../../../_shared/domain/models/value-object.js";
+import { ValueObject } from "../../../_shared/domain/models/value-object";
 
 export class Slug extends ValueObject<string> {
   private static readonly SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

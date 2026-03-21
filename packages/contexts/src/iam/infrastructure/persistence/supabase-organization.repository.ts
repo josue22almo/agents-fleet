@@ -1,11 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { Organization } from "../../domain/entities/organization.js";
-import { OrganizationMember } from "../../domain/entities/organization-member.js";
-import { OrganizationSummary } from "../../domain/read-models/organization-summary.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import { OrgType } from "../../domain/value-objects/org-type.js";
-import { Slug } from "../../domain/value-objects/slug.js";
-import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
+import { Organization } from "../../domain/entities/organization";
+import { OrganizationMember } from "../../domain/entities/organization-member";
+import { OrganizationSummary } from "../../domain/read-models/organization-summary";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import { OrgType } from "../../domain/value-objects/org-type";
+import { Slug } from "../../domain/value-objects/slug";
+import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
 
 export class SupabaseOrganizationRepository implements OrganizationRepository {
   constructor(private readonly client: SupabaseClient) {}

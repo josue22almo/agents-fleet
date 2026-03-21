@@ -1,10 +1,10 @@
-import type { EventBus } from "../../../_shared/domain/events/event-bus.js";
-import { InvitationAcceptedEvent } from "../../domain/events/invitation-accepted.event.js";
-import { InvalidTokenError } from "../../domain/errors/invalid-token.error.js";
-import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error.js";
-import type { IdGenerator } from "../../../_shared/domain/models/id-generator.js";
-import type { InvitationRepository } from "../../ports/repositories/invitation-repository.js";
-import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
+import type { EventBus } from "../../../_shared/domain/events/event-bus";
+import { InvitationAcceptedEvent } from "../../domain/events/invitation-accepted.event";
+import { InvalidTokenError } from "../../domain/errors/invalid-token.error";
+import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
+import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
+import type { InvitationRepository } from "../../ports/repositories/invitation-repository";
+import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
 
 interface AcceptInvitationParams {
   token: string;

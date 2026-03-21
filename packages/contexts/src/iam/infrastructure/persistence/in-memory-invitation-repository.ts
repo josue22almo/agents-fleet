@@ -1,5 +1,5 @@
-import type { Invitation } from "../../domain/entities/invitation.js";
-import type { InvitationRepository } from "../../ports/repositories/invitation-repository.js";
+import type { Invitation } from "../../domain/entities/invitation";
+import type { InvitationRepository } from "../../ports/repositories/invitation-repository";
 
 export class InMemoryInvitationRepository implements InvitationRepository {
   private invitations: Map<string, Invitation> = new Map();

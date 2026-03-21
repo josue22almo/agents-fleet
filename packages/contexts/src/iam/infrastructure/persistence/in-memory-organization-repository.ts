@@ -1,10 +1,10 @@
-import type { Organization } from "../../domain/entities/organization.js";
-import { OrganizationSummary } from "../../domain/read-models/organization-summary.js";
-import type { Slug } from "../../domain/value-objects/slug.js";
-import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
-import type { PrimitiveOf } from "../../../_shared/domain/models/primitives.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import { OrgType } from "../../domain/value-objects/org-type.js";
+import type { Organization } from "../../domain/entities/organization";
+import { OrganizationSummary } from "../../domain/read-models/organization-summary";
+import type { Slug } from "../../domain/value-objects/slug";
+import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
+import type { PrimitiveOf } from "../../../_shared/domain/models/primitives";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import { OrgType } from "../../domain/value-objects/org-type";
 
 export class InMemoryOrganizationRepository implements OrganizationRepository {
   private orgs: Map<string, Organization> = new Map();

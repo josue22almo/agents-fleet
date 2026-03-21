@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Slug } from "./slug.js";
+import { Slug } from "./slug";
 
 describe("Slug", () => {
   it("creates a valid slug", () => {

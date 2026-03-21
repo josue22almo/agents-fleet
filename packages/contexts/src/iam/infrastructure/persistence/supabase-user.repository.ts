@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { User } from "../../domain/entities/user.js";
-import { Email } from "../../domain/value-objects/email.js";
-import type { UserRepository } from "../../ports/repositories/user-repository.js";
+import { User } from "../../domain/entities/user";
+import { Email } from "../../domain/value-objects/email";
+import type { UserRepository } from "../../ports/repositories/user-repository";
 
 export class SupabaseUserRepository implements UserRepository {
   constructor(private readonly client: SupabaseClient) {}

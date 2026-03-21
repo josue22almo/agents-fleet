@@ -1,5 +1,5 @@
-import { Entity } from "../../../_shared/domain/models/entity.js";
-import { Email } from "../value-objects/email.js";
+import { Entity } from "../../../_shared/domain/models/entity";
+import { Email } from "../value-objects/email";
 
 interface UserProps {
   id: string;

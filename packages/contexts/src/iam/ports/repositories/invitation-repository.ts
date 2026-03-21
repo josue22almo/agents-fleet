@@ -1,4 +1,4 @@
-import type { Invitation } from "../../domain/entities/invitation.js";
+import type { Invitation } from "../../domain/entities/invitation";
 
 export interface InvitationRepository {
   findByToken(token: string): Promise<Invitation | null>;

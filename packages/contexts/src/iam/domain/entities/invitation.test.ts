@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { InvitationExpiredError } from "../errors/invitation-expired.error.js";
-import { Email } from "../value-objects/email.js";
-import { MemberRole } from "../value-objects/member-role.js";
-import { Invitation, InvitationStatus } from "./invitation.js";
+import { InvitationExpiredError } from "../errors/invitation-expired.error";
+import { Email } from "../value-objects/email";
+import { MemberRole } from "../value-objects/member-role";
+import { Invitation, InvitationStatus } from "./invitation";
 
 function createInvitation() {
   return Invitation.create({

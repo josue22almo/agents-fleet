@@ -1,5 +1,5 @@
-import { InvalidTokenError } from "../../domain/errors/invalid-token.error.js";
-import type { InvitationRepository } from "../../ports/repositories/invitation-repository.js";
+import { InvalidTokenError } from "../../domain/errors/invalid-token.error";
+import type { InvitationRepository } from "../../ports/repositories/invitation-repository";
 
 export class DeclineInvitation {
   constructor(private readonly invitationRepo: InvitationRepository) {}

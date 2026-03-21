@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { Email } from "../value-objects/email.js";
-import { User } from "./user.js";
+import { Email } from "../value-objects/email";
+import { User } from "./user";
 
 function createUser(overrides?: Partial<Parameters<typeof User.create>[0]>) {
   return User.create({

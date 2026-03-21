@@ -1,8 +1,8 @@
-import { Entity } from "../../../_shared/domain/models/entity.js";
-import { InvitationAlreadyRespondedError } from "../errors/invitation-already-responded.error.js";
-import { InvitationExpiredError } from "../errors/invitation-expired.error.js";
-import { Email } from "../value-objects/email.js";
-import { MemberRole } from "../value-objects/member-role.js";
+import { Entity } from "../../../_shared/domain/models/entity";
+import { InvitationAlreadyRespondedError } from "../errors/invitation-already-responded.error";
+import { InvitationExpiredError } from "../errors/invitation-expired.error";
+import { Email } from "../value-objects/email";
+import { MemberRole } from "../value-objects/member-role";
 
 export enum InvitationStatus {
   PENDING = "pending",

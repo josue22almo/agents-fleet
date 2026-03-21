@@ -1,11 +1,11 @@
-import { InMemoryEventBus } from "../../../_shared/application/in-memory-event-bus.js";
-import { InMemoryUserRepository } from "../../infrastructure/persistence/in-memory-user-repository.js";
-import { InMemoryOrganizationRepository } from "../../infrastructure/persistence/in-memory-organization-repository.js";
-import { InMemoryInvitationRepository } from "../../infrastructure/persistence/in-memory-invitation-repository.js";
-import type { AuthService, AuthTokens, AuthUser } from "../../ports/services/auth-service.js";
-import type { EmailService } from "../../../_shared/domain/models/email-service.js";
-import type { IdGenerator } from "../../../_shared/domain/models/id-generator.js";
-import type { TokenGenerator } from "../../ports/services/token-generator.js";
+import { InMemoryEventBus } from "../../../_shared/application/in-memory-event-bus";
+import { InMemoryUserRepository } from "../../infrastructure/persistence/in-memory-user-repository";
+import { InMemoryOrganizationRepository } from "../../infrastructure/persistence/in-memory-organization-repository";
+import { InMemoryInvitationRepository } from "../../infrastructure/persistence/in-memory-invitation-repository";
+import type { AuthService, AuthTokens, AuthUser } from "../../ports/services/auth-service";
+import type { EmailService } from "../../../_shared/domain/models/email-service";
+import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
+import type { TokenGenerator } from "../../ports/services/token-generator";
 
 export function createTestDeps() {
   let idCounter = 0;

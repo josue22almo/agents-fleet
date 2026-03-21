@@ -1,5 +1,5 @@
-import { DomainEvent } from "../../../_shared/domain/events/domain-event.js";
-import type { OrgType } from "../value-objects/org-type.js";
+import { DomainEvent } from "../../../_shared/domain/events/domain-event";
+import type { OrgType } from "../value-objects/org-type";
 
 export class OrganizationCreatedEvent extends DomainEvent {
   static readonly EVENT_NAME = "iam.organization.created";

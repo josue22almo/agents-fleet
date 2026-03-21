@@ -1,6 +1,6 @@
-import type { User } from "../../domain/entities/user.js";
-import { UserNotFoundError } from "../../domain/errors/user-not-found.error.js";
-import type { UserRepository } from "../../ports/repositories/user-repository.js";
+import type { User } from "../../domain/entities/user";
+import { UserNotFoundError } from "../../domain/errors/user-not-found.error";
+import type { UserRepository } from "../../ports/repositories/user-repository";
 
 export class GetProfile {
   constructor(private readonly userRepo: UserRepository) {}

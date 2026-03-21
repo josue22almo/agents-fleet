@@ -1,4 +1,4 @@
-import type { AuthService, AuthTokens } from "../../ports/services/auth-service.js";
+import type { AuthService, AuthTokens } from "../../ports/services/auth-service";
 
 interface LoginParams {
   email: string;

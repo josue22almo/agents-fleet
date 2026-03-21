@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { createTestDeps } from "./_test-helpers.js";
-import { Login } from "./login.js";
+import { createTestDeps } from "./_test-helpers";
+import { Login } from "./login";
 
 describe("Login", () => {
   it("returns auth tokens", async () => {

@@ -1,4 +1,4 @@
-import { DomainError } from "../../../_shared/domain/errors/domain-error.js";
+import { DomainError } from "../../../_shared/domain/errors/domain-error";
 
 export class OrganizationNotFoundError extends DomainError {
   readonly code = "ORGANIZATION_NOT_FOUND";

@@ -3,8 +3,8 @@ import type {
   AuthService,
   AuthTokens,
   AuthUser,
-} from "../../ports/services/auth-service.js";
-import { InvalidTokenError } from "../../domain/errors/invalid-token.error.js";
+} from "../../ports/services/auth-service";
+import { InvalidTokenError } from "../../domain/errors/invalid-token.error";
 
 export class SupabaseAuthService implements AuthService {
   constructor(private readonly adminClient: SupabaseClient) {}

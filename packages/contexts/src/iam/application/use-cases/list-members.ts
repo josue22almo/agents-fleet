@@ -1,8 +1,8 @@
-import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error.js";
-import { MemberSummary } from "../../domain/read-models/member-summary.js";
-import type { MemberRole } from "../../domain/value-objects/member-role.js";
-import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
-import type { UserRepository } from "../../ports/repositories/user-repository.js";
+import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
+import { MemberSummary } from "../../domain/read-models/member-summary";
+import type { MemberRole } from "../../domain/value-objects/member-role";
+import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
+import type { UserRepository } from "../../ports/repositories/user-repository";
 
 export class ListMembers {
   constructor(

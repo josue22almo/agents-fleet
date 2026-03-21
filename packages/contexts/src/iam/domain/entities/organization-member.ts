@@ -1,5 +1,5 @@
-import { Entity } from "../../../_shared/domain/models/entity.js";
-import { MemberRole } from "../value-objects/member-role.js";
+import { Entity } from "../../../_shared/domain/models/entity";
+import { MemberRole } from "../value-objects/member-role";
 
 interface OrganizationMemberProps {
   id: string;

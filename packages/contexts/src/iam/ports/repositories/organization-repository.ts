@@ -1,6 +1,6 @@
-import type { Organization } from "../../domain/entities/organization.js";
-import type { OrganizationSummary } from "../../domain/read-models/organization-summary.js";
-import type { Slug } from "../../domain/value-objects/slug.js";
+import type { Organization } from "../../domain/entities/organization";
+import type { OrganizationSummary } from "../../domain/read-models/organization-summary";
+import type { Slug } from "../../domain/value-objects/slug";
 
 export interface OrganizationRepository {
   findById(id: string): Promise<Organization | null>;

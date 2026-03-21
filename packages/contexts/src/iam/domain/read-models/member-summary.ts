@@ -1,4 +1,4 @@
-import { MemberRole } from "../value-objects/member-role.js";
+import { MemberRole } from "../value-objects/member-role";
 
 interface MemberSummaryProps {
   id: string;

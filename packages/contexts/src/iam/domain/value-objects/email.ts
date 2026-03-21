@@ -1,4 +1,4 @@
-import { ValueObject } from "../../../_shared/domain/models/value-object.js";
+import { ValueObject } from "../../../_shared/domain/models/value-object";
 
 export class Email extends ValueObject<string> {
   private static readonly EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

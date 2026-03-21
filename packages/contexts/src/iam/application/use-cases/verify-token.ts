@@ -1,4 +1,4 @@
-import type { AuthService, AuthUser } from "../../ports/services/auth-service.js";
+import type { AuthService, AuthUser } from "../../ports/services/auth-service";
 
 export class VerifyToken {
   constructor(private readonly authService: AuthService) {}

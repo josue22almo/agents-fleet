@@ -1,10 +1,10 @@
-import { Entity } from "../../../_shared/domain/models/entity.js";
-import { AlreadyMemberError } from "../errors/already-member.error.js";
-import { InsufficientPermissionsError } from "../errors/insufficient-permissions.error.js";
-import { MemberRole } from "../value-objects/member-role.js";
-import { OrgType } from "../value-objects/org-type.js";
-import { Slug } from "../value-objects/slug.js";
-import { OrganizationMember } from "./organization-member.js";
+import { Entity } from "../../../_shared/domain/models/entity";
+import { AlreadyMemberError } from "../errors/already-member.error";
+import { InsufficientPermissionsError } from "../errors/insufficient-permissions.error";
+import { MemberRole } from "../value-objects/member-role";
+import { OrgType } from "../value-objects/org-type";
+import { Slug } from "../value-objects/slug";
+import { OrganizationMember } from "./organization-member";
 
 interface OrganizationProps {
   id: string;

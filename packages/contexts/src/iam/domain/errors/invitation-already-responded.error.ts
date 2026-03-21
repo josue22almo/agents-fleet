@@ -1,4 +1,4 @@
-import { DomainError } from "../../../_shared/domain/errors/domain-error.js";
+import { DomainError } from "../../../_shared/domain/errors/domain-error";
 
 export class InvitationAlreadyRespondedError extends DomainError {
   readonly code = "INVITATION_ALREADY_RESPONDED";

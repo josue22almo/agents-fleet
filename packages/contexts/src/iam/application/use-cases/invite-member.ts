@@ -1,17 +1,17 @@
-import type { EventBus } from "../../../_shared/domain/events/event-bus.js";
-import { Invitation } from "../../domain/entities/invitation.js";
-import { MemberInvitedEvent } from "../../domain/events/member-invited.event.js";
-import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error.js";
-import { AlreadyMemberError } from "../../domain/errors/already-member.error.js";
-import { Email } from "../../domain/value-objects/email.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import type { IdGenerator } from "../../../_shared/domain/models/id-generator.js";
-import type { TokenGenerator } from "../../ports/services/token-generator.js";
-import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
-import type { InvitationRepository } from "../../ports/repositories/invitation-repository.js";
-import type { UserRepository } from "../../ports/repositories/user-repository.js";
-import type { EmailService } from "../../../_shared/domain/models/email-service.js";
-import { Mail } from "../../../_shared/domain/models/mail.js";
+import type { EventBus } from "../../../_shared/domain/events/event-bus";
+import { Invitation } from "../../domain/entities/invitation";
+import { MemberInvitedEvent } from "../../domain/events/member-invited.event";
+import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
+import { AlreadyMemberError } from "../../domain/errors/already-member.error";
+import { Email } from "../../domain/value-objects/email";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
+import type { TokenGenerator } from "../../ports/services/token-generator";
+import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
+import type { InvitationRepository } from "../../ports/repositories/invitation-repository";
+import type { UserRepository } from "../../ports/repositories/user-repository";
+import type { EmailService } from "../../../_shared/domain/models/email-service";
+import { Mail } from "../../../_shared/domain/models/mail";
 
 interface InviteMemberParams {
   organizationId: string;

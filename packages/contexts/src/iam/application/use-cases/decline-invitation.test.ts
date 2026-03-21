@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { Invitation } from "../../domain/entities/invitation.js";
-import { Email } from "../../domain/value-objects/email.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import { InvalidTokenError } from "../../domain/errors/invalid-token.error.js";
-import { createTestDeps } from "./_test-helpers.js";
-import { DeclineInvitation } from "./decline-invitation.js";
+import { Invitation } from "../../domain/entities/invitation";
+import { Email } from "../../domain/value-objects/email";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import { InvalidTokenError } from "../../domain/errors/invalid-token.error";
+import { createTestDeps } from "./_test-helpers";
+import { DeclineInvitation } from "./decline-invitation";
 
 describe("DeclineInvitation", () => {
   it("declines a pending invitation", async () => {

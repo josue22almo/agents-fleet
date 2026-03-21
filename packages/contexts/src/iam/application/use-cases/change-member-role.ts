@@ -1,6 +1,6 @@
-import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error.js";
-import type { MemberRole } from "../../domain/value-objects/member-role.js";
-import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
+import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
+import type { MemberRole } from "../../domain/value-objects/member-role";
+import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
 
 interface ChangeMemberRoleParams {
   organizationId: string;

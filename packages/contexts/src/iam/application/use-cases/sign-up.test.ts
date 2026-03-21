@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { createTestDeps } from "./_test-helpers.js";
-import { SignUp } from "./sign-up.js";
+import { createTestDeps } from "./_test-helpers";
+import { SignUp } from "./sign-up";
 
 describe("SignUp", () => {
   it("creates a user and a personal organization", async () => {

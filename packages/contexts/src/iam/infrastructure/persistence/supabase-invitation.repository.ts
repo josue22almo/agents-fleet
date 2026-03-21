@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { Invitation, InvitationStatus } from "../../domain/entities/invitation.js";
-import { Email } from "../../domain/value-objects/email.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import type { InvitationRepository } from "../../ports/repositories/invitation-repository.js";
+import { Invitation, InvitationStatus } from "../../domain/entities/invitation";
+import { Email } from "../../domain/value-objects/email";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import type { InvitationRepository } from "../../ports/repositories/invitation-repository";
 
 export class SupabaseInvitationRepository implements InvitationRepository {
   constructor(private readonly client: SupabaseClient) {}

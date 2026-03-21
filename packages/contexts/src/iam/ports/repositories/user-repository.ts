@@ -1,5 +1,5 @@
-import type { User } from "../../domain/entities/user.js";
-import type { Email } from "../../domain/value-objects/email.js";
+import type { User } from "../../domain/entities/user";
+import type { Email } from "../../domain/value-objects/email";
 
 export interface UserRepository {
   findById(id: string): Promise<User | null>;

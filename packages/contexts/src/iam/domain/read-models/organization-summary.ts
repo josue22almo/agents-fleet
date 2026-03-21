@@ -1,5 +1,5 @@
-import { MemberRole } from "../value-objects/member-role.js";
-import { OrgType } from "../value-objects/org-type.js";
+import { MemberRole } from "../value-objects/member-role";
+import { OrgType } from "../value-objects/org-type";
 
 interface OrganizationSummaryProps {
   id: string;

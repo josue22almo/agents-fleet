@@ -1,8 +1,8 @@
-import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error.js";
-import { SlugAlreadyTakenError } from "../../domain/errors/slug-already-taken.error.js";
-import { Slug } from "../../domain/value-objects/slug.js";
-import type { Organization } from "../../domain/entities/organization.js";
-import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
+import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
+import { SlugAlreadyTakenError } from "../../domain/errors/slug-already-taken.error";
+import { Slug } from "../../domain/value-objects/slug";
+import type { Organization } from "../../domain/entities/organization";
+import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
 
 interface UpdateOrganizationParams {
   organizationId: string;

@@ -1,14 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { Organization } from "../../domain/entities/organization.js";
-import { OrganizationMember } from "../../domain/entities/organization-member.js";
-import { User } from "../../domain/entities/user.js";
-import { Email } from "../../domain/value-objects/email.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import { OrgType } from "../../domain/value-objects/org-type.js";
-import { Slug } from "../../domain/value-objects/slug.js";
-import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error.js";
-import { createTestDeps } from "./_test-helpers.js";
-import { ListMembers } from "./list-members.js";
+import { Organization } from "../../domain/entities/organization";
+import { OrganizationMember } from "../../domain/entities/organization-member";
+import { User } from "../../domain/entities/user";
+import { Email } from "../../domain/value-objects/email";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import { OrgType } from "../../domain/value-objects/org-type";
+import { Slug } from "../../domain/value-objects/slug";
+import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
+import { createTestDeps } from "./_test-helpers";
+import { ListMembers } from "./list-members";
 
 async function seedOrgWithMembers(deps: ReturnType<typeof createTestDeps>) {
   const org = Organization.create({

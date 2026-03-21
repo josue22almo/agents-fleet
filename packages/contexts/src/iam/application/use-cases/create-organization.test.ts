@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { SlugAlreadyTakenError } from "../../domain/errors/slug-already-taken.error.js";
-import { createTestDeps } from "./_test-helpers.js";
-import { CreateOrganization } from "./create-organization.js";
+import { SlugAlreadyTakenError } from "../../domain/errors/slug-already-taken.error";
+import { createTestDeps } from "./_test-helpers";
+import { CreateOrganization } from "./create-organization";
 
 describe("CreateOrganization", () => {
   it("creates a team organization with the creator as owner", async () => {

@@ -1,4 +1,4 @@
-import type { AuthService } from "../../ports/services/auth-service.js";
+import type { AuthService } from "../../ports/services/auth-service";
 
 export class ResetPassword {
   constructor(private readonly authService: AuthService) {}

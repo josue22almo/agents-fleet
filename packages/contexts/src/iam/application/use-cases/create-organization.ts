@@ -1,12 +1,12 @@
-import type { EventBus } from "../../../_shared/domain/events/event-bus.js";
-import { Organization } from "../../domain/entities/organization.js";
-import { OrganizationCreatedEvent } from "../../domain/events/organization-created.event.js";
-import { SlugAlreadyTakenError } from "../../domain/errors/slug-already-taken.error.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import { OrgType } from "../../domain/value-objects/org-type.js";
-import { Slug } from "../../domain/value-objects/slug.js";
-import type { IdGenerator } from "../../../_shared/domain/models/id-generator.js";
-import type { OrganizationRepository } from "../../ports/repositories/organization-repository.js";
+import type { EventBus } from "../../../_shared/domain/events/event-bus";
+import { Organization } from "../../domain/entities/organization";
+import { OrganizationCreatedEvent } from "../../domain/events/organization-created.event";
+import { SlugAlreadyTakenError } from "../../domain/errors/slug-already-taken.error";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import { OrgType } from "../../domain/value-objects/org-type";
+import { Slug } from "../../domain/value-objects/slug";
+import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
+import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
 
 interface CreateOrganizationParams {
   name: string;

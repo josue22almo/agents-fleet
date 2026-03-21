@@ -1,14 +1,14 @@
 import { describe, it, expect, vi } from "vitest";
-import { Organization } from "../../domain/entities/organization.js";
-import { OrganizationMember } from "../../domain/entities/organization-member.js";
-import { User } from "../../domain/entities/user.js";
-import { Email } from "../../domain/value-objects/email.js";
-import { MemberRole } from "../../domain/value-objects/member-role.js";
-import { OrgType } from "../../domain/value-objects/org-type.js";
-import { Slug } from "../../domain/value-objects/slug.js";
-import { AlreadyMemberError } from "../../domain/errors/already-member.error.js";
-import { createTestDeps } from "./_test-helpers.js";
-import { InviteMember } from "./invite-member.js";
+import { Organization } from "../../domain/entities/organization";
+import { OrganizationMember } from "../../domain/entities/organization-member";
+import { User } from "../../domain/entities/user";
+import { Email } from "../../domain/value-objects/email";
+import { MemberRole } from "../../domain/value-objects/member-role";
+import { OrgType } from "../../domain/value-objects/org-type";
+import { Slug } from "../../domain/value-objects/slug";
+import { AlreadyMemberError } from "../../domain/errors/already-member.error";
+import { createTestDeps } from "./_test-helpers";
+import { InviteMember } from "./invite-member";
 
 async function seedOrgAndUser(deps: ReturnType<typeof createTestDeps>) {
   const org = Organization.create({

@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { User } from "../../domain/entities/user.js";
-import { Email } from "../../domain/value-objects/email.js";
-import { UserNotFoundError } from "../../domain/errors/user-not-found.error.js";
-import { createTestDeps } from "./_test-helpers.js";
-import { UpdateProfile } from "./update-profile.js";
+import { User } from "../../domain/entities/user";
+import { Email } from "../../domain/value-objects/email";
+import { UserNotFoundError } from "../../domain/errors/user-not-found.error";
+import { createTestDeps } from "./_test-helpers";
+import { UpdateProfile } from "./update-profile";
 
 describe("UpdateProfile", () => {
   it("updates user profile", async () => {

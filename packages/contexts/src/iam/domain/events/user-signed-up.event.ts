@@ -1,4 +1,4 @@
-import { DomainEvent } from "../../../_shared/domain/events/domain-event.js";
+import { DomainEvent } from "../../../_shared/domain/events/domain-event";
 
 export class UserSignedUpEvent extends DomainEvent {
   static readonly EVENT_NAME = "iam.user.signed_up";
