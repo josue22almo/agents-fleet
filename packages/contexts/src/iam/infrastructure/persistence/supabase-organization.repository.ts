@@ -45,7 +45,8 @@ export class SupabaseOrganizationRepository implements OrganizationRepository {
   async findByUserId(userId: string): Promise<OrganizationSummary[]> {
     const { data, error } = await this.client
       .from("organization_members")
-      .select(`
+      .select(
+        `
         role,
         organizations (
           id,
@@ -54,7 +55,8 @@ export class SupabaseOrganizationRepository implements OrganizationRepository {
           type,
           organization_members (id)
         )
-      `)
+      `,
+      )
       .eq("user_id", userId);
 
     if (error || !data) return [];
@@ -76,35 +78,30 @@ export class SupabaseOrganizationRepository implements OrganizationRepository {
   async save(organization: Organization): Promise<void> {
     const primitives = organization.toPrimitives();
 
-    const { error: orgError } = await this.client
-      .from("organizations")
-      .upsert({
-        id: primitives.id,
-        name: primitives.name,
-        slug: primitives.slug,
-        type: primitives.type,
-        updated_at: primitives.updatedAt.toISOString(),
-      });
-    if (orgError) throw new Error(orgError.message);
+    const { error: orgError } = await this.client.from("organizations").upsert({
+      id: primitives.id,
+      name: primitives.name,
+      slug: primitives.slug,
+      type: primitives.type,
+      updated_at: primitives.updatedAt.toISOString(),
+    });
+    if (orgError) {
+      throw new Error(orgError.message);
+    }
 
     for (const member of primitives.members) {
-      const { error: memberError } = await this.client
-        .from("organization_members")
-        .upsert({
-          id: member.id,
-          organization_id: member.organizationId,
-          user_id: member.userId,
-          role: member.role,
-        });
+      const { error: memberError } = await this.client.from("organization_members").upsert({
+        id: member.id,
+        organization_id: member.organizationId,
+        user_id: member.userId,
+        role: member.role,
+      });
       if (memberError) throw new Error(memberError.message);
     }
   }
 
   async delete(id: string): Promise<void> {
-    const { error } = await this.client
-      .from("organizations")
-      .delete()
-      .eq("id", id);
+    const { error } = await this.client.from("organizations").delete().eq("id", id);
     if (error) throw new Error(error.message);
   }
 
@@ -117,15 +114,14 @@ export class SupabaseOrganizationRepository implements OrganizationRepository {
       type: row.type as OrgType,
       createdAt: new Date(row.created_at as string),
       updatedAt: new Date(row.updated_at as string),
-      members: members.map(
-        (m) =>
-          OrganizationMember.create({
-            id: m.id as string,
-            organizationId: m.organization_id as string,
-            userId: m.user_id as string,
-            role: m.role as MemberRole,
-            createdAt: new Date(m.created_at as string),
-          }),
+      members: members.map((m) =>
+        OrganizationMember.create({
+          id: m.id as string,
+          organizationId: m.organization_id as string,
+          userId: m.user_id as string,
+          role: m.role as MemberRole,
+          createdAt: new Date(m.created_at as string),
+        }),
       ),
     });
   }

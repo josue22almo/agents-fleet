@@ -13,11 +13,6 @@ export class Login {
   ) {}
 
   async execute(params: LoginParams): Promise<AuthTokens> {
-    try {
-      return await this.authService.login(params.email, params.password);
-    } catch (error) {
-      this.logger.warn("Login failed", { email: params.email, error: String(error) });
-      throw error;
-    }
+    return await this.authService.login(params.email, params.password);
   }
 }
