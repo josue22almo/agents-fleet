@@ -6,6 +6,7 @@ export class UserSignedUpEvent extends DomainEvent {
   constructor(
     readonly userId: string,
     readonly email: string,
+    readonly fullName: string | null,
   ) {
     super(UserSignedUpEvent.EVENT_NAME, userId);
   }

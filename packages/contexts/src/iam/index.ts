@@ -37,6 +37,10 @@ export type { InvitationRepository } from "./ports/repositories/invitation-repos
 export type { AuthService, AuthTokens, AuthUser } from "./ports/services/auth-service";
 export type { TokenGenerator } from "./ports/services/token-generator";
 
+// Event Handlers
+export { CreateProfileOnUserSignedUpEventHandler } from "./application/event-handlers/create-profile-on-user-signed-up.event-handler";
+export { CreatePersonalOrgOnUserSignedUpEventHandler } from "./application/event-handlers/create-personal-org-on-user-signed-up.event-handler";
+
 // Use Cases
 export { SignUp } from "./application/use-cases/sign-up";
 export { Login } from "./application/use-cases/login";

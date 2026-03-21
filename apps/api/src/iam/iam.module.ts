@@ -8,6 +8,8 @@ import {
   SupabaseUserRepository,
   SupabaseOrganizationRepository,
   SupabaseInvitationRepository,
+  CreateProfileOnUserSignedUpEventHandler,
+  CreatePersonalOrgOnUserSignedUpEventHandler,
 } from "@repo/contexts/iam";
 import { InMemoryEventBus, SmtpEmailService } from "@repo/contexts/_shared";
 
@@ -50,7 +52,20 @@ import { InvitationsController } from "./controllers/invitations.controller";
     },
     {
       provide: "EventBus",
-      useFactory: () => new InMemoryEventBus(),
+      useFactory: (adminClient: SupabaseClient) => {
+        const eventBus = new InMemoryEventBus();
+        eventBus.register(
+          new CreateProfileOnUserSignedUpEventHandler(new SupabaseUserRepository(adminClient)),
+        );
+        eventBus.register(
+          new CreatePersonalOrgOnUserSignedUpEventHandler(
+            new SupabaseOrganizationRepository(adminClient),
+            { generate: () => randomUUID() },
+          ),
+        );
+        return eventBus;
+      },
+      inject: [SUPABASE_ADMIN],
     },
     {
       provide: "IdGenerator",

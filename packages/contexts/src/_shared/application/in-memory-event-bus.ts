@@ -4,6 +4,7 @@ import type { EventHandler } from "../domain/events/event-handler";
 
 export class InMemoryEventBus implements EventBus {
   private handlers: Map<string, EventHandler<DomainEvent>[]> = new Map();
+  readonly publishedEvents: DomainEvent[] = [];
 
   register(handler: EventHandler<DomainEvent>): void {
     const existing = this.handlers.get(handler.eventName) ?? [];
@@ -12,6 +13,7 @@ export class InMemoryEventBus implements EventBus {
   }
 
   async publish(events: DomainEvent[]): Promise<void> {
+    this.publishedEvents.push(...events);
     for (const event of events) {
       const handlers = this.handlers.get(event.eventName) ?? [];
       await Promise.all(handlers.map((h) => h.handle(event)));

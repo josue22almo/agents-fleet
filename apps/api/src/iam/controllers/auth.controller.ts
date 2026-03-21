@@ -15,9 +15,8 @@ import {
   UpdateProfile,
   type AuthService,
   type UserRepository,
-  type OrganizationRepository,
 } from "@repo/contexts/iam";
-import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
+import type { EventBus } from "@repo/contexts/_shared";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
 
@@ -33,11 +32,9 @@ export class AuthController {
   constructor(
     @Inject("AuthService") authService: AuthService,
     @Inject("UserRepository") userRepo: UserRepository,
-    @Inject("OrganizationRepository") orgRepo: OrganizationRepository,
-    @Inject("IdGenerator") idGenerator: IdGenerator,
     @Inject("EventBus") eventBus: EventBus,
   ) {
-    this.signUp = new SignUp(authService, userRepo, orgRepo, idGenerator, eventBus);
+    this.signUp = new SignUp(authService, eventBus);
     this.login = new Login(authService);
     this.forgotPassword = new ForgotPassword(authService);
     this.resetPassword = new ResetPassword(authService);
@@ -48,12 +45,11 @@ export class AuthController {
   @Post("signup")
   async handleSignUp(@Body() body: unknown) {
     const data = SignUpRequestSchema.parse(body);
-    const user = await this.signUp.execute({
+    return this.signUp.execute({
       email: data.email,
       password: data.password,
       fullName: data.fullName ?? null,
     });
-    return user.toPrimitives();
   }
 
   @Post("login")
