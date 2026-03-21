@@ -68,9 +68,42 @@ CREATE INDEX idx_invitations_org_email ON invitations(organization_id, email);
 -- TRIGGERS
 -- =============================================================================
 
--- NOTE: Profile + personal org creation is handled by the application layer
--- via event handlers (CreateProfileOnUserSignedUpEventHandler and
--- CreatePersonalOrgOnUserSignedUpEventHandler), not by database triggers.
+-- Auto-create profile + personal org on signup
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+  new_org_id UUID;
+  new_member_id UUID;
+  display_name TEXT;
+BEGIN
+  -- Extract display name from email prefix
+  display_name := split_part(NEW.email, '@', 1);
+
+  -- Create profile
+  INSERT INTO profiles (id, email, full_name)
+  VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'full_name', display_name));
+
+  -- Create personal organization
+  new_org_id := gen_random_uuid();
+  INSERT INTO organizations (id, name, slug, type)
+  VALUES (
+    new_org_id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', display_name) || '''s Space',
+    lower(regexp_replace(COALESCE(NEW.raw_user_meta_data->>'full_name', display_name), '[^a-z0-9]+', '-', 'gi')) || '-personal-' || substr(NEW.id::text, 1, 8),
+    'individual'
+  );
+
+  -- Add user as owner
+  INSERT INTO organization_members (organization_id, user_id, role)
+  VALUES (new_org_id, NEW.id, 'owner');
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- Auto-update updated_at
 CREATE OR REPLACE FUNCTION update_updated_at()
