@@ -1,3 +1,21 @@
+import type {
+  LoginRequest,
+  SignUpRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  UpdateProfileRequest,
+  AuthTokensResponse,
+  ProfileResponse,
+  CreateOrgRequest,
+  UpdateOrgRequest,
+  OrgResponse,
+  OrgListItemResponse,
+  InviteMemberRequest,
+  ChangeMemberRoleRequest,
+  MemberResponse,
+  InviteDetailsResponse,
+} from "@repo/contracts/iam";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 export class ApiError extends Error {
@@ -43,11 +61,48 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+function get<T>(path: string) {
+  return request<T>(path);
+}
+
+function post<T>(path: string, body?: unknown) {
+  return request<T>(path, { method: "POST", body: body ? JSON.stringify(body) : undefined });
+}
+
+function patch<T>(path: string, body?: unknown) {
+  return request<T>(path, { method: "PATCH", body: body ? JSON.stringify(body) : undefined });
+}
+
+function del<T>(path: string) {
+  return request<T>(path, { method: "DELETE" });
+}
+
 export const api = {
-  get: <T>(path: string) => request<T>(path),
-  post: <T>(path: string, body?: unknown) =>
-    request<T>(path, { method: "POST", body: body ? JSON.stringify(body) : undefined }),
-  patch: <T>(path: string, body?: unknown) =>
-    request<T>(path, { method: "PATCH", body: body ? JSON.stringify(body) : undefined }),
-  delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  auth: {
+    login: (data: LoginRequest) => post<AuthTokensResponse>("/auth/login", data),
+    signup: (data: SignUpRequest) => post<void>("/auth/signup", data),
+    forgotPassword: (data: ForgotPasswordRequest) => post<void>("/auth/forgot-password", data),
+    resetPassword: (data: ResetPasswordRequest) => post<void>("/auth/reset-password", data),
+    getProfile: () => get<ProfileResponse>("/auth/me"),
+    updateProfile: (data: UpdateProfileRequest) => patch<ProfileResponse>("/auth/me", data),
+  },
+  organizations: {
+    list: () => get<OrgListItemResponse[]>("/organizations"),
+    create: (data: CreateOrgRequest) => post<OrgResponse>("/organizations", data),
+    get: (id: string) => get<OrgResponse>(`/organizations/${id}`),
+    update: (id: string, data: UpdateOrgRequest) => patch<OrgResponse>(`/organizations/${id}`, data),
+    delete: (id: string) => del<void>(`/organizations/${id}`),
+  },
+  members: {
+    list: (orgId: string) => get<MemberResponse[]>(`/organizations/${orgId}/members`),
+    invite: (orgId: string, data: InviteMemberRequest) => post<void>(`/organizations/${orgId}/members`, data),
+    changeRole: (orgId: string, memberId: string, data: ChangeMemberRoleRequest) =>
+      patch<void>(`/organizations/${orgId}/members/${memberId}`, data),
+    remove: (orgId: string, memberId: string) => del<void>(`/organizations/${orgId}/members/${memberId}`),
+  },
+  invitations: {
+    get: (token: string) => get<InviteDetailsResponse>(`/invitations/${token}`),
+    accept: (token: string) => post<void>(`/invitations/${token}/accept`),
+    decline: (token: string) => post<void>(`/invitations/${token}/decline`),
+  },
 };

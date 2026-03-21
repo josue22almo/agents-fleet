@@ -9,9 +9,9 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import { api, ApiError } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 import { setTokens, clearTokens, getAccessToken } from "@/lib/auth";
-import type { ProfileResponse, AuthTokensResponse } from "@repo/contracts/iam";
+import type { ProfileResponse } from "@repo/contracts/iam";
 
 interface AuthContextType {
   user: ProfileResponse | null;
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const profile = await api.get<ProfileResponse>("/auth/me");
+      const profile = await api.auth.getProfile();
       setUser(profile);
     } catch {
       clearTokens();
@@ -51,10 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string) => {
-      const tokens = await api.post<AuthTokensResponse>("/auth/login", {
-        email,
-        password,
-      });
+      const tokens = await api.auth.login({ email, password });
       setTokens(tokens.accessToken, tokens.refreshToken);
       await fetchProfile();
       router.push("/dashboard");
@@ -64,11 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(
     async (email: string, password: string, fullName?: string) => {
-      await api.post("/auth/signup", { email, password, fullName });
-      const tokens = await api.post<AuthTokensResponse>("/auth/login", {
-        email,
-        password,
-      });
+      await api.auth.signup({ email, password, fullName });
+      const tokens = await api.auth.login({ email, password });
       setTokens(tokens.accessToken, tokens.refreshToken);
       await fetchProfile();
       router.push("/dashboard");
