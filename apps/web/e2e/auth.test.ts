@@ -1,14 +1,14 @@
 import { test, expect } from "@playwright/test";
-import { loginAs, uniqueEmail } from "./helpers";
+import { loginAs, fakeUser } from "./helpers";
 
 test.describe("Authentication", () => {
   test("sign up → redirected to dashboard", async ({ page }) => {
-    const email = uniqueEmail();
+    const user = fakeUser();
 
     await page.goto("/signup");
-    await page.fill('[name="fullName"]', "E2E User");
-    await page.fill('[name="email"]', email);
-    await page.fill('[name="password"]', "password123");
+    await page.fill('[name="fullName"]', user.fullName);
+    await page.fill('[name="email"]', user.email);
+    await page.fill('[name="password"]', user.password);
     await page.click('button[type="submit"]');
 
     await page.waitForURL("/dashboard");
@@ -21,9 +21,9 @@ test.describe("Authentication", () => {
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
     await page.goto("/profile");
-    await page.click("text=Sign Out");
+    await page.getByRole("button", { name: "Sign Out" }).click();
     await page.waitForURL("/login");
-    await expect(page.getByText("Welcome back")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
   });
 
   test("login with invalid credentials shows error", async ({ page }) => {
@@ -44,8 +44,10 @@ test.describe("Authentication", () => {
   });
 
   test("signup with short password shows validation error", async ({ page }) => {
+    const user = fakeUser();
+
     await page.goto("/signup");
-    await page.fill('[name="email"]', uniqueEmail());
+    await page.fill('[name="email"]', user.email);
     await page.fill('[name="password"]', "short");
     await page.click('button[type="submit"]');
 

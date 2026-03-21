@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { faker } from "@faker-js/faker";
 
 const API_URL = "http://localhost:4000";
 
@@ -16,7 +17,7 @@ export async function loginAsAlice(page: Page) {
 
 export async function logout(page: Page) {
   await page.goto("/profile");
-  await page.click("text=Sign Out");
+  await page.getByRole("button", { name: "Sign Out" }).click();
   await page.waitForURL("/login");
 }
 
@@ -30,8 +31,24 @@ export async function getApiToken(email: string, password: string): Promise<stri
   return accessToken;
 }
 
-let signupCounter = 0;
+export function fakeUser() {
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
+  return {
+    fullName: `${firstName} ${lastName}`,
+    email: faker.internet.email({ firstName, lastName, provider: "e2e-test.com" }).toLowerCase(),
+    password: "password123",
+  };
+}
 
-export function uniqueEmail(): string {
-  return `e2e-${Date.now()}-${++signupCounter}@test.com`;
+export function fakeOrg() {
+  const name = faker.company.name();
+  const slug =
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") +
+    "-" +
+    faker.string.alphanumeric(4).toLowerCase();
+  return { name, slug };
 }

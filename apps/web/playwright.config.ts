@@ -17,7 +17,8 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: "pnpm --filter api run dev",
+      command:
+        "pnpm run build --filter=@repo/contexts --filter=@repo/contracts && NODE_ENV=e2e pnpm --filter api run dev",
       port: 4000,
       reuseExistingServer: true,
       cwd: "../..",

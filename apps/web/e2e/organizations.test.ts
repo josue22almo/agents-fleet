@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { loginAsAlice } from "./helpers";
+import { loginAsAlice, fakeOrg } from "./helpers";
 
 test.describe("Organizations", () => {
   test.beforeEach(async ({ page }) => {
@@ -14,16 +14,15 @@ test.describe("Organizations", () => {
   });
 
   test("creates a team org and it appears in the list", async ({ page }) => {
-    const orgName = `Test Org ${Date.now()}`;
-    const slug = `test-org-${Date.now()}`;
+    const org = fakeOrg();
 
     await page.goto("/organizations/new");
-    await page.fill('[name="name"]', orgName);
-    await page.fill('[name="slug"]', slug);
+    await page.fill('[name="name"]', org.name);
+    await page.fill('[name="slug"]', org.slug);
     await page.click('button[type="submit"]');
 
     await page.waitForURL("/organizations");
-    await expect(page.getByText(orgName)).toBeVisible();
+    await expect(page.locator("main").getByText(org.name)).toBeVisible();
   });
 
   test("rejects duplicate slug with error", async ({ page }) => {

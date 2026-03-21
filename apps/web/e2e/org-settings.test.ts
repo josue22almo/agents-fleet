@@ -9,9 +9,9 @@ test.describe("Organization Settings", () => {
   test("shows org settings with members list", async ({ page }) => {
     await page.goto("/organizations/acme-corp/settings");
 
-    await expect(page.getByText("Acme Corp Settings")).toBeVisible();
-    await expect(page.getByText("Members")).toBeVisible();
-    await expect(page.getByText("alice@test.com")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Acme Corp Settings" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Members" })).toBeVisible();
+    await expect(page.locator("main").getByText("alice@test.com")).toBeVisible();
   });
 
   test("shows invite form", async ({ page }) => {
