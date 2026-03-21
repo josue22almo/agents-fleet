@@ -50,7 +50,7 @@ export class AuthController {
       password: data.password,
       fullName: data.fullName ?? null,
     });
-    return { message: "Account created" };
+    return { email: data.email, fullName: data.fullName ?? null };
   }
 
   @Post("login")

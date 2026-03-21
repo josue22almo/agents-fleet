@@ -2,6 +2,7 @@ import { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
 import { TestIamModule } from "./test-iam.module";
+import { CatchAllFilter } from "./common/filters/catch-all.filter";
 import { DomainErrorFilter } from "./common/filters/domain-error.filter";
 import { ZodErrorFilter } from "./common/filters/zod-error.filter";
 
@@ -14,7 +15,7 @@ export class TestApi {
     }).compile();
 
     const app = module.createNestApplication();
-    app.useGlobalFilters(new DomainErrorFilter(), new ZodErrorFilter());
+    app.useGlobalFilters(new CatchAllFilter(), new DomainErrorFilter(), new ZodErrorFilter());
     await app.init();
     return new TestApi(app);
   }

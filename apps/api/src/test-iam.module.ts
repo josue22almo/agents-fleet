@@ -5,6 +5,8 @@ import {
   InMemoryUserRepository,
   InMemoryOrganizationRepository,
   InMemoryInvitationRepository,
+  CreateProfileOnUserSignedUpEventHandler,
+  CreatePersonalOrgOnUserSignedUpEventHandler,
   type AuthService,
   type AuthTokens,
   type AuthUser,
@@ -67,7 +69,20 @@ function createMockAuthService(): AuthService {
     },
     {
       provide: "EventBus",
-      useFactory: () => new InMemoryEventBus(),
+      useFactory: (
+        userRepo: InMemoryUserRepository,
+        orgRepo: InMemoryOrganizationRepository,
+      ) => {
+        const eventBus = new InMemoryEventBus();
+        eventBus.register(new CreateProfileOnUserSignedUpEventHandler(userRepo));
+        eventBus.register(
+          new CreatePersonalOrgOnUserSignedUpEventHandler(orgRepo, {
+            generate: () => `id-${++idCounter}`,
+          }),
+        );
+        return eventBus;
+      },
+      inject: ["UserRepository", "OrganizationRepository"],
     },
     {
       provide: "IdGenerator",
