@@ -5,6 +5,7 @@ import {
   UpdateOrganization,
   DeleteOrganization,
   ListOrganizations,
+  GetOrganizationBySlug,
   type OrganizationRepository,
 } from "@repo/contexts/iam";
 import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
@@ -18,6 +19,7 @@ export class OrganizationsController {
   private readonly updateOrganization: UpdateOrganization;
   private readonly deleteOrganization: DeleteOrganization;
   private readonly listOrganizations: ListOrganizations;
+  private readonly getOrganizationBySlug: GetOrganizationBySlug;
 
   constructor(
     @Inject("OrganizationRepository") orgRepo: OrganizationRepository,
@@ -28,12 +30,19 @@ export class OrganizationsController {
     this.updateOrganization = new UpdateOrganization(orgRepo);
     this.deleteOrganization = new DeleteOrganization(orgRepo);
     this.listOrganizations = new ListOrganizations(orgRepo);
+    this.getOrganizationBySlug = new GetOrganizationBySlug(orgRepo);
   }
 
   @Get()
   async handleList(@CurrentUser() user: AuthenticatedUser) {
     const orgs = await this.listOrganizations.execute(user.id);
     return orgs.map((org) => org.toPrimitives());
+  }
+
+  @Get(":slug")
+  async handleGetBySlug(@Param("slug") slug: string) {
+    const org = await this.getOrganizationBySlug.execute(slug);
+    return org.toPrimitives();
   }
 
   @Post()

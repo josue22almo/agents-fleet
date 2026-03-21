@@ -150,7 +150,7 @@ export class Organization extends Entity {
     const org = new Organization({
       id,
       name: `${name}'s Space`,
-      slug: Slug.fromName(`${name}-personal`),
+      slug: Slug.fromName(`${name}-personal-${ownerId.substring(0, 8)}`),
       type: OrgType.INDIVIDUAL,
       createdAt: new Date(),
       updatedAt: new Date(),

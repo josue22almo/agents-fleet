@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useOrganization, useDeleteOrganization } from "@/hooks/use-organizations";
+import { useOrganizationBySlug, useDeleteOrganization } from "@/hooks/use-organizations";
 import { useMembers, useInviteMember, useChangeMemberRole, useRemoveMember } from "@/hooks/use-members";
 import { ApiError } from "@/lib/api-client";
 
 export function useOrgSettings(slug: string) {
   const router = useRouter();
-  const { data: org, isLoading: orgLoading } = useOrganization(slug);
+  const { data: org, isLoading: orgLoading } = useOrganizationBySlug(slug);
   const { data: members, isLoading: membersLoading } = useMembers(org?.id ?? "");
   const inviteMember = useInviteMember(org?.id ?? "");
   const changeMemberRole = useChangeMemberRole(org?.id ?? "");

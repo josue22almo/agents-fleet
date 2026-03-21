@@ -11,11 +11,11 @@ export function useOrganizations() {
   });
 }
 
-export function useOrganization(id: string) {
+export function useOrganizationBySlug(slug: string) {
   return useQuery({
-    queryKey: ["organizations", id],
-    queryFn: () => api.organizations.get(id),
-    enabled: !!id,
+    queryKey: ["organizations", slug],
+    queryFn: () => api.organizations.get(slug),
+    enabled: !!slug,
   });
 }
 
