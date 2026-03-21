@@ -16,6 +16,7 @@ export { OrganizationNotFoundError } from "./domain/errors/organization-not-foun
 export { SlugAlreadyTakenError } from "./domain/errors/slug-already-taken.error";
 export { InsufficientPermissionsError } from "./domain/errors/insufficient-permissions.error";
 export { AlreadyMemberError } from "./domain/errors/already-member.error";
+export { InvalidCredentialsError } from "./domain/errors/invalid-credentials.error";
 export { InvalidTokenError } from "./domain/errors/invalid-token.error";
 export { InvitationExpiredError } from "./domain/errors/invitation-expired.error";
 export { InvitationAlreadyRespondedError } from "./domain/errors/invitation-already-responded.error";
@@ -53,6 +54,7 @@ export { CreateOrganization } from "./application/use-cases/create-organization"
 export { UpdateOrganization } from "./application/use-cases/update-organization";
 export { DeleteOrganization } from "./application/use-cases/delete-organization";
 export { ListOrganizations } from "./application/use-cases/list-organizations";
+export { GetOrganizationBySlug } from "./application/use-cases/get-organization-by-slug";
 export { InviteMember } from "./application/use-cases/invite-member";
 export { AcceptInvitation } from "./application/use-cases/accept-invitation";
 export { DeclineInvitation } from "./application/use-cases/decline-invitation";

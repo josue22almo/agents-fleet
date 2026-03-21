@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common";
 import type { ZodError } from "zod";
 import type { DomainError } from "@repo/contexts/_shared";
 import { Response } from "express";
@@ -9,6 +9,7 @@ const ERROR_STATUS_MAP: Record<string, HttpStatus> = {
   SLUG_ALREADY_TAKEN: HttpStatus.CONFLICT,
   ALREADY_MEMBER: HttpStatus.CONFLICT,
   INSUFFICIENT_PERMISSIONS: HttpStatus.FORBIDDEN,
+  INVALID_CREDENTIALS: HttpStatus.UNAUTHORIZED,
   INVALID_TOKEN: HttpStatus.UNAUTHORIZED,
   INVITATION_EXPIRED: HttpStatus.GONE,
   INVITATION_ALREADY_RESPONDED: HttpStatus.CONFLICT,
@@ -26,6 +27,21 @@ export class CatchAllFilter implements ExceptionFilter {
   private readonly logger = new Logger(CatchAllFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost) {
+    // Let NestJS HttpExceptions (401, 403, etc.) pass through
+    if (exception instanceof HttpException) {
+      const ctx = host.switchToHttp();
+      const response = ctx.getResponse<Response>();
+      const status = exception.getStatus();
+      const body = exception.getResponse();
+
+      response.status(status).json(
+        typeof body === "string"
+          ? { error: { code: "HTTP_ERROR", message: body } }
+          : body,
+      );
+      return;
+    }
+
     if (this.isZodError(exception)) {
       return this.handleZodError(exception as ZodError, host);
     }
@@ -36,8 +52,15 @@ export class CatchAllFilter implements ExceptionFilter {
 
     this.logger.error("Unhandled exception", exception instanceof Error ? exception.stack : String(exception));
 
-    // Re-throw for NestJS default handling (HttpException, etc.)
-    throw exception;
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+
+    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "An unexpected error occurred",
+      },
+    });
   }
 
   private handleZodError(exception: ZodError, host: ArgumentsHost) {
