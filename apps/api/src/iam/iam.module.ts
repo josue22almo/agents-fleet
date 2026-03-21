@@ -12,7 +12,7 @@ import {
   CreateProfileOnUserSignedUpEventHandler,
   CreatePersonalOrgOnUserSignedUpEventHandler,
 } from "@repo/contexts/iam";
-import type { EventBus } from "@repo/contexts/_shared";
+import type { EventBus, Logger } from "@repo/contexts/_shared";
 import { SmtpEmailService } from "@repo/contexts/_shared";
 
 import { SUPABASE_ADMIN, supabaseAdminProvider } from "../common/providers/supabase-admin.provider";
@@ -90,16 +90,18 @@ export class IamModule implements OnModuleInit {
     @Inject("EventBus") private readonly eventBus: EventBus,
     @Inject("AdminUserRepository") private readonly userRepo: SupabaseUserRepository,
     @Inject("AdminOrganizationRepository") private readonly orgRepo: SupabaseOrganizationRepository,
+    @Inject("Logger") private readonly logger: Logger,
   ) {}
 
   onModuleInit() {
     this.eventBus.register(
-      new CreateProfileOnUserSignedUpEventHandler(this.userRepo),
+      new CreateProfileOnUserSignedUpEventHandler(this.userRepo, this.logger),
     );
     this.eventBus.register(
       new CreatePersonalOrgOnUserSignedUpEventHandler(
         this.orgRepo,
         { generate: () => randomUUID() },
+        this.logger,
       ),
     );
   }

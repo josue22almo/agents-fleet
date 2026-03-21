@@ -14,7 +14,7 @@ export class TestApi {
       imports: [TestIamModule],
     }).compile();
 
-    const app = module.createNestApplication();
+    const app = module.createNestApplication({ logger: false });
     app.useGlobalFilters(new CatchAllFilter(), new DomainErrorFilter(), new ZodErrorFilter());
     await app.init();
     return new TestApi(app);

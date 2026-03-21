@@ -16,7 +16,7 @@ import {
   type AuthService,
   type UserRepository,
 } from "@repo/contexts/iam";
-import type { EventBus } from "@repo/contexts/_shared";
+import type { EventBus, Logger } from "@repo/contexts/_shared";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
 
@@ -33,9 +33,10 @@ export class AuthController {
     @Inject("AuthService") authService: AuthService,
     @Inject("UserRepository") userRepo: UserRepository,
     @Inject("EventBus") eventBus: EventBus,
+    @Inject("Logger") logger: Logger,
   ) {
-    this.signUp = new SignUp(authService, eventBus);
-    this.login = new Login(authService);
+    this.signUp = new SignUp(authService, eventBus, logger);
+    this.login = new Login(authService, logger);
     this.forgotPassword = new ForgotPassword(authService);
     this.resetPassword = new ResetPassword(authService);
     this.getProfile = new GetProfile(userRepo);

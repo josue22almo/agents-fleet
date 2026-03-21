@@ -11,7 +11,7 @@ import {
   type UserRepository,
   type TokenGenerator,
 } from "@repo/contexts/iam";
-import type { IdGenerator, EventBus, EmailService } from "@repo/contexts/_shared";
+import type { IdGenerator, EventBus, EmailService, Logger } from "@repo/contexts/_shared";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
 
@@ -31,8 +31,9 @@ export class MembersController {
     @Inject("IdGenerator") idGenerator: IdGenerator,
     @Inject("TokenGenerator") tokenGenerator: TokenGenerator,
     @Inject("EventBus") eventBus: EventBus,
+    @Inject("Logger") logger: Logger,
   ) {
-    this.inviteMember = new InviteMember(
+    this.inviteMember = new InviteMember({
       orgRepo,
       invitationRepo,
       userRepo,
@@ -40,7 +41,8 @@ export class MembersController {
       idGenerator,
       tokenGenerator,
       eventBus,
-    );
+      logger,
+    });
     this.changeMemberRole = new ChangeMemberRole(orgRepo);
     this.removeMember = new RemoveMember(orgRepo);
     this.listMembers = new ListMembers(orgRepo, userRepo);

@@ -1,4 +1,5 @@
 import type { EventBus } from "../../../_shared/domain/events/event-bus";
+import type { Logger } from "../../../_shared/domain/ports/logger";
 import { Invitation } from "../../domain/entities/invitation";
 import { MemberInvitedEvent } from "../../domain/events/member-invited.event";
 import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
@@ -21,15 +22,34 @@ interface InviteMemberParams {
 }
 
 export class InviteMember {
-  constructor(
-    private readonly orgRepo: OrganizationRepository,
-    private readonly invitationRepo: InvitationRepository,
-    private readonly userRepo: UserRepository,
-    private readonly emailService: EmailService,
-    private readonly idGenerator: IdGenerator,
-    private readonly tokenGenerator: TokenGenerator,
-    private readonly eventBus: EventBus,
-  ) {}
+  private readonly orgRepo: OrganizationRepository;
+  private readonly invitationRepo: InvitationRepository;
+  private readonly userRepo: UserRepository;
+  private readonly emailService: EmailService;
+  private readonly idGenerator: IdGenerator;
+  private readonly tokenGenerator: TokenGenerator;
+  private readonly eventBus: EventBus;
+  private readonly logger: Logger;
+
+  constructor(deps: {
+    orgRepo: OrganizationRepository;
+    invitationRepo: InvitationRepository;
+    userRepo: UserRepository;
+    emailService: EmailService;
+    idGenerator: IdGenerator;
+    tokenGenerator: TokenGenerator;
+    eventBus: EventBus;
+    logger?: Logger;
+  }) {
+    this.orgRepo = deps.orgRepo;
+    this.invitationRepo = deps.invitationRepo;
+    this.userRepo = deps.userRepo;
+    this.emailService = deps.emailService;
+    this.idGenerator = deps.idGenerator;
+    this.tokenGenerator = deps.tokenGenerator;
+    this.eventBus = deps.eventBus;
+    this.logger = deps.logger ?? { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} };
+  }
 
   async execute(params: InviteMemberParams): Promise<Invitation> {
     const org = await this.orgRepo.findById(params.organizationId);
@@ -78,6 +98,8 @@ export class InviteMember {
         token,
       ),
     ]);
+
+    this.logger.info("Member invitation sent", { organizationId: params.organizationId, email: params.email, role: params.role });
 
     return invitation;
   }

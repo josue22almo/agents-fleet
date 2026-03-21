@@ -76,13 +76,18 @@ function createMockAuthService(): AuthService {
         const eventBus = new InMemoryEventBus();
         eventBus.register(new CreateProfileOnUserSignedUpEventHandler(userRepo));
         eventBus.register(
-          new CreatePersonalOrgOnUserSignedUpEventHandler(orgRepo, {
-            generate: () => `id-${++idCounter}`,
-          }),
+          new CreatePersonalOrgOnUserSignedUpEventHandler(
+            orgRepo,
+            { generate: () => `id-${++idCounter}` },
+          ),
         );
         return eventBus;
       },
       inject: ["UserRepository", "OrganizationRepository"],
+    },
+    {
+      provide: "Logger",
+      useValue: { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} },
     },
     {
       provide: "IdGenerator",

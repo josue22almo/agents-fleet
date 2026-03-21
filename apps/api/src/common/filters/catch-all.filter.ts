@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from "@nestjs/common";
 import type { ZodError } from "zod";
 import type { DomainError } from "@repo/contexts/_shared";
 import { Response } from "express";
@@ -23,6 +23,8 @@ const ERROR_STATUS_MAP: Record<string, HttpStatus> = {
  */
 @Catch()
 export class CatchAllFilter implements ExceptionFilter {
+  private readonly logger = new Logger(CatchAllFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost) {
     if (this.isZodError(exception)) {
       return this.handleZodError(exception as ZodError, host);
@@ -31,6 +33,8 @@ export class CatchAllFilter implements ExceptionFilter {
     if (this.isDomainError(exception)) {
       return this.handleDomainError(exception as DomainError, host);
     }
+
+    this.logger.error("Unhandled exception", exception instanceof Error ? exception.stack : String(exception));
 
     // Re-throw for NestJS default handling (HttpException, etc.)
     throw exception;
@@ -54,6 +58,8 @@ export class CatchAllFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = ERROR_STATUS_MAP[exception.code] ?? HttpStatus.BAD_REQUEST;
+
+    this.logger.warn(`Domain error: ${exception.code} - ${exception.message}`);
 
     response.status(status).json({
       error: {

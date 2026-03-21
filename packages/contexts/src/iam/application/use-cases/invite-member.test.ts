@@ -47,15 +47,15 @@ describe("InviteMember", () => {
     await seedOrgAndUser(deps);
     const sendSpy = vi.spyOn(deps.emailService, "send");
 
-    const useCase = new InviteMember(
-      deps.orgRepo,
-      deps.invitationRepo,
-      deps.userRepo,
-      deps.emailService,
-      deps.idGenerator,
-      deps.tokenGenerator,
-      deps.eventBus,
-    );
+    const useCase = new InviteMember({
+      orgRepo: deps.orgRepo,
+      invitationRepo: deps.invitationRepo,
+      userRepo: deps.userRepo,
+      emailService: deps.emailService,
+      idGenerator: deps.idGenerator,
+      tokenGenerator: deps.tokenGenerator,
+      eventBus: deps.eventBus,
+    });
 
     const invitation = await useCase.execute({
       organizationId: "org-1",
@@ -86,15 +86,15 @@ describe("InviteMember", () => {
     org.addMember("m-2", "user-2", MemberRole.MEMBER);
     await deps.orgRepo.save(org);
 
-    const useCase = new InviteMember(
-      deps.orgRepo,
-      deps.invitationRepo,
-      deps.userRepo,
-      deps.emailService,
-      deps.idGenerator,
-      deps.tokenGenerator,
-      deps.eventBus,
-    );
+    const useCase = new InviteMember({
+      orgRepo: deps.orgRepo,
+      invitationRepo: deps.invitationRepo,
+      userRepo: deps.userRepo,
+      emailService: deps.emailService,
+      idGenerator: deps.idGenerator,
+      tokenGenerator: deps.tokenGenerator,
+      eventBus: deps.eventBus,
+    });
 
     await expect(
       useCase.execute({
