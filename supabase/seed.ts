@@ -22,6 +22,46 @@ const TEST_USERS = [
 const ACME_ORG_ID = "a0000000-0000-0000-0000-000000000001";
 const STARTUP_ORG_ID = "a0000000-0000-0000-0000-000000000002";
 
+async function cleanup() {
+  console.log("Cleaning up existing test data...");
+
+  // Delete in order: invitations → members → orgs → profiles → auth users
+  const { data: list } = await supabase.auth.admin.listUsers();
+  const testEmails = TEST_USERS.map((u) => u.email);
+  const existingUsers = list?.users?.filter((u) => u.email && testEmails.includes(u.email)) ?? [];
+  const existingIds = existingUsers.map((u) => u.id);
+
+  if (existingIds.length > 0) {
+    await supabase.from("invitations").delete().in("invited_by", existingIds);
+    await supabase.from("invitations").delete().in("email", testEmails);
+    await supabase.from("organization_members").delete().in("user_id", existingIds);
+    await supabase.from("organizations").delete().in("id", [ACME_ORG_ID, STARTUP_ORG_ID]);
+    // Also delete personal orgs created by event handlers
+    await supabase.from("organizations").delete().in(
+      "id",
+      (await supabase.from("organizations").select("id").in(
+        "id",
+        (await supabase.from("organization_members").select("organization_id").in("user_id", existingIds)).data?.map(
+          (m) => m.organization_id,
+        ) ?? [],
+      )).data?.map((o) => o.id) ?? [],
+    );
+    await supabase.from("profiles").delete().in("id", existingIds);
+
+    for (const user of existingUsers) {
+      await supabase.auth.admin.deleteUser(user.id);
+      console.log(`  Deleted user ${user.email}`);
+    }
+  }
+
+  // Clean up orgs by known IDs (in case users were already deleted)
+  await supabase.from("organization_members").delete().in("organization_id", [ACME_ORG_ID, STARTUP_ORG_ID]);
+  await supabase.from("invitations").delete().in("organization_id", [ACME_ORG_ID, STARTUP_ORG_ID]);
+  await supabase.from("organizations").delete().in("id", [ACME_ORG_ID, STARTUP_ORG_ID]);
+
+  console.log("  Cleanup complete");
+}
+
 async function createUser(email: string, password: string, fullName: string): Promise<string> {
   const { data, error } = await supabase.auth.admin.createUser({
     email,
@@ -31,14 +71,6 @@ async function createUser(email: string, password: string, fullName: string): Pr
   });
 
   if (error) {
-    if (error.message.includes("already been registered")) {
-      const { data: list } = await supabase.auth.admin.listUsers();
-      const existing = list?.users?.find((u) => u.email === email);
-      if (existing) {
-        console.log(`  User ${email} already exists (${existing.id})`);
-        return existing.id;
-      }
-    }
     throw new Error(`Failed to create ${email}: ${error.message}`);
   }
 
@@ -47,14 +79,15 @@ async function createUser(email: string, password: string, fullName: string): Pr
 }
 
 async function seed() {
-  console.log("Creating test users...");
+  await cleanup();
+
+  console.log("\nCreating test users...");
   const userIds: Record<string, string> = {};
 
   for (const user of TEST_USERS) {
     userIds[user.email] = await createUser(user.email, user.password, user.fullName);
   }
 
-  // Create profiles (since the trigger was removed, app layer handles this)
   console.log("\nCreating profiles...");
   for (const user of TEST_USERS) {
     const { error } = await supabase.from("profiles").upsert({
@@ -70,10 +103,9 @@ async function seed() {
   const bob = userIds["bob@test.com"]!;
   const carol = userIds["carol@test.com"]!;
 
-  // Create team org: Acme Corp
   console.log("\nCreating team organizations...");
 
-  const { error: acmeError } = await supabase.from("organizations").upsert({
+  const { error: acmeError } = await supabase.from("organizations").insert({
     id: ACME_ORG_ID,
     name: "Acme Corp",
     slug: "acme-corp",
@@ -82,7 +114,7 @@ async function seed() {
   if (acmeError) console.error("  Acme Corp:", acmeError.message);
   else console.log("  Created Acme Corp");
 
-  const { error: startupError } = await supabase.from("organizations").upsert({
+  const { error: startupError } = await supabase.from("organizations").insert({
     id: STARTUP_ORG_ID,
     name: "Startup Labs",
     slug: "startup-labs",
@@ -91,7 +123,6 @@ async function seed() {
   if (startupError) console.error("  Startup Labs:", startupError.message);
   else console.log("  Created Startup Labs");
 
-  // Add members
   console.log("\nAdding members...");
 
   const members = [
@@ -103,44 +134,34 @@ async function seed() {
   ];
 
   for (const member of members) {
-    const { error } = await supabase
-      .from("organization_members")
-      .upsert(member, { onConflict: "organization_id,user_id" });
+    const { error } = await supabase.from("organization_members").insert(member);
     if (error) console.error(`  ${member.role} membership:`, error.message);
     else console.log(`  Added ${member.role} to org`);
   }
 
-  // Create pending invitation for Dave
   console.log("\nCreating invitations...");
 
-  const { error: inviteError } = await supabase.from("invitations").upsert(
-    {
-      organization_id: ACME_ORG_ID,
-      email: "dave@test.com",
-      role: "member",
-      token: "test-invite-token-001",
-      invited_by: alice,
-      status: "pending",
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    { onConflict: "token" },
-  );
+  const { error: inviteError } = await supabase.from("invitations").insert({
+    organization_id: ACME_ORG_ID,
+    email: "dave@test.com",
+    role: "member",
+    token: "test-invite-token-001",
+    invited_by: alice,
+    status: "pending",
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  });
   if (inviteError) console.error("  Pending invite:", inviteError.message);
   else console.log("  Created pending invite for dave@test.com");
 
-  // Expired invitation
-  const { error: expiredError } = await supabase.from("invitations").upsert(
-    {
-      organization_id: ACME_ORG_ID,
-      email: "expired@test.com",
-      role: "member",
-      token: "test-invite-token-expired",
-      invited_by: alice,
-      status: "pending",
-      expires_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    },
-    { onConflict: "token" },
-  );
+  const { error: expiredError } = await supabase.from("invitations").insert({
+    organization_id: ACME_ORG_ID,
+    email: "expired@test.com",
+    role: "member",
+    token: "test-invite-token-expired",
+    invited_by: alice,
+    status: "pending",
+    expires_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+  });
   if (expiredError) console.error("  Expired invite:", expiredError.message);
   else console.log("  Created expired invite");
 
