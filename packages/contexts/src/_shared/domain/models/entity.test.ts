@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Entity } from "./entity.js";
+import { Entity } from "./entity";
 
 class TestEntity extends Entity {
   constructor(id: string, private _name: string) {

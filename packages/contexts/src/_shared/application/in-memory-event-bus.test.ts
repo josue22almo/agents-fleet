@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { DomainEvent } from "../domain/events/domain-event.js";
-import { EventHandler } from "../domain/events/event-handler.js";
-import { InMemoryEventBus } from "./in-memory-event-bus.js";
+import { DomainEvent } from "../domain/events/domain-event";
+import { EventHandler } from "../domain/events/event-handler";
+import { InMemoryEventBus } from "./in-memory-event-bus";
 
 class UserCreated extends DomainEvent {
   constructor(readonly userId: string) {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Mail } from "./mail.js";
+import { Mail } from "./mail";
 
 describe("Mail", () => {
   it("creates a mail with all fields", () => {

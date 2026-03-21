@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DomainEvent } from "./domain-event.js";
+import { DomainEvent } from "./domain-event";
 
 class TestEvent extends DomainEvent {
   constructor(aggregateId: string, readonly payload: string) {

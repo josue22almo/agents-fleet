@@ -1,6 +1,6 @@
 import { createTransport, type Transporter } from "nodemailer";
-import type { Mail } from "../domain/models/mail.js";
-import type { EmailService } from "../domain/models/email-service.js";
+import type { Mail } from "../domain/models/mail";
+import type { EmailService } from "../domain/models/email-service";
 
 export interface SmtpConfig {
   host: string;

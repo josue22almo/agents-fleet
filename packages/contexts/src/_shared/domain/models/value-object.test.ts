@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ValueObject } from "./value-object.js";
+import { ValueObject } from "./value-object";
 
 class Email extends ValueObject<string> {
   protected validate(value: string): void {

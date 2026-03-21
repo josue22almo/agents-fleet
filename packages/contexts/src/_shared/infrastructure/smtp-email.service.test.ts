@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { SmtpEmailService } from "./smtp-email.service.js";
-import { Mail } from "../domain/models/mail.js";
+import { SmtpEmailService } from "./smtp-email.service";
+import { Mail } from "../domain/models/mail";
 
 const hasCredentials = !!process.env.SMTP_USERNAME && !!process.env.SMTP_PASSWORD;
 

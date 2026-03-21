@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DomainError } from "./domain-error.js";
+import { DomainError } from "./domain-error";
 
 class TestError extends DomainError {
   readonly code = "TEST_ERROR";
