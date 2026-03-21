@@ -4,6 +4,7 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 import { AppController } from "./app.controller";
 import { IamModule } from "./iam/iam.module";
 import { NestJsEventBusAdapter } from "./common/providers/nestjs-event-bus.adapter";
+import { NestJsLoggerAdapter } from "./common/providers/nestjs-logger.adapter";
 
 @Global()
 @Module({
@@ -14,11 +15,17 @@ import { NestJsEventBusAdapter } from "./common/providers/nestjs-event-bus.adapt
   ],
   controllers: [AppController],
   providers: [
+    NestJsEventBusAdapter,
     {
       provide: "EventBus",
-      useClass: NestJsEventBusAdapter,
+      useExisting: NestJsEventBusAdapter,
+    },
+    NestJsLoggerAdapter,
+    {
+      provide: "Logger",
+      useExisting: NestJsLoggerAdapter,
     },
   ],
-  exports: ["EventBus"],
+  exports: ["EventBus", "Logger"],
 })
 export class AppModule {}
