@@ -36,6 +36,7 @@ export function createTestDeps() {
     logout: async () => {},
     sendPasswordResetEmail: async () => {},
     resetPassword: async () => {},
+    changePassword: async () => {},
     verifyToken: async (token: string): Promise<AuthUser> => ({
       id: "user-1",
       email: "test@example.com",

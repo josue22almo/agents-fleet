@@ -48,10 +48,16 @@ export const UpdateProfileRequestSchema = z.object({
   avatarUrl: z.string().url("Invalid URL").nullable().optional(),
 });
 
+export const ChangePasswordRequestSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: passwordSchema,
+});
+
 export type SignUpRequest = z.infer<typeof SignUpRequestSchema>;
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordRequestSchema>;
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
+export type ChangePasswordRequest = z.infer<typeof ChangePasswordRequestSchema>;
 export type AuthTokensResponse = z.infer<typeof AuthTokensResponseSchema>;
 export type ProfileResponse = z.infer<typeof ProfileResponseSchema>;
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequestSchema>;
