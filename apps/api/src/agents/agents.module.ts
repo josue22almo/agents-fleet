@@ -1,10 +1,12 @@
-import { Module, Scope } from "@nestjs/common";
+import { Module, Scope, type OnModuleInit } from "@nestjs/common";
+import { Inject } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { SupabaseAgentRepository } from "@repo/contexts/agents";
+import { SupabaseAgentRepository, UpdateAgentOnRunIngestedEventHandler } from "@repo/contexts/agents";
 import { SupabaseRunRepository } from "@repo/contexts/monitoring";
 import { SupabaseOrganizationRepository } from "@repo/contexts/iam";
+import type { EventBus, Logger } from "@repo/contexts/_shared";
 
 import { SUPABASE_ADMIN, supabaseAdminProvider } from "../common/providers/supabase-admin.provider";
 import { SupabaseRequestClient } from "../common/providers/supabase-request.provider";
@@ -53,4 +55,16 @@ import { RunsController } from "./controllers/runs.controller";
     },
   ],
 })
-export class AgentsModule {}
+export class AgentsModule implements OnModuleInit {
+  constructor(
+    @Inject("EventBus") private readonly eventBus: EventBus,
+    @Inject("AdminAgentRepository") private readonly adminAgentRepo: SupabaseAgentRepository,
+    @Inject("Logger") private readonly logger: Logger,
+  ) {}
+
+  onModuleInit() {
+    this.eventBus.register(
+      new UpdateAgentOnRunIngestedEventHandler(this.adminAgentRepo, this.logger),
+    );
+  }
+}

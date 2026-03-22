@@ -1,6 +1,8 @@
 import { Run } from "../../domain/entities/run";
+import { RunIngestedEvent } from "../../domain/events/run-ingested.event";
 import type { RunRepository } from "../../ports/repositories/run-repository";
 import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
+import type { EventBus } from "../../../_shared/domain/events/event-bus";
 
 type EventType = "run.started" | "run.completed" | "run.failed";
 
@@ -22,6 +24,7 @@ export class IngestEvent {
   constructor(
     private readonly runRepo: RunRepository,
     private readonly idGenerator: IdGenerator,
+    private readonly eventBus?: EventBus,
   ) {}
 
   async execute(params: IngestEventParams): Promise<Run> {
@@ -30,15 +33,21 @@ export class IngestEvent {
       params.externalRunId,
     );
 
+    let run: Run;
+
     if (params.event === "run.started") {
-      return this.handleStarted(existing, params);
+      run = await this.handleStarted(existing, params);
+    } else if (params.event === "run.completed") {
+      run = await this.handleCompleted(existing, params);
+    } else {
+      run = await this.handleFailed(existing, params);
     }
 
-    if (params.event === "run.completed") {
-      return this.handleCompleted(existing, params);
-    }
+    await this.eventBus?.publish([
+      new RunIngestedEvent(run.toPrimitives().id, params.agentId),
+    ]);
 
-    return this.handleFailed(existing, params);
+    return run;
   }
 
   private async handleStarted(

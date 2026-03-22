@@ -11,6 +11,7 @@ export { RunNotFoundError } from "./domain/errors/run-not-found.error";
 // Events
 export { RunCompletedEvent } from "./domain/events/run-completed.event";
 export { RunFailedEvent } from "./domain/events/run-failed.event";
+export { RunIngestedEvent } from "./domain/events/run-ingested.event";
 
 // Read Models
 export { AgentMetrics } from "./domain/read-models/agent-metrics";

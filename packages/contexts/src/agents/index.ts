@@ -16,6 +16,9 @@ export { AgentCreatedEvent } from "./domain/events/agent-created.event";
 // Ports
 export type { AgentRepository } from "./ports/repositories/agent-repository";
 
+// Event Handlers
+export { UpdateAgentOnRunIngestedEventHandler } from "./application/event-handlers/update-agent-on-run-ingested.event-handler";
+
 // Use Cases
 export { CreateAgent } from "./application/use-cases/create-agent";
 export { ListAgents } from "./application/use-cases/list-agents";

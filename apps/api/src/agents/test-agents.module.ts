@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { InMemoryEventBus } from "@repo/contexts/_shared";
-import { InMemoryAgentRepository } from "@repo/contexts/agents";
+import { InMemoryAgentRepository, UpdateAgentOnRunIngestedEventHandler } from "@repo/contexts/agents";
 import { InMemoryOrganizationRepository } from "@repo/contexts/iam";
 import { InMemoryRunRepository } from "@repo/contexts/monitoring";
 import { TestIamModule } from "../iam/test-iam.module";
@@ -37,7 +37,12 @@ let idCounter = 0;
     },
     {
       provide: "EventBus",
-      useFactory: () => new InMemoryEventBus(),
+      useFactory: (agentRepo: InMemoryAgentRepository) => {
+        const eventBus = new InMemoryEventBus();
+        eventBus.register(new UpdateAgentOnRunIngestedEventHandler(agentRepo));
+        return eventBus;
+      },
+      inject: ["AgentRepository"],
     },
     {
       provide: "IdGenerator",

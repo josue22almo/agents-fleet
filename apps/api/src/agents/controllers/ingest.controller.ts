@@ -1,8 +1,7 @@
 import { Body, Controller, Inject, Post, Req, UseGuards } from "@nestjs/common";
 import { IngestEventRequestSchema } from "@repo/contracts/agents";
 import { IngestEvent, type RunRepository } from "@repo/contexts/monitoring";
-import type { AgentRepository } from "@repo/contexts/agents";
-import type { IdGenerator } from "@repo/contexts/_shared";
+import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
 import { ConnectionTokenGuard } from "../guards/connection-token.guard";
 
 interface AgentRequest {
@@ -32,10 +31,10 @@ export class IngestController {
 
   constructor(
     @Inject("AdminRunRepository") runRepo: RunRepository,
-    @Inject("AdminAgentRepository") private readonly agentRepo: AgentRepository,
+    @Inject("EventBus") eventBus: EventBus,
     @Inject("IdGenerator") idGenerator: IdGenerator,
   ) {
-    this.ingestEvent = new IngestEvent(runRepo, idGenerator);
+    this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus);
   }
 
   @Post()
@@ -49,14 +48,6 @@ export class IngestController {
       timestamp: data.timestamp,
       data: data.data,
     });
-
-    // Update agent lastSeenAt + status to active
-    const agent = await this.agentRepo.findById(req.agent.agentId);
-    if (agent) {
-      agent.updateLastSeen();
-      agent.markActive();
-      await this.agentRepo.save(agent);
-    }
 
     return formatRunResponse(run.toPrimitives());
   }
