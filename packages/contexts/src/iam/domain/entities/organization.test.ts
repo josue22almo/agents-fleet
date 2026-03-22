@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { AlreadyMemberError } from "../errors/already-member.error";
-import { InsufficientPermissionsError } from "../errors/insufficient-permissions.error";
+import { InsufficientPermissionsError } from "../../../_shared/domain/errors/insufficient-permissions.error";
 import { MemberRole } from "../value-objects/member-role";
 import { OrgType } from "../value-objects/org-type";
 import { Slug } from "../value-objects/slug";

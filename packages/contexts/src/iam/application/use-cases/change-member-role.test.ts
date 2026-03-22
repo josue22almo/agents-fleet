@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Organization } from "../../domain/entities/organization";
 import { OrganizationMember } from "../../domain/entities/organization-member";
-import { InsufficientPermissionsError } from "../../domain/errors/insufficient-permissions.error";
+import { InsufficientPermissionsError } from "../../../_shared/domain/errors/insufficient-permissions.error";
 import { MemberRole } from "../../domain/value-objects/member-role";
 import { OrgType } from "../../domain/value-objects/org-type";
 import { Slug } from "../../domain/value-objects/slug";

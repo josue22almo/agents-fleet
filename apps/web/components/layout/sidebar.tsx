@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/dashboard", label: "Metrics", icon: BarChart3, disabled: true },
-  { href: "/dashboard", label: "Agents", icon: Zap, disabled: true },
+  { href: "/agents", label: "Agents", icon: Zap },
   { href: "/dashboard", label: "Alarms", icon: Bell, disabled: true },
   { href: "/organizations", label: "Organizations", icon: Building2 },
 ];
@@ -31,7 +31,11 @@ export function Sidebar() {
 
       <nav className="flex-1 p-3 space-y-1">
         {navItems.map((item) => {
-          const isActive = pathname === item.href && !item.disabled;
+          const isActive = !item.disabled && (
+            item.href === "/dashboard"
+              ? pathname === "/dashboard"
+              : pathname === item.href || pathname.startsWith(item.href + "/")
+          );
           return (
             <Link
               key={item.label}

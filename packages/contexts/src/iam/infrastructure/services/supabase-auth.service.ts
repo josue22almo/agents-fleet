@@ -70,6 +70,29 @@ export class SupabaseAuthService implements AuthService {
     if (error) throw new Error(error.message);
   }
 
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    // First verify the current password by getting the user's email and attempting login
+    const { data: userData, error: userError } = await this.adminClient.auth.admin.getUserById(userId);
+    if (userError || !userData.user) throw new Error("User not found");
+
+    const email = userData.user.email!;
+
+    // Verify current password by attempting login
+    const { error: loginError } = await this.adminClient.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+    if (loginError) {
+      throw new InvalidCredentialsError();
+    }
+
+    // Update to the new password
+    const { error } = await this.adminClient.auth.admin.updateUserById(userId, {
+      password: newPassword,
+    });
+    if (error) throw new Error(error.message);
+  }
+
   async verifyToken(accessToken: string): Promise<AuthUser> {
     const { data, error } = await this.adminClient.auth.getUser(accessToken);
     if (error || !data.user) throw new InvalidTokenError();

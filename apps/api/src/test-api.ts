@@ -3,6 +3,7 @@ import { APP_FILTER } from "@nestjs/core";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
 import { TestIamModule } from "./iam/test-iam.module";
+import { TestAgentsModule } from "./agents/test-agents.module";
 import { CatchAllFilter } from "./common/filters/catch-all.filter";
 import { DomainErrorFilter } from "./common/filters/domain-error.filter";
 import { ZodErrorFilter } from "./common/filters/zod-error.filter";
@@ -20,7 +21,7 @@ export class TestApi {
 
   static async create(): Promise<TestApi> {
     const module = await Test.createTestingModule({
-      imports: [TestIamModule],
+      imports: [TestIamModule, TestAgentsModule],
       providers: [
         { provide: "APP_LOGGER", useValue: silentLogger },
         { provide: APP_FILTER, useClass: CatchAllFilter },
@@ -134,10 +135,81 @@ export class TestApi {
       .set("Authorization", `Bearer ${accessToken}`);
   }
 
+  // Agents
+  listAgents(accessToken: string, organizationId: string) {
+    return request(this.app.getHttpServer())
+      .get(`/agents?organizationId=${organizationId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  createAgent(accessToken: string, data: { name: string; type: string; organizationId: string }) {
+    return request(this.app.getHttpServer())
+      .post("/agents")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send(data);
+  }
+
+  getAgent(accessToken: string, agentId: string, organizationId: string) {
+    return request(this.app.getHttpServer())
+      .get(`/agents/${agentId}?organizationId=${organizationId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  updateAgent(accessToken: string, agentId: string, organizationId: string, data: { name: string }) {
+    return request(this.app.getHttpServer())
+      .patch(`/agents/${agentId}?organizationId=${organizationId}`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send(data);
+  }
+
+  deleteAgent(accessToken: string, agentId: string, organizationId: string) {
+    return request(this.app.getHttpServer())
+      .delete(`/agents/${agentId}?organizationId=${organizationId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  regenerateAgentToken(accessToken: string, agentId: string, organizationId: string) {
+    return request(this.app.getHttpServer())
+      .post(`/agents/${agentId}/regenerate-token?organizationId=${organizationId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  // Ingest
+  ingestEvent(connectionToken: string, data: { event: string; runId: string; data?: Record<string, unknown> }) {
+    return request(this.app.getHttpServer())
+      .post("/ingest")
+      .set("Authorization", `Bearer ${connectionToken}`)
+      .send(data);
+  }
+
+  // Runs
+  listRuns(accessToken: string, agentId: string, page?: number) {
+    const url = page ? `/agents/${agentId}/runs?page=${page}` : `/agents/${agentId}/runs`;
+    return request(this.app.getHttpServer())
+      .get(url)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  getAgentMetrics(accessToken: string, agentId: string) {
+    return request(this.app.getHttpServer())
+      .get(`/agents/${agentId}/metrics`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  getDashboardMetrics(accessToken: string, organizationId: string) {
+    return request(this.app.getHttpServer())
+      .get(`/dashboard/metrics?organizationId=${organizationId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
   // Helpers
   async signupAndLogin(email: string, password: string, fullName?: string): Promise<string> {
     await this.signup(email, password, fullName);
     const res = await this.login(email, password);
     return res.body.accessToken;
+  }
+
+  getModuleRef() {
+    return this.app;
   }
 }

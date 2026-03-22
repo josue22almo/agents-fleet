@@ -1,5 +1,5 @@
 import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
-import { InsufficientPermissionsError } from "../../domain/errors/insufficient-permissions.error";
+import { InsufficientPermissionsError } from "../../../_shared/domain/errors/insufficient-permissions.error";
 import type { OrganizationRepository } from "../../ports/repositories/organization-repository";
 
 interface DeleteOrganizationParams {

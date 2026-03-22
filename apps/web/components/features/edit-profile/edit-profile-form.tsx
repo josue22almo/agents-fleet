@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { FormError } from "@/components/ui/form-error";
+import { ChangePasswordForm } from "./change-password-form";
+import { AvatarUpload } from "../avatar-upload/avatar-upload";
 
 export function EditProfileForm() {
   const {
@@ -31,6 +33,8 @@ export function EditProfileForm() {
       </div>
 
       <div className="space-y-8 max-w-lg">
+        <AvatarUpload />
+
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-medium mb-4">Personal Information</h2>
           <form onSubmit={onSubmit} className="space-y-4">
@@ -58,6 +62,8 @@ export function EditProfileForm() {
             </Button>
           </form>
         </div>
+
+        <ChangePasswordForm />
 
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-medium mb-2">Sign Out</h2>

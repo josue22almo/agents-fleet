@@ -5,7 +5,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
 
 import {
-  SupabaseAuthService,
   SupabaseUserRepository,
   SupabaseOrganizationRepository,
   SupabaseInvitationRepository,
@@ -29,11 +28,6 @@ import { InvitationsController } from "./controllers/invitations.controller";
     supabaseAdminProvider,
     SupabaseRequestClient,
 
-    {
-      provide: "AuthService",
-      useFactory: (client: SupabaseClient) => new SupabaseAuthService(client),
-      inject: [SUPABASE_ADMIN],
-    },
     {
       provide: "UserRepository",
       scope: Scope.REQUEST,
@@ -83,7 +77,7 @@ import { InvitationsController } from "./controllers/invitations.controller";
       inject: [ConfigService],
     },
   ],
-  exports: ["AuthService"],
+  exports: [],
 })
 export class IamModule implements OnModuleInit {
   constructor(

@@ -3,7 +3,7 @@ import { Organization } from "../../domain/entities/organization";
 import { OrganizationMember } from "../../domain/entities/organization-member";
 import { OrganizationNotFoundError } from "../../domain/errors/organization-not-found.error";
 import { SlugAlreadyTakenError } from "../../domain/errors/slug-already-taken.error";
-import { InsufficientPermissionsError } from "../../domain/errors/insufficient-permissions.error";
+import { InsufficientPermissionsError } from "../../../_shared/domain/errors/insufficient-permissions.error";
 import { MemberRole } from "../../domain/value-objects/member-role";
 import { OrgType } from "../../domain/value-objects/org-type";
 import { Slug } from "../../domain/value-objects/slug";

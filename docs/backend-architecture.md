@@ -944,6 +944,46 @@ A shared package between API and Web containing **Zod schemas** for all API requ
 - **Token management** — API returns access/refresh tokens, Web stores them and sends `Authorization: Bearer <token>` on every request
 - **Request-scoped Supabase client** — the API creates a per-request Supabase client initialized with the user's JWT so RLS policies apply automatically
 
+## Cross-Context Communication
+
+Bounded contexts must not import from each other's domain or application layers. Two mechanisms handle cross-context needs:
+
+### Context Ports (Synchronous Queries)
+
+When a context needs data or validation from another, it uses a **context port** — an interface in `_shared`.
+
+```typescript
+// _shared/domain/ports/iam-context-port.ts
+export interface IAMContextPort {
+  canUserManageOrganization(userId: string, organizationId: string): Promise<boolean>;
+  isUserOwnerOfOrganization(userId: string, organizationId: string): Promise<boolean>;
+}
+```
+
+Use cases inject the port. The NestJS app provides the adapter implementation.
+
+### Domain Events (Async Reactions)
+
+When a context triggers work in another, it publishes a domain event. Example: `RunIngestedEvent` (monitoring) → `UpdateAgentOnRunIngestedEventHandler` (agents).
+
+### Rules
+
+1. **Context port interfaces live in `_shared`** — contracts, not owned by any single context
+2. **Context port implementations live in the owning context** — e.g., `IAMContextAdapter` lives in `iam/infrastructure/` because IAM owns org membership data. The app layer only wires via DI.
+3. **Shared errors live in `_shared`** — errors used across contexts (e.g., `InsufficientPermissionsError`) belong in `_shared/domain/errors/`
+4. **One write per request** — side effects happen via async events
+5. **Events for side effects, ports for queries**
+6. **Controllers validate responses against contracts** — use `Schema.parse(data)` before returning to catch mismatches at the API layer, not in the client
+
+### When to Use What
+
+| Need | Solution |
+|---|---|
+| Context A needs data from B | Context port (sync query) |
+| Context A triggers work in B | Domain event (async reaction) |
+| Context A validates with B's rules | Context port |
+| Context A and B share a type | Define in `_shared` or `contracts` |
+
 ## Future Contexts
 
 As the product grows, new bounded contexts will follow the same structure:

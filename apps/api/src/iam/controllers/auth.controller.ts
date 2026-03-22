@@ -5,6 +5,9 @@ import {
   ForgotPasswordRequestSchema,
   ResetPasswordRequestSchema,
   UpdateProfileRequestSchema,
+  ChangePasswordRequestSchema,
+  AuthTokensResponseSchema,
+  ProfileResponseSchema,
 } from "@repo/contracts/iam";
 import {
   SignUp,
@@ -13,12 +16,21 @@ import {
   ResetPassword,
   GetProfile,
   UpdateProfile,
+  ChangePassword,
   type AuthService,
   type UserRepository,
 } from "@repo/contexts/iam";
 import type { EventBus, Logger } from "@repo/contexts/_shared";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
+
+function formatProfile(profile: ReturnType<import("@repo/contexts/iam").User["toPrimitives"]>) {
+  return {
+    ...profile,
+    createdAt: profile.createdAt.toISOString(),
+    updatedAt: profile.updatedAt.toISOString(),
+  };
+}
 
 @Controller("auth")
 export class AuthController {
@@ -28,6 +40,7 @@ export class AuthController {
   private readonly resetPassword: ResetPassword;
   private readonly getProfile: GetProfile;
   private readonly updateProfile: UpdateProfile;
+  private readonly changePassword: ChangePassword;
 
   constructor(
     @Inject("AuthService") authService: AuthService,
@@ -41,6 +54,7 @@ export class AuthController {
     this.resetPassword = new ResetPassword(authService);
     this.getProfile = new GetProfile(userRepo);
     this.updateProfile = new UpdateProfile(userRepo);
+    this.changePassword = new ChangePassword(authService);
   }
 
   @Post("signup")
@@ -57,10 +71,11 @@ export class AuthController {
   @Post("login")
   async handleLogin(@Body() body: unknown) {
     const data = LoginRequestSchema.parse(body);
-    return this.login.execute({
+    const tokens = await this.login.execute({
       email: data.email,
       password: data.password,
     });
+    return AuthTokensResponseSchema.parse(tokens);
   }
 
   @Post("forgot-password")
@@ -81,7 +96,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async handleGetProfile(@CurrentUser() user: AuthenticatedUser) {
     const profile = await this.getProfile.execute(user.id);
-    return profile.toPrimitives();
+    return ProfileResponseSchema.parse(formatProfile(profile.toPrimitives()));
   }
 
   @Patch("me")
@@ -93,6 +108,18 @@ export class AuthController {
       fullName: data.fullName ?? null,
       avatarUrl: data.avatarUrl ?? null,
     });
-    return updated.toPrimitives();
+    return ProfileResponseSchema.parse(formatProfile(updated.toPrimitives()));
+  }
+
+  @Patch("password")
+  @UseGuards(JwtAuthGuard)
+  async handleChangePassword(@CurrentUser() user: AuthenticatedUser, @Body() body: unknown) {
+    const data = ChangePasswordRequestSchema.parse(body);
+    await this.changePassword.execute({
+      userId: user.id,
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    });
+    return { message: "Password changed successfully" };
   }
 }

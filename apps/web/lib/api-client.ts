@@ -3,6 +3,7 @@ import type {
   SignUpRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  ChangePasswordRequest,
   UpdateProfileRequest,
   AuthTokensResponse,
   ProfileResponse,
@@ -15,6 +16,17 @@ import type {
   MemberResponse,
   InviteDetailsResponse,
 } from "@repo/contracts/iam";
+
+import type {
+  CreateAgentRequest,
+  UpdateAgentRequest,
+  AgentResponse,
+  AgentListItemResponse,
+  AgentWithTokenResponse,
+  AgentMetricsResponse,
+  DashboardMetricsResponse,
+  PaginatedRunsResponse,
+} from "@repo/contracts/agents";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -85,6 +97,7 @@ export const api = {
     resetPassword: (data: ResetPasswordRequest) => post<void>("/auth/reset-password", data),
     getProfile: () => get<ProfileResponse>("/auth/me"),
     updateProfile: (data: UpdateProfileRequest) => patch<ProfileResponse>("/auth/me", data),
+    changePassword: (data: ChangePasswordRequest) => patch<void>("/auth/password", data),
   },
   organizations: {
     list: () => get<OrgListItemResponse[]>("/organizations"),
@@ -104,5 +117,37 @@ export const api = {
     get: (token: string) => get<InviteDetailsResponse>(`/invitations/${token}`),
     accept: (token: string) => post<void>(`/invitations/${token}/accept`),
     decline: (token: string) => post<void>(`/invitations/${token}/decline`),
+  },
+  agents: {
+    list: (orgId: string) => get<AgentListItemResponse[]>(`/agents?organizationId=${orgId}`),
+    create: (data: CreateAgentRequest) => post<AgentWithTokenResponse>("/agents", data),
+    get: (id: string) => get<AgentResponse>(`/agents/${id}`),
+    update: (id: string, data: UpdateAgentRequest) => patch<AgentResponse>(`/agents/${id}`, data),
+    delete: (id: string) => del<void>(`/agents/${id}`),
+    regenerateToken: (id: string) => post<AgentWithTokenResponse>(`/agents/${id}/regenerate-token`),
+    runs: (id: string, page?: number) => get<PaginatedRunsResponse>(`/agents/${id}/runs?page=${page ?? 1}`),
+    metrics: (id: string) => get<AgentMetricsResponse>(`/agents/${id}/metrics`),
+    dashboardMetrics: (orgId: string) => get<DashboardMetricsResponse>(`/dashboard/metrics?organizationId=${orgId}`),
+  },
+  avatars: {
+    upload: async (userId: string, file: File): Promise<string> => {
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `${userId}/avatar.${ext}`;
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+      const res = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${path}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          apikey: supabaseKey,
+          "x-upsert": "true",
+          "Content-Type": file.type,
+        },
+        body: file,
+      });
+      if (!res.ok) throw new ApiError("UPLOAD_FAILED", "Avatar upload failed", res.status);
+      return `${supabaseUrl}/storage/v1/object/public/avatars/${path}`;
+    },
   },
 };

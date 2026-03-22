@@ -1,9 +1,25 @@
 "use client";
 
-import { Zap, Play, Clock, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Zap, Play, Clock, CheckCircle, Loader2 } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { useOrgSwitcher } from "@/hooks/use-org-switcher";
+import { useDashboardMetrics } from "@/hooks/use-dashboard-metrics";
+
+function formatResponseTime(ms: number): string {
+  if (ms === 0) return "—";
+  return `${(ms / 1000).toFixed(1)}s`;
+}
 
 export default function DashboardPage() {
+  const { currentOrg } = useOrgSwitcher();
+  const { data: metrics, isLoading } = useDashboardMetrics(currentOrg?.id ?? "");
+
+  const totalAgents = metrics?.totalAgents ?? 0;
+  const activeRuns = metrics?.activeRuns ?? 0;
+  const avgResponseTime = metrics ? formatResponseTime(metrics.avgResponseTimeMs) : "—";
+  const showEmptyState = !isLoading && totalAgents === 0;
+
   return (
     <>
       <div className="mb-8">
@@ -19,8 +35,12 @@ export default function DashboardPage() {
               <Zap className="h-4 w-4 text-violet-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold">&mdash;</p>
-          <p className="text-xs text-muted-foreground mt-1">Connect agents to start</p>
+          <p className="text-2xl font-bold">
+            {isLoading ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : totalAgents}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {totalAgents === 0 ? "Connect agents to start" : `${totalAgents} connected`}
+          </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between mb-2">
@@ -29,8 +49,12 @@ export default function DashboardPage() {
               <Play className="h-4 w-4 text-blue-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold">&mdash;</p>
-          <p className="text-xs text-muted-foreground mt-1">No data yet</p>
+          <p className="text-2xl font-bold">
+            {isLoading ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : activeRuns}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {activeRuns === 0 ? "No active runs" : `${activeRuns} in progress`}
+          </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between mb-2">
@@ -39,8 +63,12 @@ export default function DashboardPage() {
               <Clock className="h-4 w-4 text-amber-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold">&mdash;</p>
-          <p className="text-xs text-muted-foreground mt-1">No data yet</p>
+          <p className="text-2xl font-bold">
+            {isLoading ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : avgResponseTime}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {metrics?.avgResponseTimeMs ? "Across all agents" : "No data yet"}
+          </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between mb-2">
@@ -54,16 +82,18 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border border-dashed bg-card p-16 text-center shadow-sm">
-        <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 mb-4">
-          <Zap className="h-8 w-8 text-primary" />
+      {showEmptyState && (
+        <div className="rounded-xl border border-border border-dashed bg-card p-16 text-center shadow-sm">
+          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 mb-4">
+            <Zap className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-medium mb-1">No agents connected</h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+            Connect your first agent to start monitoring metrics and performance.
+          </p>
+          <Link href="/agents/new" className={buttonVariants()}>Connect Agent</Link>
         </div>
-        <h3 className="text-lg font-medium mb-1">No agents connected</h3>
-        <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-          Connect your first agent to start monitoring metrics and performance.
-        </p>
-        <Button>Connect Agent</Button>
-      </div>
+      )}
     </>
   );
 }
