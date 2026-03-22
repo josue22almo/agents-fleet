@@ -61,6 +61,17 @@ export class SupabaseRunRepository implements RunRepository {
     return count ?? 0;
   }
 
+  async findBySessionId(sessionId: string): Promise<Run[]> {
+    const { data, error } = await this.client
+      .from("runs")
+      .select("*")
+      .eq("session_id", sessionId)
+      .order("started_at", { ascending: true });
+
+    if (error || !data) return [];
+    return data.map((row: Record<string, unknown>) => this.toDomain(row));
+  }
+
   async findByAgentIds(agentIds: string[]): Promise<Run[]> {
     if (agentIds.length === 0) return [];
 
@@ -80,6 +91,7 @@ export class SupabaseRunRepository implements RunRepository {
       id: p.id,
       agent_id: p.agentId,
       external_run_id: p.externalRunId,
+      session_id: p.sessionId,
       status: p.status,
       started_at: p.startedAt.toISOString(),
       completed_at: p.completedAt?.toISOString() ?? null,
@@ -100,6 +112,7 @@ export class SupabaseRunRepository implements RunRepository {
       id: row.id as string,
       agentId: row.agent_id as string,
       externalRunId: (row.external_run_id as string) ?? null,
+      sessionId: (row.session_id as string) ?? null,
       status: row.status as RunStatus,
       startedAt: new Date(row.started_at as string),
       completedAt: row.completed_at ? new Date(row.completed_at as string) : null,

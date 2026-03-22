@@ -47,6 +47,16 @@ export class InMemoryRunRepository implements RunRepository {
     return count;
   }
 
+  async findBySessionId(sessionId: string): Promise<Run[]> {
+    return Array.from(this.runs.values())
+      .filter((r) => r.toPrimitives().sessionId === sessionId)
+      .sort(
+        (a, b) =>
+          a.toPrimitives().startedAt.getTime() -
+          b.toPrimitives().startedAt.getTime(),
+      );
+  }
+
   async findByAgentIds(agentIds: string[]): Promise<Run[]> {
     const idSet = new Set(agentIds);
     return Array.from(this.runs.values()).filter((r) =>

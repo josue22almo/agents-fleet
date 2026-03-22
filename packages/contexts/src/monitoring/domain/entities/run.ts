@@ -5,6 +5,7 @@ export interface RunPrimitives {
   id: string;
   agentId: string;
   externalRunId: string | null;
+  sessionId: string | null;
   status: RunStatus;
   startedAt: Date;
   completedAt: Date | null;
@@ -20,6 +21,7 @@ interface RunProps {
   id: string;
   agentId: string;
   externalRunId: string | null;
+  sessionId?: string | null;
   status: RunStatus;
   startedAt: Date;
   completedAt: Date | null;
@@ -34,6 +36,7 @@ interface RunProps {
 export class Run extends Entity {
   private _agentId: string;
   private _externalRunId: string | null;
+  private _sessionId: string | null;
   private _status: RunStatus;
   private _startedAt: Date;
   private _completedAt: Date | null;
@@ -48,6 +51,7 @@ export class Run extends Entity {
     super(props.id);
     this._agentId = props.agentId;
     this._externalRunId = props.externalRunId;
+    this._sessionId = props.sessionId ?? null;
     this._status = props.status;
     this._startedAt = props.startedAt;
     this._completedAt = props.completedAt;
@@ -107,6 +111,7 @@ export class Run extends Entity {
       id: this.id,
       agentId: this._agentId,
       externalRunId: this._externalRunId,
+      sessionId: this._sessionId,
       status: this._status,
       startedAt: this._startedAt,
       completedAt: this._completedAt,
@@ -127,6 +132,7 @@ export class Run extends Entity {
     id: string;
     agentId: string;
     externalRunId: string | null;
+    sessionId?: string | null;
     metadata?: Record<string, unknown>;
   }): Run {
     const now = new Date();
@@ -134,6 +140,7 @@ export class Run extends Entity {
       id: params.id,
       agentId: params.agentId,
       externalRunId: params.externalRunId,
+      sessionId: params.sessionId ?? null,
       status: RunStatus.RUNNING,
       startedAt: now,
       completedAt: null,

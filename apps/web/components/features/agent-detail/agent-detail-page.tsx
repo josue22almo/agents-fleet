@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Settings, ChevronRight, Play, CheckCircle, Clock, DollarSign } from "lucide-react";
+import { Settings, ChevronRight, Play, CheckCircle, Clock, DollarSign, Layers, CirclePlay } from "lucide-react";
 import { useAgent } from "@/hooks/use-agents";
 import { useAgentRuns, useAgentMetrics } from "@/hooks/use-agent-runs";
 import { buttonVariants } from "@/components/ui/button";
 import { RunsTable } from "@/components/features/agent-detail/runs-table";
+import { SessionsList } from "@/components/features/agent-detail/sessions-list";
 import { Spinner } from "@/components/ui/spinner";
 
 const typeColors: Record<string, { bg: string; text: string }> = {
@@ -21,11 +22,14 @@ const statusStyles: Record<string, { bg: string; text: string; dot: string }> = 
   error: { bg: "bg-red-100", text: "text-red-700", dot: "bg-red-500" },
 };
 
+type Tab = "sessions" | "runs";
+
 export function AgentDetailPage({ id }: { id: string }) {
-  const [page, setPage] = useState(1);
+  const [activeTab, setActiveTab] = useState<Tab>("sessions");
+  const [runsPage, setRunsPage] = useState(1);
   const { data: agent, isLoading: agentLoading } = useAgent(id);
   const { data: metrics } = useAgentMetrics(id);
-  const { data: runsData, isLoading: runsLoading } = useAgentRuns(id, page);
+  const { data: runsData, isLoading: runsLoading } = useAgentRuns(id, runsPage);
 
   if (agentLoading) return <Spinner className="mx-auto mt-16" />;
   if (!agent) return <p className="text-muted-foreground">Agent not found</p>;
@@ -102,12 +106,42 @@ export function AgentDetailPage({ id }: { id: string }) {
         </div>
       </div>
 
-      <RunsTable
-        data={runsData}
-        isLoading={runsLoading}
-        page={page}
-        onPageChange={setPage}
-      />
+      {/* Tabs */}
+      <div className="flex items-center gap-1 mb-6 border-b border-border">
+        <button
+          onClick={() => setActiveTab("sessions")}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium -mb-px transition-colors ${
+            activeTab === "sessions"
+              ? "text-primary border-b-2 border-primary"
+              : "text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-gray-300"
+          }`}
+        >
+          <Layers className="h-4 w-4" />
+          Sessions
+        </button>
+        <button
+          onClick={() => setActiveTab("runs")}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium -mb-px transition-colors ${
+            activeTab === "runs"
+              ? "text-primary border-b-2 border-primary"
+              : "text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-gray-300"
+          }`}
+        >
+          <CirclePlay className="h-4 w-4" />
+          Runs
+        </button>
+      </div>
+
+      {activeTab === "sessions" ? (
+        <SessionsList agentId={id} />
+      ) : (
+        <RunsTable
+          data={runsData}
+          isLoading={runsLoading}
+          page={runsPage}
+          onPageChange={setRunsPage}
+        />
+      )}
     </>
   );
 }

@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { InMemoryEventBus } from "@repo/contexts/_shared";
 import { InMemoryAgentRepository, UpdateAgentOnRunIngestedEventHandler } from "@repo/contexts/agents";
 import { InMemoryOrganizationRepository } from "@repo/contexts/iam";
-import { InMemoryRunRepository } from "@repo/contexts/monitoring";
+import { InMemoryRunRepository, InMemorySessionRepository } from "@repo/contexts/monitoring";
 import { TestIamModule } from "../iam/test-iam.module";
 
 import { AgentsController } from "./controllers/agents.controller";
@@ -43,6 +43,14 @@ let idCounter = 0;
       useExisting: "RunRepository",
     },
     {
+      provide: "SessionRepository",
+      useFactory: () => new InMemorySessionRepository(),
+    },
+    {
+      provide: "AdminSessionRepository",
+      useExisting: "SessionRepository",
+    },
+    {
       provide: "EventBus",
       useFactory: (agentRepo: InMemoryAgentRepository) => {
         const eventBus = new InMemoryEventBus();
@@ -56,6 +64,6 @@ let idCounter = 0;
       useValue: { generate: () => `id-${++idCounter}` },
     },
   ],
-  exports: ["AgentRepository", "OrganizationRepository", "RunRepository"],
+  exports: ["AgentRepository", "OrganizationRepository", "RunRepository", "SessionRepository"],
 })
 export class TestAgentsModule {}
