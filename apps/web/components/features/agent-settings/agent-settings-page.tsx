@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormError } from "@/components/ui/form-error";
+import { Spinner } from "@/components/ui/spinner";
 import { TokenDisplay } from "@/components/features/connect-agent/token-display";
 
 const statusStyles: Record<string, { bg: string; text: string; dot: string }> = {
@@ -40,7 +41,7 @@ export function AgentSettingsPage({ id }: { id: string }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [tokenCopied, setTokenCopied] = useState(false);
 
-  if (isLoading) return <p className="text-muted-foreground">Loading...</p>;
+  if (isLoading) return <Spinner className="mx-auto mt-16" />;
   if (!agent) return <p className="text-muted-foreground">Agent not found</p>;
 
   const sc = statusStyles[agent.status] ?? { bg: "bg-gray-100", text: "text-gray-500", dot: "bg-gray-400" };

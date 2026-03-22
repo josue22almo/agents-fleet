@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { FormError } from "@/components/ui/form-error";
+import { Spinner } from "@/components/ui/spinner";
 import { Trash2, UserPlus } from "lucide-react";
 
 export function OrgSettingsPage({ slug }: { slug: string }) {
@@ -25,7 +26,7 @@ export function OrgSettingsPage({ slug }: { slug: string }) {
     handleDeleteOrg,
   } = useOrgSettings(slug);
 
-  if (isLoading) return <p className="text-muted-foreground">Loading...</p>;
+  if (isLoading) return <Spinner className="mx-auto mt-16" />;
   if (!org) return <p className="text-muted-foreground">Organization not found</p>;
 
   return (

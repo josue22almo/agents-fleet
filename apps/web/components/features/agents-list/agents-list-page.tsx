@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus, Zap } from "lucide-react";
 import { useAgents } from "@/hooks/use-agents";
 import { useOrgSwitcher } from "@/hooks/use-org-switcher";
 import { buttonVariants } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/error-state";
+import { Spinner } from "@/components/ui/spinner";
 
 const typeColors: Record<string, { bg: string; text: string }> = {
   claude: { bg: "bg-violet-100", text: "text-violet-700" },
@@ -32,6 +34,7 @@ function formatLastSeen(lastSeenAt: string | null): string {
 }
 
 export function AgentsListPage() {
+  const router = useRouter();
   const { currentOrg } = useOrgSwitcher();
   const { data: agents, isLoading, error, refetch } = useAgents(currentOrg?.id ?? "");
 
@@ -49,7 +52,7 @@ export function AgentsListPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground">Loading...</p>
+        <Spinner className="mx-auto" />
       ) : error ? (
         <ErrorState message={error.message} onRetry={() => refetch()} />
       ) : !agents || agents.length === 0 ? (
@@ -69,7 +72,7 @@ export function AgentsListPage() {
             return (
               <div
                 key={agent.id}
-                onClick={() => window.location.href = `/agents/${agent.id}`}
+                onClick={() => router.push(`/agents/${agent.id}`)}
                 className="block rounded-xl border border-border bg-card p-5 shadow-sm hover:border-primary/30 hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="flex items-center justify-between">

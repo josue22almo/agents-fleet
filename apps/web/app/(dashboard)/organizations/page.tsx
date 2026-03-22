@@ -6,6 +6,7 @@ import { useOrganizations } from "@/hooks/use-organizations";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/error-state";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function OrganizationsPage() {
   const { data: orgs, isLoading, error, refetch } = useOrganizations();
@@ -24,7 +25,7 @@ export default function OrganizationsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground">Loading...</p>
+        <Spinner className="mx-auto" />
       ) : error ? (
         <ErrorState message={error.message} onRetry={() => refetch()} />
       ) : !orgs || orgs.length === 0 ? (

@@ -7,6 +7,7 @@ import { useAgent } from "@/hooks/use-agents";
 import { useAgentRuns, useAgentMetrics } from "@/hooks/use-agent-runs";
 import { buttonVariants } from "@/components/ui/button";
 import { RunsTable } from "@/components/features/agent-detail/runs-table";
+import { Spinner } from "@/components/ui/spinner";
 
 const typeColors: Record<string, { bg: string; text: string }> = {
   claude: { bg: "bg-violet-100", text: "text-violet-700" },
@@ -26,7 +27,7 @@ export function AgentDetailPage({ id }: { id: string }) {
   const { data: metrics } = useAgentMetrics(id);
   const { data: runsData, isLoading: runsLoading } = useAgentRuns(id, page);
 
-  if (agentLoading) return <p className="text-muted-foreground">Loading...</p>;
+  if (agentLoading) return <Spinner className="mx-auto mt-16" />;
   if (!agent) return <p className="text-muted-foreground">Agent not found</p>;
 
   const tc = typeColors[agent.type] ?? { bg: "bg-gray-100", text: "text-gray-600" };
