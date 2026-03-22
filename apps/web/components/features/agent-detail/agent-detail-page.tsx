@@ -78,7 +78,7 @@ export function AgentDetailPage({ id }: { id: string }) {
               <CheckCircle className="h-4 w-4 text-emerald-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold">{metrics ? `${metrics.successRate.toFixed(1)}%` : "--"}</p>
+          <p className="text-2xl font-bold">{metrics ? `${(metrics.successRate * 100).toFixed(1)}%` : "--"}</p>
         </div>
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between mb-2">
