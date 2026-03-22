@@ -25,6 +25,9 @@ test.describe("Agent Detail", () => {
     await page.goto("/agents");
     await page.locator("main").getByText("Alice's Claude").click();
 
+    // Click the "Runs" tab to see the runs table
+    await page.getByRole("button", { name: "Runs" }).click();
+
     await expect(page.getByText("Recent Runs")).toBeVisible();
     // Verify at least one run row with a status is visible
     await expect(

@@ -40,7 +40,8 @@ test.describe("Agents", () => {
 
     // Should navigate to detail page
     await expect(page.getByRole("heading", { name: "Claude Code — Production" })).toBeVisible();
-    await expect(page.getByText("Recent Runs")).toBeVisible();
+    // Sessions tab is the default tab on the agent detail page
+    await expect(page.getByRole("button", { name: "Sessions" })).toBeVisible();
   });
 
   test("agent settings allows renaming agent", async ({ page }) => {

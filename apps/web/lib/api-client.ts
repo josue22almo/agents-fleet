@@ -26,6 +26,8 @@ import type {
   AgentMetricsResponse,
   DashboardMetricsResponse,
   PaginatedRunsResponse,
+  PaginatedSessionsResponse,
+  SessionWithRunsResponse,
 } from "@repo/contracts/agents";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -127,6 +129,8 @@ export const api = {
     regenerateToken: (id: string) => post<AgentWithTokenResponse>(`/agents/${id}/regenerate-token`),
     runs: (id: string, page?: number) => get<PaginatedRunsResponse>(`/agents/${id}/runs?page=${page ?? 1}`),
     metrics: (id: string) => get<AgentMetricsResponse>(`/agents/${id}/metrics`),
+    sessions: (id: string, page?: number) => get<PaginatedSessionsResponse>(`/agents/${id}/sessions?page=${page ?? 1}`),
+    session: (id: string, sessionId: string) => get<SessionWithRunsResponse>(`/agents/${id}/sessions/${sessionId}`),
     dashboardMetrics: (orgId: string) => get<DashboardMetricsResponse>(`/dashboard/metrics?organizationId=${orgId}`),
   },
   avatars: {
