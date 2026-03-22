@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Inject, LoggerService } from "@nestjs/common";
 import type { ZodError } from "zod";
 import type { DomainError } from "@repo/contexts/_shared";
 import { Response } from "express";
@@ -24,22 +24,11 @@ const ERROR_STATUS_MAP: Record<string, HttpStatus> = {
  */
 @Catch()
 export class CatchAllFilter implements ExceptionFilter {
-  private readonly logger = new Logger(CatchAllFilter.name);
+  constructor(@Inject("APP_LOGGER") private readonly logger: LoggerService) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
-    // Let NestJS HttpExceptions (401, 403, etc.) pass through
     if (exception instanceof HttpException) {
-      const ctx = host.switchToHttp();
-      const response = ctx.getResponse<Response>();
-      const status = exception.getStatus();
-      const body = exception.getResponse();
-
-      response.status(status).json(
-        typeof body === "string"
-          ? { error: { code: "HTTP_ERROR", message: body } }
-          : body,
-      );
-      return;
+      return this.handleHttpException(exception, host);
     }
 
     if (this.isZodError(exception)) {
@@ -50,7 +39,24 @@ export class CatchAllFilter implements ExceptionFilter {
       return this.handleDomainError(exception as DomainError, host);
     }
 
-    this.logger.error("Unhandled exception", exception instanceof Error ? exception.stack : String(exception));
+    this.handleUnknownError(exception, host);
+  }
+
+  private handleHttpException(exception: HttpException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const body = exception.getResponse();
+
+    response.status(status).json(
+      typeof body === "string"
+        ? { error: { code: "HTTP_ERROR", message: body } }
+        : body,
+    );
+  }
+
+  private handleUnknownError(exception: unknown, host: ArgumentsHost) {
+    this.logger.error("Unhandled exception: " + (exception instanceof Error ? exception.stack : String(exception)), "CatchAllFilter");
 
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -82,7 +88,7 @@ export class CatchAllFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status = ERROR_STATUS_MAP[exception.code] ?? HttpStatus.BAD_REQUEST;
 
-    this.logger.warn(`Domain error: ${exception.code} - ${exception.message}`);
+    this.logger.warn?.(`Domain error: ${exception.code} - ${exception.message}`, "CatchAllFilter");
 
     response.status(status).json({
       error: {

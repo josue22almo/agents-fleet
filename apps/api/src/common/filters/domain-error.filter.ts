@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Inject, LoggerService } from "@nestjs/common";
 import { DomainError } from "@repo/contexts/_shared";
 import { Response } from "express";
 
@@ -16,14 +16,14 @@ const ERROR_STATUS_MAP: Record<string, HttpStatus> = {
 
 @Catch(DomainError)
 export class DomainErrorFilter implements ExceptionFilter {
-  private readonly logger = new Logger(DomainErrorFilter.name);
+  constructor(@Inject("APP_LOGGER") private readonly logger: LoggerService) {}
 
   catch(exception: DomainError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = ERROR_STATUS_MAP[exception.code] ?? HttpStatus.BAD_REQUEST;
 
-    this.logger.warn(`Domain error: ${exception.code} - ${exception.message}`);
+    this.logger.warn?.(`Domain error: ${exception.code} - ${exception.message}`, "DomainErrorFilter");
 
     response.status(status).json({
       error: {

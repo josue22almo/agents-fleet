@@ -1,10 +1,19 @@
 import { INestApplication } from "@nestjs/common";
+import { APP_FILTER } from "@nestjs/core";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
-import { TestIamModule } from "./test-iam.module";
+import { TestIamModule } from "./iam/test-iam.module";
 import { CatchAllFilter } from "./common/filters/catch-all.filter";
 import { DomainErrorFilter } from "./common/filters/domain-error.filter";
 import { ZodErrorFilter } from "./common/filters/zod-error.filter";
+
+const silentLogger = {
+  log: () => {},
+  error: () => {},
+  warn: () => {},
+  debug: () => {},
+  verbose: () => {},
+};
 
 export class TestApi {
   private constructor(private readonly app: INestApplication) {}
@@ -12,10 +21,15 @@ export class TestApi {
   static async create(): Promise<TestApi> {
     const module = await Test.createTestingModule({
       imports: [TestIamModule],
+      providers: [
+        { provide: "APP_LOGGER", useValue: silentLogger },
+        { provide: APP_FILTER, useClass: CatchAllFilter },
+        { provide: APP_FILTER, useClass: DomainErrorFilter },
+        { provide: APP_FILTER, useClass: ZodErrorFilter },
+      ],
     }).compile();
 
     const app = module.createNestApplication({ logger: false });
-    app.useGlobalFilters(new CatchAllFilter(), new DomainErrorFilter(), new ZodErrorFilter());
     await app.init();
     return new TestApi(app);
   }
@@ -32,41 +46,28 @@ export class TestApi {
   }
 
   login(email: string, password: string) {
-    return request(this.app.getHttpServer())
-      .post("/auth/login")
-      .send({ email, password });
+    return request(this.app.getHttpServer()).post("/auth/login").send({ email, password });
   }
 
   forgotPassword(email: string) {
-    return request(this.app.getHttpServer())
-      .post("/auth/forgot-password")
-      .send({ email });
+    return request(this.app.getHttpServer()).post("/auth/forgot-password").send({ email });
   }
 
   resetPassword(token: string, password: string) {
-    return request(this.app.getHttpServer())
-      .post("/auth/reset-password")
-      .send({ token, password });
+    return request(this.app.getHttpServer()).post("/auth/reset-password").send({ token, password });
   }
 
   getProfile(accessToken: string) {
-    return request(this.app.getHttpServer())
-      .get("/auth/me")
-      .set("Authorization", `Bearer ${accessToken}`);
+    return request(this.app.getHttpServer()).get("/auth/me").set("Authorization", `Bearer ${accessToken}`);
   }
 
   updateProfile(accessToken: string, data: { fullName?: string | null; avatarUrl?: string | null }) {
-    return request(this.app.getHttpServer())
-      .patch("/auth/me")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send(data);
+    return request(this.app.getHttpServer()).patch("/auth/me").set("Authorization", `Bearer ${accessToken}`).send(data);
   }
 
   // Organizations
   listOrganizations(accessToken: string) {
-    return request(this.app.getHttpServer())
-      .get("/organizations")
-      .set("Authorization", `Bearer ${accessToken}`);
+    return request(this.app.getHttpServer()).get("/organizations").set("Authorization", `Bearer ${accessToken}`);
   }
 
   createOrganization(accessToken: string, name: string, slug: string) {
@@ -118,8 +119,7 @@ export class TestApi {
 
   // Invitations
   getInviteDetails(token: string) {
-    return request(this.app.getHttpServer())
-      .get(`/invites/${token}`);
+    return request(this.app.getHttpServer()).get(`/invites/${token}`);
   }
 
   acceptInvitation(accessToken: string, token: string) {

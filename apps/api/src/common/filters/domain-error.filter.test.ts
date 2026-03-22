@@ -29,8 +29,10 @@ function createMockHost(responseSpy: { status: number; body: unknown }) {
   } as any;
 }
 
+const silentLogger = { log: () => {}, error: () => {}, warn: () => {}, debug: () => {}, verbose: () => {} };
+
 describe("DomainErrorFilter", () => {
-  const filter = new DomainErrorFilter();
+  const filter = new DomainErrorFilter(silentLogger);
 
   const cases: [string, () => InstanceType<any>, number][] = [
     ["UserNotFoundError", () => new UserNotFoundError("u1"), HttpStatus.NOT_FOUND],
