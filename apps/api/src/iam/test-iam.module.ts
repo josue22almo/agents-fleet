@@ -12,10 +12,10 @@ import {
   type AuthUser,
 } from "@repo/contexts/iam";
 
-import { AuthController } from "./iam/controllers/auth.controller";
-import { OrganizationsController } from "./iam/controllers/organizations.controller";
-import { MembersController } from "./iam/controllers/members.controller";
-import { InvitationsController } from "./iam/controllers/invitations.controller";
+import { AuthController } from "./controllers/auth.controller";
+import { OrganizationsController } from "./controllers/organizations.controller";
+import { MembersController } from "./controllers/members.controller";
+import { InvitationsController } from "./controllers/invitations.controller";
 
 let idCounter = 0;
 
@@ -69,17 +69,11 @@ function createMockAuthService(): AuthService {
     },
     {
       provide: "EventBus",
-      useFactory: (
-        userRepo: InMemoryUserRepository,
-        orgRepo: InMemoryOrganizationRepository,
-      ) => {
+      useFactory: (userRepo: InMemoryUserRepository, orgRepo: InMemoryOrganizationRepository) => {
         const eventBus = new InMemoryEventBus();
         eventBus.register(new CreateProfileOnUserSignedUpEventHandler(userRepo));
         eventBus.register(
-          new CreatePersonalOrgOnUserSignedUpEventHandler(
-            orgRepo,
-            { generate: () => `id-${++idCounter}` },
-          ),
+          new CreatePersonalOrgOnUserSignedUpEventHandler(orgRepo, { generate: () => `id-${++idCounter}` }),
         );
         return eventBus;
       },
