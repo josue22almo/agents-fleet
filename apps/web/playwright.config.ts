@@ -18,7 +18,7 @@ export default defineConfig({
   webServer: [
     {
       command:
-        "pnpm run build --filter=@repo/contexts --filter=@repo/contracts && NODE_ENV=e2e tsx apps/api/src/main.ts",
+        "pnpm run build --filter=api && NODE_ENV=e2e node apps/api/dist/main.js",
       port: 4000,
       reuseExistingServer: true,
       cwd: "../..",
