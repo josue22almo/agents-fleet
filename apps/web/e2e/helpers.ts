@@ -52,3 +52,9 @@ export function fakeOrg() {
     faker.string.alphanumeric(4).toLowerCase();
   return { name, slug };
 }
+
+export function fakeAgent() {
+  const name = `${faker.hacker.adjective()} ${faker.hacker.noun()} Agent`;
+  const type = faker.helpers.arrayElement(["claude", "manus", "custom"] as const);
+  return { name, type };
+}

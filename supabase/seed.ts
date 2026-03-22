@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createHash, randomBytes } from "node:crypto";
 
 const SUPABASE_URL = process.env.SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -21,6 +22,27 @@ const TEST_USERS = [
 
 const ACME_ORG_ID = "a0000000-0000-0000-0000-000000000001";
 const STARTUP_ORG_ID = "a0000000-0000-0000-0000-000000000002";
+
+const AGENT_IDS = {
+  claudeCode: "b0000000-0000-0000-0000-000000000001",
+  manusResearch: "b0000000-0000-0000-0000-000000000002",
+  customScript: "b0000000-0000-0000-0000-000000000003",
+};
+
+function generateConnectionToken(): { raw: string; hash: string; prefix: string } {
+  const raw = "af_" + randomBytes(32).toString("base64url");
+  const hash = createHash("sha256").update(raw).digest("hex");
+  const prefix = raw.substring(0, 11);
+  return { raw, hash, prefix };
+}
+
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomFloat(min: number, max: number, decimals = 2): number {
+  return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
+}
 
 async function cleanup() {
   console.log("Cleaning up existing test data...");
@@ -53,6 +75,13 @@ async function cleanup() {
       console.log(`  Deleted user ${user.email}`);
     }
   }
+
+  // Clean up agents and runs for known agent IDs
+  const agentIds = Object.values(AGENT_IDS);
+  await supabase.from("runs").delete().in("agent_id", agentIds);
+  await supabase.from("agents").delete().in("id", agentIds);
+  // Also clean up any agents belonging to known orgs
+  await supabase.from("agents").delete().in("organization_id", [ACME_ORG_ID, STARTUP_ORG_ID]);
 
   // Clean up orgs by known IDs (in case users were already deleted)
   await supabase.from("organization_members").delete().in("organization_id", [ACME_ORG_ID, STARTUP_ORG_ID]);
@@ -191,6 +220,119 @@ async function seed() {
   });
   if (expiredError) console.error("  Expired invite:", expiredError.message);
   else console.log("  Created expired invite");
+
+  // --- Agents ---
+  console.log("\nCreating agents for Acme Corp...");
+
+  const agentDefinitions = [
+    {
+      id: AGENT_IDS.claudeCode,
+      organization_id: ACME_ORG_ID,
+      name: "Claude Code — Production",
+      type: "claude",
+      status: "active",
+      created_by: alice,
+      last_seen_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    },
+    {
+      id: AGENT_IDS.manusResearch,
+      organization_id: ACME_ORG_ID,
+      name: "Manus Research",
+      type: "manus",
+      status: "active",
+      created_by: alice,
+      last_seen_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    },
+    {
+      id: AGENT_IDS.customScript,
+      organization_id: ACME_ORG_ID,
+      name: "Custom Script",
+      type: "custom",
+      status: "inactive",
+      created_by: bob,
+      last_seen_at: null,
+    },
+  ];
+
+  for (const agentDef of agentDefinitions) {
+    const token = generateConnectionToken();
+    const { error } = await supabase.from("agents").insert({
+      ...agentDef,
+      token_hash: token.hash,
+      token_prefix: token.prefix,
+    });
+    if (error) console.error(`  Agent "${agentDef.name}":`, error.message);
+    else console.log(`  Created agent "${agentDef.name}" (${agentDef.status})`);
+  }
+
+  // --- Runs ---
+  console.log("\nCreating runs for active agents...");
+
+  const activeAgents = [
+    { id: AGENT_IDS.claudeCode, name: "Claude Code — Production" },
+    { id: AGENT_IDS.manusResearch, name: "Manus Research" },
+  ];
+
+  for (const agent of activeAgents) {
+    const runCount = randomInt(5, 10);
+    const runs = [];
+
+    for (let i = 0; i < runCount; i++) {
+      const statusRoll = Math.random();
+      let status: string;
+      let completedAt: string | null = null;
+      let durationMs: number | null = null;
+      let tokensUsed: number | null = null;
+      let cost: number | null = null;
+      let error: string | null = null;
+
+      const startedAt = new Date(
+        Date.now() - randomInt(1, 72) * 60 * 60 * 1000 - randomInt(0, 3600) * 1000,
+      ).toISOString();
+
+      if (statusRoll < 0.6) {
+        // 60% completed
+        status = "completed";
+        durationMs = randomInt(500, 5000);
+        tokensUsed = randomInt(100, 2000);
+        cost = randomFloat(0.01, 0.5, 4);
+        completedAt = new Date(new Date(startedAt).getTime() + durationMs).toISOString();
+      } else if (statusRoll < 0.85) {
+        // 25% failed
+        status = "failed";
+        durationMs = randomInt(200, 3000);
+        error = [
+          "Connection timeout after 30s",
+          "Rate limit exceeded",
+          "Invalid API key",
+          "Model overloaded, try again later",
+          "Context window exceeded",
+        ][randomInt(0, 4)]!;
+        completedAt = new Date(new Date(startedAt).getTime() + durationMs).toISOString();
+      } else {
+        // 15% running
+        status = "running";
+        // Running runs started recently, no completedAt
+      }
+
+      runs.push({
+        agent_id: agent.id,
+        external_run_id: `run_${agent.id.substring(0, 8)}_${i.toString().padStart(3, "0")}`,
+        status,
+        started_at: status === "running" ? new Date(Date.now() - randomInt(10, 300) * 1000).toISOString() : startedAt,
+        completed_at: completedAt,
+        duration_ms: durationMs,
+        tokens_used: tokensUsed,
+        cost,
+        error,
+        metadata: { source: "seed" },
+      });
+    }
+
+    const { error: runsError } = await supabase.from("runs").insert(runs);
+    if (runsError) console.error(`  Runs for "${agent.name}":`, runsError.message);
+    else console.log(`  Created ${runs.length} runs for "${agent.name}"`);
+  }
 
   console.log("\nSeed complete!");
   console.log("\nTest credentials:");
