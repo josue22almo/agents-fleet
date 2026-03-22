@@ -4,6 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { AppController } from "./app.controller";
 import { IamModule } from "./iam/iam.module";
+import { AgentsModule } from "./agents/agents.module";
 import { NestJsEventBusAdapter } from "./common/providers/nestjs-event-bus.adapter";
 import { NestJsLoggerAdapter } from "./common/providers/nestjs-logger.adapter";
 import { CatchAllFilter } from "./common/filters/catch-all.filter";
@@ -16,6 +17,7 @@ import { ZodErrorFilter } from "./common/filters/zod-error.filter";
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot(),
     IamModule,
+    AgentsModule,
   ],
   controllers: [AppController],
   providers: [
