@@ -32,7 +32,7 @@ jobs:
         run: pnpm run build
 
       - name: Unit tests with coverage
-        run: pnpm -r run test -- --coverage --coverage.reporter=html
+        run: pnpm -r run test:coverage
 
       - name: Install Playwright browsers
         run: pnpm --filter web exec playwright install chromium --with-deps
