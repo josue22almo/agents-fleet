@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, UseGuards } from "@nestjs/common";
-import { CreateOrgRequestSchema, UpdateOrgRequestSchema } from "@repo/contracts/iam";
+import { CreateOrgRequestSchema, UpdateOrgRequestSchema, OrgResponseSchema, OrgListItemResponseSchema } from "@repo/contracts/iam";
 import {
   CreateOrganization,
   UpdateOrganization,
@@ -11,6 +11,17 @@ import {
 import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
+
+function formatOrg(org: ReturnType<import("@repo/contexts/iam").Organization["toPrimitives"]>) {
+  return {
+    id: org.id,
+    name: org.name,
+    slug: org.slug,
+    type: org.type,
+    createdAt: org.createdAt.toISOString(),
+    updatedAt: org.updatedAt.toISOString(),
+  };
+}
 
 @Controller("organizations")
 @UseGuards(JwtAuthGuard)
@@ -36,13 +47,13 @@ export class OrganizationsController {
   @Get()
   async handleList(@CurrentUser() user: AuthenticatedUser) {
     const orgs = await this.listOrganizations.execute(user.id);
-    return orgs.map((org) => org.toPrimitives());
+    return orgs.map((org) => OrgListItemResponseSchema.parse(org.toPrimitives()));
   }
 
   @Get(":slug")
   async handleGetBySlug(@Param("slug") slug: string) {
     const org = await this.getOrganizationBySlug.execute(slug);
-    return org.toPrimitives();
+    return OrgResponseSchema.parse(formatOrg(org.toPrimitives()));
   }
 
   @Post()
@@ -53,7 +64,7 @@ export class OrganizationsController {
       slug: data.slug,
       createdBy: user.id,
     });
-    return org.toPrimitives();
+    return OrgResponseSchema.parse(formatOrg(org.toPrimitives()));
   }
 
   @Patch(":id")
@@ -65,7 +76,7 @@ export class OrganizationsController {
       slug: data.slug,
       updatedBy: user.id,
     });
-    return org.toPrimitives();
+    return OrgResponseSchema.parse(formatOrg(org.toPrimitives()));
   }
 
   @Delete(":id")

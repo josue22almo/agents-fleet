@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, UseGuards } from "@nestjs/common";
-import { InviteMemberRequestSchema, ChangeMemberRoleRequestSchema } from "@repo/contracts/iam";
+import { InviteMemberRequestSchema, ChangeMemberRoleRequestSchema, MemberResponseSchema } from "@repo/contracts/iam";
 import {
   InviteMember,
   ChangeMemberRole,
@@ -14,6 +14,13 @@ import {
 import type { IdGenerator, EventBus, EmailService, Logger } from "@repo/contexts/_shared";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
+
+function formatMember(member: ReturnType<import("@repo/contexts/iam").MemberSummary["toPrimitives"]>) {
+  return {
+    ...member,
+    joinedAt: member.joinedAt.toISOString(),
+  };
+}
 
 @Controller("organizations/:orgId/members")
 @UseGuards(JwtAuthGuard)
@@ -51,7 +58,7 @@ export class MembersController {
   @Get()
   async handleList(@CurrentUser() user: AuthenticatedUser, @Param("orgId") orgId: string) {
     const members = await this.listMembers.execute(orgId, user.id);
-    return members.map((m) => m.toPrimitives());
+    return members.map((m) => MemberResponseSchema.parse(formatMember(m.toPrimitives())));
   }
 
   @Post()
