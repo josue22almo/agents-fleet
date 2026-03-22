@@ -19,11 +19,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=dokploy-network"
-      - "traefik.http.routers.api.rule=Host(`api-agentsflet.alcantaramoreno.com`)"
+      - "traefik.http.routers.api.rule=Host(`api-agentsfleet.alcantaramoreno.com`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=letsencrypt"
       - "traefik.http.services.api.loadbalancer.server.port=4000"
-      - "traefik.http.routers.api-http.rule=Host(`api-agentsflet.alcantaramoreno.com`)"
+      - "traefik.http.routers.api-http.rule=Host(`api-agentsfleet.alcantaramoreno.com`)"
       - "traefik.http.routers.api-http.entrypoints=web"
       - "traefik.http.routers.api-http.middlewares=redirect-to-https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
@@ -33,7 +33,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api-agentsflet.alcantaramoreno.com}
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api-agentsfleet.alcantaramoreno.com}
     environment:
       - NODE_ENV=production
     depends_on:
@@ -44,11 +44,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=dokploy-network"
-      - "traefik.http.routers.web.rule=Host(`agentsflet.alcantaramoreno.com`)"
+      - "traefik.http.routers.web.rule=Host(`agentsfleet.alcantaramoreno.com`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=letsencrypt"
       - "traefik.http.services.web.loadbalancer.server.port=3000"
-      - "traefik.http.routers.web-http.rule=Host(`agentsflet.alcantaramoreno.com`)"
+      - "traefik.http.routers.web-http.rule=Host(`agentsfleet.alcantaramoreno.com`)"
       - "traefik.http.routers.web-http.entrypoints=web"
       - "traefik.http.routers.web-http.middlewares=redirect-to-https"
 
