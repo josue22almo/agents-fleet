@@ -1,12 +1,16 @@
 // Entities
 export { Run } from "./domain/entities/run";
 export type { RunPrimitives } from "./domain/entities/run";
+export { Session } from "./domain/entities/session";
+export type { SessionPrimitives } from "./domain/entities/session";
 
 // Value Objects
 export { RunStatus } from "./domain/value-objects/run-status";
+export { SessionStatus } from "./domain/value-objects/session-status";
 
 // Errors
 export { RunNotFoundError } from "./domain/errors/run-not-found.error";
+export { SessionNotFoundError } from "./domain/errors/session-not-found.error";
 
 // Events
 export { RunCompletedEvent } from "./domain/events/run-completed.event";
@@ -18,14 +22,20 @@ export { AgentMetrics } from "./domain/read-models/agent-metrics";
 
 // Ports
 export type { RunRepository } from "./ports/repositories/run-repository";
+export type { SessionRepository } from "./ports/repositories/session-repository";
 
 // Use Cases
 export { IngestEvent } from "./application/use-cases/ingest-event";
+export { IngestSessionEvent } from "./application/use-cases/ingest-session-event";
 export { ListRuns } from "./application/use-cases/list-runs";
 export { GetRun } from "./application/use-cases/get-run";
+export { ListSessions } from "./application/use-cases/list-sessions";
+export { GetSession } from "./application/use-cases/get-session";
 export { GetAgentMetrics } from "./application/use-cases/get-agent-metrics";
 export { GetDashboardMetrics } from "./application/use-cases/get-dashboard-metrics";
 
 // Infrastructure
 export { SupabaseRunRepository } from "./infrastructure/persistence/supabase-run.repository";
 export { InMemoryRunRepository } from "./infrastructure/persistence/in-memory-run-repository";
+export { SupabaseSessionRepository } from "./infrastructure/persistence/supabase-session.repository";
+export { InMemorySessionRepository } from "./infrastructure/persistence/in-memory-session-repository";

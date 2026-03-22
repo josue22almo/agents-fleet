@@ -1,6 +1,7 @@
 import { Run } from "../../domain/entities/run";
 import { RunIngestedEvent } from "../../domain/events/run-ingested.event";
 import type { RunRepository } from "../../ports/repositories/run-repository";
+import type { SessionRepository } from "../../ports/repositories/session-repository";
 import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
 import type { EventBus } from "../../../_shared/domain/events/event-bus";
 
@@ -10,6 +11,7 @@ interface IngestEventParams {
   agentId: string;
   event: EventType;
   externalRunId: string;
+  sessionId?: string;
   timestamp?: string;
   data?: {
     durationMs?: number;
@@ -25,6 +27,7 @@ export class IngestEvent {
     private readonly runRepo: RunRepository,
     private readonly idGenerator: IdGenerator,
     private readonly eventBus?: EventBus,
+    private readonly sessionRepo?: SessionRepository,
   ) {}
 
   async execute(params: IngestEventParams): Promise<Run> {
@@ -63,10 +66,21 @@ export class IngestEvent {
       id: this.idGenerator.generate(),
       agentId: params.agentId,
       externalRunId: params.externalRunId,
+      sessionId: params.sessionId,
       metadata: params.data?.metadata,
     });
 
     await this.runRepo.save(run);
+
+    // Update session run count if linked to a session
+    if (params.sessionId && this.sessionRepo) {
+      const session = await this.sessionRepo.findById(params.sessionId);
+      if (session) {
+        session.addRun();
+        await this.sessionRepo.save(session);
+      }
+    }
+
     return run;
   }
 
@@ -114,6 +128,7 @@ export class IngestEvent {
       id: this.idGenerator.generate(),
       agentId: params.agentId,
       externalRunId: params.externalRunId,
+      sessionId: params.sessionId,
       metadata: params.data?.metadata,
     });
   }

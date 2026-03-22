@@ -10,9 +10,12 @@ import {
 } from "@repo/contexts/agents";
 import {
   IngestEvent,
+  IngestSessionEvent,
   ListRuns,
+  ListSessions,
   GetAgentMetrics,
   type RunRepository,
+  type SessionRepository,
 } from "@repo/contexts/monitoring";
 import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
 
@@ -21,6 +24,7 @@ function formatRun(run: ReturnType<import("@repo/contexts/monitoring").Run["toPr
     id: run.id,
     agentId: run.agentId,
     externalRunId: run.externalRunId,
+    sessionId: run.sessionId,
     status: run.status,
     startedAt: run.startedAt.toISOString(),
     completedAt: run.completedAt?.toISOString() ?? null,
@@ -32,23 +36,44 @@ function formatRun(run: ReturnType<import("@repo/contexts/monitoring").Run["toPr
   };
 }
 
+function formatSession(session: ReturnType<import("@repo/contexts/monitoring").Session["toPrimitives"]>) {
+  return {
+    id: session.id,
+    agentId: session.agentId,
+    name: session.name,
+    status: session.status,
+    startedAt: session.startedAt.toISOString(),
+    completedAt: session.completedAt?.toISOString() ?? null,
+    totalDurationMs: session.totalDurationMs,
+    totalTokensUsed: session.totalTokensUsed,
+    totalCost: session.totalCost,
+    runCount: session.runCount,
+    metadata: session.metadata,
+  };
+}
+
 @Controller("mcp")
 export class McpController {
   private readonly validateConnectionToken: ValidateConnectionToken;
   private readonly ingestEvent: IngestEvent;
+  private readonly ingestSessionEvent: IngestSessionEvent;
   private readonly listRuns: ListRuns;
+  private readonly listSessions: ListSessions;
   private readonly getAgent: GetAgent;
   private readonly getAgentMetrics: GetAgentMetrics;
 
   constructor(
     @Inject("AdminAgentRepository") agentRepo: AgentRepository,
     @Inject("AdminRunRepository") runRepo: RunRepository,
+    @Inject("AdminSessionRepository") sessionRepo: SessionRepository,
     @Inject("EventBus") eventBus: EventBus,
     @Inject("IdGenerator") idGenerator: IdGenerator,
   ) {
     this.validateConnectionToken = new ValidateConnectionToken(agentRepo);
-    this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus);
+    this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus, sessionRepo);
+    this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator);
     this.listRuns = new ListRuns(runRepo);
+    this.listSessions = new ListSessions(sessionRepo);
     this.getAgent = new GetAgent(agentRepo);
     this.getAgentMetrics = new GetAgentMetrics(runRepo);
   }
@@ -107,19 +132,92 @@ export class McpController {
     });
 
     server.registerTool(
+      "start_session",
+      {
+        description: "Start a new session to group related runs",
+        inputSchema: {
+          name: z.string().optional().describe("Optional session name (e.g., 'Code review PR #42')"),
+          metadata: z.record(z.unknown()).optional().describe("Optional metadata about the session"),
+        },
+      },
+      async ({ name, metadata }) => {
+        const session = await this.ingestSessionEvent.execute({
+          agentId,
+          event: "session.started",
+          data: { name, metadata },
+        });
+
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(formatSession(session.toPrimitives())) }],
+        };
+      },
+    );
+
+    server.registerTool(
+      "end_session",
+      {
+        description: "End an active session (complete or fail it)",
+        inputSchema: {
+          sessionId: z.string().describe("Session ID to end"),
+          status: z.enum(["completed", "failed"]).default("completed").describe("Final status"),
+          totalDurationMs: z.number().optional().describe("Total duration in milliseconds"),
+          totalTokensUsed: z.number().optional().describe("Total tokens consumed"),
+          totalCost: z.number().optional().describe("Total cost in USD"),
+        },
+      },
+      async ({ sessionId, status, totalDurationMs, totalTokensUsed, totalCost }) => {
+        const event = status === "failed" ? "session.failed" : "session.completed";
+        const session = await this.ingestSessionEvent.execute({
+          agentId,
+          event,
+          sessionId,
+          data: { totalDurationMs, totalTokensUsed, totalCost },
+        });
+
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(formatSession(session.toPrimitives())) }],
+        };
+      },
+    );
+
+    server.registerTool(
+      "get_my_sessions",
+      {
+        description: "Get this agent's recent sessions",
+        inputSchema: {
+          limit: z.number().optional().default(10).describe("Maximum number of sessions to return (default 10)"),
+        },
+      },
+      async ({ limit }) => {
+        const result = await this.listSessions.execute({
+          agentId,
+          page: 1,
+          pageSize: limit,
+        });
+
+        const sessions = result.sessions.map((s) => formatSession(s.toPrimitives()));
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ sessions, total: result.total }) }],
+        };
+      },
+    );
+
+    server.registerTool(
       "report_run_started",
       {
         description: "Report that a new agent run has begun",
         inputSchema: {
           runId: z.string().describe("Unique identifier for this run"),
+          sessionId: z.string().optional().describe("Optional session ID to link this run to"),
           metadata: z.record(z.unknown()).optional().describe("Optional metadata about the run"),
         },
       },
-      async ({ runId, metadata }) => {
+      async ({ runId, sessionId, metadata }) => {
         const run = await this.ingestEvent.execute({
           agentId,
           event: "run.started",
           externalRunId: runId,
+          sessionId,
           data: metadata ? { metadata } : undefined,
         });
 

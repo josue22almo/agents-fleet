@@ -5,6 +5,7 @@ export interface RunRepository {
   findByAgentIdAndExternalRunId(agentId: string, externalRunId: string): Promise<Run | null>;
   findByAgentId(agentId: string, options?: { limit: number; offset: number }): Promise<Run[]>;
   countByAgentId(agentId: string): Promise<number>;
+  findBySessionId(sessionId: string): Promise<Run[]>;
   findByAgentIds(agentIds: string[]): Promise<Run[]>;
   save(run: Run): Promise<void>;
 }
