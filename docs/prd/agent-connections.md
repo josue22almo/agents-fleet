@@ -24,8 +24,8 @@ packages/contexts/src/
   agents/
     domain/
       entities/        agent.ts
-      value-objects/    agent-type.ts, agent-status.ts, api-key.ts
-      errors/          agent-not-found.error.ts, invalid-api-key.error.ts, ...
+      value-objects/    agent-type.ts, agent-status.ts, connection-token.ts
+      errors/          agent-not-found.error.ts, invalid-token.error.ts, ...
       events/          agent-created.event.ts
     application/
       use-cases/       create-agent.ts, list-agents.ts, get-agent.ts,
@@ -74,8 +74,8 @@ packages/contexts/src/
 | organizationId | UUID | Owning organization |
 | name | string | Display name (e.g., "Claude Code — Production") |
 | type | enum | Agent provider: `claude`, `manus`, `custom` |
-| apiKeyHash | string | SHA-256 hash of the API key |
-| apiKeyPrefix | string | First 8 chars of the key (for display: `af_sk_ab...`) |
+| tokenHash | string | SHA-256 hash of the connection token |
+| tokenPrefix | string | First 8 chars of the token (for display: `af_sk_ab...`) |
 | status | enum | `active`, `inactive`, `error` |
 | lastSeenAt | timestamp? | Last time the agent sent data |
 | createdBy | UUID | User who created the agent |
@@ -123,20 +123,52 @@ packages/contexts/src/
 
 ## Integration Model
 
-### API Key Authentication
+Agents connect via two transports — **MCP** (recommended for compatible agents) and **HTTP** (for any agent). Both use the same **connection token** for authentication and resolve to the same agent internally.
 
-- Users create an agent in the dashboard and receive a one-time visible API key
-- The API key is prefixed with `af_` for easy identification
-- The key is hashed (SHA-256) before storage — only the prefix is stored in plaintext for lookup
-- Agents authenticate via `Authorization: Bearer af_sk_...` header
+### Connection Token
 
-### Ingest API
+- When a user creates an agent, the platform generates a one-time visible **connection token**
+- Token format: `af_` prefix + random secret (e.g., `af_sk_x7k9m2p4q8...`)
+- The token is hashed (SHA-256) before storage — only the prefix is stored in plaintext for lookup
+- The same token authenticates both MCP connections and HTTP requests
+- Tokens can be regenerated (invalidates the previous one)
 
-All events are sent to `POST /ingest` with the agent's API key.
+### Transport 1: MCP Server (recommended)
+
+For MCP-compatible agents (Claude Code, etc.), the platform exposes an MCP server. The user adds it to their agent's MCP config with the connection token:
+
+```json
+{
+  "mcpServers": {
+    "agents-fleet": {
+      "url": "https://api.example.com/mcp",
+      "headers": {
+        "Authorization": "Bearer af_sk_x7k9m2p4q8..."
+      }
+    }
+  }
+}
+```
+
+The MCP server exposes these tools:
+
+| Tool | Description | Parameters |
+|---|---|---|
+| `report_run_started` | Report that a new run has begun | `runId`, `metadata?` |
+| `report_run_completed` | Report a successful run completion | `runId`, `durationMs?`, `tokensUsed?`, `cost?`, `metadata?` |
+| `report_run_failed` | Report a failed run | `runId`, `error`, `durationMs?`, `tokensUsed?`, `metadata?` |
+| `get_my_recent_runs` | Check this agent's recent runs | `limit?` (default 10) |
+| `get_my_status` | Check this agent's current status and stats | — |
+
+Agents auto-discover these tools and can call them naturally during execution. Zero integration code needed.
+
+### Transport 2: HTTP Ingest API
+
+For agents that don't support MCP, or custom integrations:
 
 ```
 POST /ingest
-Authorization: Bearer af_sk_abc123...
+Authorization: Bearer af_sk_x7k9m2p4q8...
 Content-Type: application/json
 
 {
@@ -161,6 +193,18 @@ Content-Type: application/json
 - If `run.started` is not sent, `run.completed`/`run.failed` creates the run implicitly
 - Duplicate events (same runId + event type) are idempotent
 
+### Architecture: Shared Use Cases
+
+Both transports invoke the same use cases:
+
+```
+MCP Server ──┐
+             ├──→ IngestEvent use case ──→ RunRepository
+HTTP API   ──┘
+```
+
+The MCP server and HTTP controller are both thin adapters in the `apps/api` layer. The domain logic (ingest, validation, metrics) lives in the contexts packages and is transport-agnostic.
+
 ## User Stories
 
 ### US-1: Create an agent
@@ -171,8 +215,9 @@ Content-Type: application/json
 
 **Acceptance criteria:**
 - Can set agent name and type (claude, manus, custom)
-- API key is generated and shown once (copyable)
-- After dismissing, the key cannot be retrieved again
+- Connection token is generated and shown once (copyable)
+- Shows MCP config snippet and HTTP usage example
+- After dismissing, the token cannot be retrieved again
 - Agent appears in the agents list with "inactive" status
 
 ### US-2: View agents list
@@ -219,9 +264,9 @@ Content-Type: application/json
 
 **Acceptance criteria:**
 - Can rename the agent
-- Can regenerate the API key (invalidates the old one)
+- Can regenerate the connection token (invalidates the old one, shows new MCP config)
 - Can delete the agent (soft delete — keeps run history)
-- Confirmation required for key regeneration and deletion
+- Confirmation required for token regeneration and deletion
 
 ### US-6: Dashboard metrics from agents
 
@@ -252,7 +297,7 @@ Content-Type: application/json
 | View agent runs | Yes | Yes | Yes |
 | Create agent | Yes | Yes | No |
 | Edit agent settings | Yes | Yes | No |
-| Regenerate API key | Yes | Yes | No |
+| Regenerate token | Yes | Yes | No |
 | Delete agent | Yes | No | No |
 
 ## API Endpoints
@@ -266,13 +311,13 @@ Content-Type: application/json
 | GET | /agents/:id | Agent detail |
 | PATCH | /agents/:id | Update agent (rename) |
 | DELETE | /agents/:id | Delete agent |
-| POST | /agents/:id/regenerate-key | Regenerate API key |
+| POST | /agents/:id/regenerate-token | Regenerate connection token |
 
-### Monitoring context (API key auth)
+### Monitoring context (connection token auth)
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | /ingest | Ingest run events from agents |
+| POST | /ingest | Ingest run events (HTTP transport) |
 
 ### Monitoring context (JWT auth)
 
@@ -280,3 +325,11 @@ Content-Type: application/json
 |---|---|---|
 | GET | /agents/:id/runs | List runs for agent (paginated) |
 | GET | /agents/:id/metrics | Aggregated metrics for agent |
+
+### MCP Server (connection token auth)
+
+| Endpoint | Description |
+|---|---|
+| /mcp | MCP server endpoint — agents connect via MCP protocol |
+
+Exposes tools: `report_run_started`, `report_run_completed`, `report_run_failed`, `get_my_recent_runs`, `get_my_status`. See [Integration Model](#transport-1-mcp-server-recommended) for details.
