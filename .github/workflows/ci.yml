@@ -44,7 +44,7 @@ jobs:
           NODE_ENV=e2e node apps/api/dist/main.js &
           API_PID=$!
           sleep 5
-          pnpm db:seed || true
+          tsx supabase/seed.ts || true
           kill $API_PID 2>/dev/null || true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
