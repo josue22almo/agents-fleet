@@ -27,16 +27,8 @@ COPY . .
 RUN pnpm run build --filter=@repo/contexts --filter=@repo/contracts && \
     pnpm --filter api run build
 
-# Patch contexts exports to point to dist for production
-RUN node -e " \
-  const pkg = require('./packages/contexts/package.json'); \
-  pkg.exports = { './*': './dist/*/index.js' }; \
-  require('fs').writeFileSync('./packages/contexts/package.json', JSON.stringify(pkg, null, 2));"
-
-RUN node -e " \
-  const pkg = require('./packages/contracts/package.json'); \
-  pkg.exports = { './*': './dist/*/index.js' }; \
-  require('fs').writeFileSync('./packages/contracts/package.json', JSON.stringify(pkg, null, 2));"
+# Patch exports to point to dist for production
+RUN node scripts/patch-exports-for-node.js
 
 # ---
 FROM base AS runner

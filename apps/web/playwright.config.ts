@@ -20,7 +20,7 @@ export default defineConfig({
   webServer: [
     {
       command: isCI
-        ? "pnpm run build --filter=api && NODE_ENV=e2e node apps/api/dist/main.js"
+        ? "pnpm run build --filter=api && node scripts/patch-exports-for-node.js && NODE_ENV=e2e node apps/api/dist/main.js"
         : "NODE_ENV=e2e pnpm --filter api run dev",
       port: 4000,
       reuseExistingServer: true,
