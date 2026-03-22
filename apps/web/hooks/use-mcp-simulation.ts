@@ -121,7 +121,7 @@ export function useMcpSimulation(organizationId: string) {
         timestamp: new Date().toISOString(),
         data: { name: "Demo: Code Review" },
       });
-      const sessionId = (sessionResult as { sessionId?: string }).sessionId;
+      const sessionId = (sessionResult as { id?: string }).id;
       updateLog(2, {
         status: "success",
         durationMs: Math.round(performance.now() - t2),
