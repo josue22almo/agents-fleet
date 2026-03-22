@@ -15,10 +15,10 @@ test.describe("Agent Detail", () => {
     await page.goto("/agents");
     await page.locator("main").getByText("Alice's Claude").click();
 
-    await expect(page.getByText("Total Runs")).toBeVisible();
-    await expect(page.getByText("Success Rate")).toBeVisible();
-    await expect(page.getByText("Avg Duration")).toBeVisible();
-    await expect(page.getByText("Total Cost")).toBeVisible();
+    await expect(page.locator("main").getByText("Total Runs").first()).toBeVisible();
+    await expect(page.locator("main").getByText("Success Rate").first()).toBeVisible();
+    await expect(page.locator("main").getByText("Avg Duration").first()).toBeVisible();
+    await expect(page.locator("main").getByText("Total Cost").first()).toBeVisible();
   });
 
   test("shows runs table with status badges", async ({ page }) => {
