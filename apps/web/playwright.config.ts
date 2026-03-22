@@ -1,5 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
+const isCI = !!process.env.CI;
+
 export default defineConfig({
   testDir: "./e2e",
   timeout: 30_000,
@@ -17,8 +19,9 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command:
-        "pnpm run build --filter=api && NODE_ENV=e2e node apps/api/dist/main.js",
+      command: isCI
+        ? "pnpm run build --filter=api && NODE_ENV=e2e node apps/api/dist/main.js"
+        : "NODE_ENV=e2e pnpm --filter api run dev",
       port: 4000,
       reuseExistingServer: true,
       cwd: "../..",

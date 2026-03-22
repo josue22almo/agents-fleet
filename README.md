@@ -1,159 +1,106 @@
-# Turborepo starter
+# Agents Fleet
 
-This Turborepo starter is maintained by the Turborepo core team.
+[![CI](https://github.com/josue22almo/agents-fleet/actions/workflows/ci.yml/badge.svg)](https://github.com/josue22almo/agents-fleet/actions/workflows/ci.yml)
 
-## Using this example
+A multi-tenant dashboard for monitoring AI agents metrics and performance. Connect agents like Claude, Manus, and others to track runs, response times, and set up alarms — all from a single pane of glass.
 
-Run the following command:
+## Features
 
-```sh
-npx create-turbo@latest
+- **Multi-tenant support** — individual and team organizations with role-based access (owner, admin, member)
+- **Authentication** — signup, login, forgot/reset password
+- **Organization management** — create teams, invite members by email, manage roles
+- **Metrics dashboard** — overview of agents, active runs, response times, and alarms (coming soon)
+- **Agent connections** — connect and monitor different AI agents (coming soon)
+- **Alarms** — configurable alerts for agent performance thresholds (coming soon)
+
+## Architecture
+
+The project follows **DDD with hexagonal architecture** in a **Turborepo monorepo**:
+
+```
+apps/
+  api/          → NestJS REST API
+  web/          → Next.js 16 frontend (App Router, shadcn/ui)
+
+packages/
+  contexts/     → Domain logic (entities, use cases, ports, infrastructure)
+  contracts/    → Shared Zod schemas for API request/response types
 ```
 
-## What's inside?
+**Key principles:**
+- Inner layers (domain, use cases) depend on interfaces, not implementations
+- Framework code (NestJS controllers, Next.js pages) lives in apps, not packages
+- Event-driven side effects via domain events and handlers
+- Supabase for auth and persistence with per-request RLS clients
 
-This Turborepo includes the following packages/apps:
+For detailed architecture documentation, see:
+- [Backend Architecture](docs/backend-architecture.md)
+- [Frontend Architecture](docs/frontend-architecture.md)
+- [Multi-tenant PRD](docs/prd/multi-tenant.md)
 
-### Apps and Packages
+## Getting Started
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### Prerequisites
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- Node.js 22+
+- pnpm 9+
+- Supabase project with the migrations applied
+- Docker (for deployment)
 
-### Utilities
+### Setup
 
-This Turborepo has some additional tools already setup for you:
+```bash
+# Install dependencies
+pnpm install
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+# Configure environment
+cp .env.example .env
+# Edit .env with your Supabase credentials
 
-### Build
+# Run database migrations
+# Apply files in supabase/migrations/ via Supabase SQL editor
 
-To build all apps and packages, run the following command:
+# Seed test data
+pnpm db:seed
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+# Start development
+pnpm run dev
 ```
 
-Without global `turbo`, use your package manager:
+The API runs on `http://localhost:4000` and the web app on `http://localhost:3000`.
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+## Testing
+
+```bash
+# Unit tests (all packages)
+pnpm -r run test
+
+# Unit tests with coverage
+pnpm -r run test -- --coverage
+
+# E2E tests (Playwright)
+pnpm --filter web e2e
+
+# E2E with browser UI
+pnpm --filter web e2e:ui
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Deployment
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+The project deploys via Docker Compose with Traefik for HTTPS:
 
-```sh
-turbo build --filter=docs
+```bash
+docker compose build
+docker compose up -d
 ```
 
-Without global `turbo`:
+Set Supabase and SMTP environment variables in your deployment platform (e.g., Dokploy).
 
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+## Tech Stack
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, React, Tailwind CSS, shadcn/ui, TanStack Query |
+| Backend | NestJS, TypeScript, Supabase (Auth + Postgres) |
+| Shared | Zod (validation), Vitest (unit tests), Playwright (E2E) |
+| Infra | Docker, Turborepo, pnpm, GitHub Actions CI |
