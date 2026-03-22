@@ -55,7 +55,7 @@ export function useMcpSimulation(organizationId: string) {
   });
   const abortRef = useRef(false);
 
-  const TOTAL_STEPS = 11;
+  const TOTAL_STEPS = 13;
 
   const addLog = useCallback(
     (step: number, label: string, status: SimulationLog["status"], detail?: string) => {
@@ -113,125 +113,162 @@ export function useMcpSimulation(organizationId: string) {
       setState((prev) => ({ ...prev, createdAgentId: agentId }));
       if (abortRef.current) return;
 
-      // Step 2: POST /ingest run.started (run_001)
-      addLog(2, "POST /ingest: run.started (run_001)", "running");
-      const t1 = performance.now();
+      // Step 2: POST /ingest session.started
+      addLog(2, 'POST /ingest: session.started ("Demo: Code Review")', "running");
+      const t2 = performance.now();
+      const sessionResult = await ingestEvent(connectionToken, {
+        event: "session.started",
+        timestamp: new Date().toISOString(),
+        data: { name: "Demo: Code Review" },
+      });
+      const sessionId = (sessionResult as { sessionId?: string }).sessionId;
+      updateLog(2, {
+        status: "success",
+        durationMs: Math.round(performance.now() - t2),
+        detail: `Session created: ${sessionId}`,
+      });
+      if (abortRef.current) return;
+
+      // Step 3: POST /ingest run.started (run_001, sessionId)
+      addLog(3, "POST /ingest: run.started (run_001, sessionId)", "running");
+      const t3 = performance.now();
       const run1Started = await ingestEvent(connectionToken, {
         event: "run.started",
         runId: "run_001",
+        sessionId,
         timestamp: new Date().toISOString(),
       });
-      updateLog(2, {
+      updateLog(3, {
         status: "success",
-        durationMs: Math.round(performance.now() - t1),
+        durationMs: Math.round(performance.now() - t3),
         detail: JSON.stringify(run1Started),
       });
       if (abortRef.current) return;
 
-      // Step 3: Wait 2s
-      addLog(3, "Simulating work... (2s delay)", "running");
+      // Step 4: Wait 2s
+      addLog(4, "Simulating work... (2s delay)", "running");
       await wait(2000);
-      updateLog(3, { status: "success", durationMs: 2000 });
+      updateLog(4, { status: "success", durationMs: 2000 });
       if (abortRef.current) return;
 
-      // Step 4: POST /ingest run.completed (run_001)
-      addLog(4, "POST /ingest: run.completed (run_001)", "running");
-      const t4 = performance.now();
+      // Step 5: POST /ingest run.completed (run_001)
+      addLog(5, "POST /ingest: run.completed (run_001)", "running");
+      const t5 = performance.now();
       const run1Completed = await ingestEvent(connectionToken, {
         event: "run.completed",
         runId: "run_001",
         timestamp: new Date().toISOString(),
         data: { durationMs: 2300, tokensUsed: 450, cost: 0.12 },
       });
-      updateLog(4, {
+      updateLog(5, {
         status: "success",
-        durationMs: Math.round(performance.now() - t4),
+        durationMs: Math.round(performance.now() - t5),
         detail: JSON.stringify(run1Completed),
       });
       if (abortRef.current) return;
 
-      // Step 5: POST /ingest run.started (run_002)
-      addLog(5, "POST /ingest: run.started (run_002)", "running");
-      const t5 = performance.now();
+      // Step 6: POST /ingest run.started (run_002, sessionId)
+      addLog(6, "POST /ingest: run.started (run_002, sessionId)", "running");
+      const t6 = performance.now();
       const run2Started = await ingestEvent(connectionToken, {
         event: "run.started",
         runId: "run_002",
+        sessionId,
         timestamp: new Date().toISOString(),
       });
-      updateLog(5, {
+      updateLog(6, {
         status: "success",
-        durationMs: Math.round(performance.now() - t5),
+        durationMs: Math.round(performance.now() - t6),
         detail: JSON.stringify(run2Started),
       });
       if (abortRef.current) return;
 
-      // Step 6: Wait 1s
-      addLog(6, "Simulating work... (1s delay)", "running");
+      // Step 7: Wait 1s
+      addLog(7, "Simulating work... (1s delay)", "running");
       await wait(1000);
-      updateLog(6, { status: "success", durationMs: 1000 });
+      updateLog(7, { status: "success", durationMs: 1000 });
       if (abortRef.current) return;
 
-      // Step 7: POST /ingest run.failed (run_002)
-      addLog(7, "POST /ingest: run.failed (run_002)", "running");
-      const t7 = performance.now();
+      // Step 8: POST /ingest run.failed (run_002)
+      addLog(8, "POST /ingest: run.failed (run_002)", "running");
+      const t8 = performance.now();
       const run2Failed = await ingestEvent(connectionToken, {
         event: "run.failed",
         runId: "run_002",
         timestamp: new Date().toISOString(),
         data: { error: "Rate limit exceeded" },
       });
-      updateLog(7, {
+      updateLog(8, {
         status: "error",
-        durationMs: Math.round(performance.now() - t7),
+        durationMs: Math.round(performance.now() - t8),
         detail: `Error: Rate limit exceeded \u2014 ${JSON.stringify(run2Failed)}`,
       });
       if (abortRef.current) return;
 
-      // Step 8: POST /ingest run.started (run_003)
-      addLog(8, "POST /ingest: run.started (run_003)", "running");
-      const t8 = performance.now();
+      // Step 9: POST /ingest run.started (run_003, sessionId)
+      addLog(9, "POST /ingest: run.started (run_003, sessionId)", "running");
+      const t9 = performance.now();
       const run3Started = await ingestEvent(connectionToken, {
         event: "run.started",
         runId: "run_003",
+        sessionId,
         timestamp: new Date().toISOString(),
       });
-      updateLog(8, {
+      updateLog(9, {
         status: "success",
-        durationMs: Math.round(performance.now() - t8),
+        durationMs: Math.round(performance.now() - t9),
         detail: JSON.stringify(run3Started),
       });
       if (abortRef.current) return;
 
-      // Step 9: Wait 1.5s
-      addLog(9, "Simulating work... (1.5s delay)", "running");
+      // Step 10: Wait 1.5s
+      addLog(10, "Simulating work... (1.5s delay)", "running");
       await wait(1500);
-      updateLog(9, { status: "success", durationMs: 1500 });
+      updateLog(10, { status: "success", durationMs: 1500 });
       if (abortRef.current) return;
 
-      // Step 10: POST /ingest run.completed (run_003)
-      addLog(10, "POST /ingest: run.completed (run_003)", "running");
-      const t10 = performance.now();
+      // Step 11: POST /ingest run.completed (run_003)
+      addLog(11, "POST /ingest: run.completed (run_003)", "running");
+      const t11 = performance.now();
       const run3Completed = await ingestEvent(connectionToken, {
         event: "run.completed",
         runId: "run_003",
         timestamp: new Date().toISOString(),
         data: { durationMs: 1800, tokensUsed: 380, cost: 0.09 },
       });
-      updateLog(10, {
+      updateLog(11, {
         status: "success",
-        durationMs: Math.round(performance.now() - t10),
+        durationMs: Math.round(performance.now() - t11),
         detail: JSON.stringify(run3Completed),
       });
       if (abortRef.current) return;
 
-      // Step 11: GET agent metrics
-      addLog(11, "GET agent metrics (final state)", "running");
-      const t11 = performance.now();
-      const metrics = await api.agents.metrics(agentId);
-      updateLog(11, {
+      // Step 12: POST /ingest session.completed
+      addLog(12, "POST /ingest: session.completed", "running");
+      const t12 = performance.now();
+      const sessionCompleted = await ingestEvent(connectionToken, {
+        event: "session.completed",
+        sessionId,
+        timestamp: new Date().toISOString(),
+      });
+      updateLog(12, {
         status: "success",
-        durationMs: Math.round(performance.now() - t11),
-        detail: `Runs: ${metrics.totalRuns}, Success rate: ${(metrics.successRate * 100).toFixed(0)}%, Cost: $${metrics.totalCost.toFixed(2)}`,
+        durationMs: Math.round(performance.now() - t12),
+        detail: JSON.stringify(sessionCompleted),
+      });
+      if (abortRef.current) return;
+
+      // Step 13: Show final session stats
+      addLog(13, "GET session stats (final state)", "running");
+      const t13 = performance.now();
+      const sessions = await api.agents.sessions(agentId);
+      const sessionData = sessions.data[0];
+      updateLog(13, {
+        status: "success",
+        durationMs: Math.round(performance.now() - t13),
+        detail: sessionData
+          ? `Session "${sessionData.name}": ${sessionData.runCount} runs, Duration: ${sessionData.totalDurationMs ?? 0}ms, Cost: $${(sessionData.totalCost ?? 0).toFixed(2)}, Status: ${sessionData.status}`
+          : `Sessions: ${sessions.total} total`,
       });
 
       // Invalidate caches
