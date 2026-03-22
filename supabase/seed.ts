@@ -1,3 +1,19 @@
+/**
+ * Seed script — creates test data in Supabase.
+ * Idempotent: safe to run multiple times (cleans up before inserting).
+ *
+ * Order:
+ *   1. Cleanup (runs → agents → invitations → members → orgs → profiles → auth users)
+ *   2. Users (alice, bob, carol, dave — password: password123)
+ *   3. Profiles
+ *   4. Personal orgs (one per user with owner membership)
+ *   5. Team orgs (Acme Corp + Startup Labs with role-based memberships)
+ *   6. Invitations (pending + expired)
+ *   7. Agents (3 for Acme Corp, 2 for Startup Labs — with connection tokens)
+ *   8. Runs (5-10 per active agent — 60% completed, 25% failed, 15% running)
+ *
+ * Usage: pnpm db:seed
+ */
 import { createClient } from "@supabase/supabase-js";
 import { createHash, randomBytes } from "node:crypto";
 
