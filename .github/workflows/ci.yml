@@ -49,27 +49,11 @@ jobs:
         if: always() && github.ref == 'refs/heads/main'
         run: |
           mkdir -p reports/playwright reports/coverage/contexts reports/coverage/api reports/coverage/web
-          cp -r apps/web/playwright-report/* reports/playwright/ 2>/dev/null || true
-          cp -r packages/contexts/coverage/* reports/coverage/contexts/ 2>/dev/null || true
-          cp -r apps/api/coverage/* reports/coverage/api/ 2>/dev/null || true
-          cp -r apps/web/coverage/* reports/coverage/web/ 2>/dev/null || true
-          cat > reports/index.html << 'INDEXEOF'
-          <!DOCTYPE html>
-          <html>
-          <head><title>Agents Fleet — Test Reports</title>
-          <style>body{font-family:system-ui;max-width:600px;margin:60px auto;padding:0 20px}a{color:#7c3aed}h1{font-size:1.5rem}ul{list-style:none;padding:0}li{margin:12px 0}li a{display:block;padding:16px;border:1px solid #e5e7eb;border-radius:12px;text-decoration:none;transition:border-color .2s}li a:hover{border-color:#7c3aed}</style>
-          </head>
-          <body>
-          <h1>Agents Fleet — Test Reports</h1>
-          <ul>
-          <li><a href="playwright/">Playwright E2E Report</a></li>
-          <li><a href="coverage/contexts/">Contexts Coverage</a></li>
-          <li><a href="coverage/api/">API Coverage</a></li>
-          <li><a href="coverage/web/">Web Coverage</a></li>
-          </ul>
-          </body>
-          </html>
-          INDEXEOF
+          cp -r apps/web/playwright-report/* reports/playwright/ 2>/dev/null || echo '<html><body><p>No Playwright report available.</p></body></html>' > reports/playwright/index.html
+          cp -r packages/contexts/coverage/* reports/coverage/contexts/ 2>/dev/null || echo '<html><body><p>No coverage report.</p></body></html>' > reports/coverage/contexts/index.html
+          cp -r apps/api/coverage/* reports/coverage/api/ 2>/dev/null || echo '<html><body><p>No coverage report.</p></body></html>' > reports/coverage/api/index.html
+          cp -r apps/web/coverage/* reports/coverage/web/ 2>/dev/null || echo '<html><body><p>No coverage report.</p></body></html>' > reports/coverage/web/index.html
+          cp scripts/reports-index.html reports/index.html
 
       - name: Upload Pages artifact
         if: always() && github.ref == 'refs/heads/main'
