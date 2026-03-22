@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -40,19 +45,63 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           NODE_ENV: e2e
 
-      - name: Upload unit test coverage
+      - name: Build reports site
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p reports/playwright reports/coverage
+          cp -r apps/web/playwright-report/* reports/playwright/ 2>/dev/null || true
+          cp -r packages/contexts/coverage/* reports/coverage/contexts/ 2>/dev/null || true
+          cp -r apps/api/coverage/* reports/coverage/api/ 2>/dev/null || true
+          cp -r apps/web/coverage/* reports/coverage/web/ 2>/dev/null || true
+          cat > reports/index.html << 'INDEXEOF'
+          <!DOCTYPE html>
+          <html>
+          <head><title>Agents Fleet — Test Reports</title>
+          <style>body{font-family:system-ui;max-width:600px;margin:60px auto;padding:0 20px}a{color:#7c3aed}h1{font-size:1.5rem}ul{list-style:none;padding:0}li{margin:12px 0}li a{display:block;padding:16px;border:1px solid #e5e7eb;border-radius:12px;text-decoration:none;transition:border-color .2s}li a:hover{border-color:#7c3aed}</style>
+          </head>
+          <body>
+          <h1>Agents Fleet — Test Reports</h1>
+          <ul>
+          <li><a href="playwright/">Playwright E2E Report</a></li>
+          <li><a href="coverage/contexts/">Contexts Coverage</a></li>
+          <li><a href="coverage/api/">API Coverage</a></li>
+          <li><a href="coverage/web/">Web Coverage</a></li>
+          </ul>
+          </body>
+          </html>
+          INDEXEOF
+
+      - name: Upload Pages artifact
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: reports
+
+      - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
+          name: test-reports
           path: |
+            apps/web/playwright-report/
             packages/contexts/coverage/
             apps/api/coverage/
             apps/web/coverage/
 
-      - name: Upload E2E report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: apps/web/playwright-report/
+  deploy-reports:
+    if: always() && github.ref == 'refs/heads/main'
+    needs: ci
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
