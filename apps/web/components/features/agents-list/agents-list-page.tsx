@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import { Plus, Zap } from "lucide-react";
 import { useAgents } from "@/hooks/use-agents";
 import { useOrgSwitcher } from "@/hooks/use-org-switcher";
+import { useMcpSimulation } from "@/hooks/use-mcp-simulation";
 import { buttonVariants } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/error-state";
 import { Spinner } from "@/components/ui/spinner";
+import { SimulationIntroCard } from "@/components/features/mcp-simulation/simulation-intro-card";
+import { SimulationPanel } from "@/components/features/mcp-simulation/simulation-panel";
 
 const typeColors: Record<string, { bg: string; text: string }> = {
   claude: { bg: "bg-violet-100", text: "text-violet-700" },
@@ -37,6 +40,9 @@ export function AgentsListPage() {
   const router = useRouter();
   const { currentOrg } = useOrgSwitcher();
   const { data: agents, isLoading, error, refetch } = useAgents(currentOrg?.id ?? "");
+  const simulation = useMcpSimulation(currentOrg?.id ?? "");
+
+  const showPanel = simulation.isRunning || simulation.isDone;
 
   return (
     <>
@@ -50,6 +56,25 @@ export function AgentsListPage() {
           Connect Agent
         </Link>
       </div>
+
+      {showPanel ? (
+        <SimulationPanel
+          logs={simulation.logs}
+          isRunning={simulation.isRunning}
+          isDone={simulation.isDone}
+          createdAgentId={simulation.createdAgentId}
+          onRunAgain={() => {
+            simulation.reset();
+            simulation.startSimulation();
+          }}
+          onClose={() => simulation.reset()}
+        />
+      ) : (
+        <SimulationIntroCard
+          onStart={() => simulation.startSimulation()}
+          isRunning={simulation.isRunning}
+        />
+      )}
 
       {isLoading ? (
         <Spinner className="mx-auto" />
