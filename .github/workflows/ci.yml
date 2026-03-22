@@ -32,7 +32,7 @@ jobs:
         run: pnpm run build
 
       - name: Unit tests with coverage
-        run: pnpm -r run test -- --coverage
+        run: pnpm -r run test -- --coverage --coverage.reporter=html
 
       - name: Install Playwright browsers
         run: pnpm --filter web exec playwright install chromium --with-deps
@@ -48,7 +48,7 @@ jobs:
       - name: Build reports site
         if: always() && github.ref == 'refs/heads/main'
         run: |
-          mkdir -p reports/playwright reports/coverage
+          mkdir -p reports/playwright reports/coverage/contexts reports/coverage/api reports/coverage/web
           cp -r apps/web/playwright-report/* reports/playwright/ 2>/dev/null || true
           cp -r packages/contexts/coverage/* reports/coverage/contexts/ 2>/dev/null || true
           cp -r apps/api/coverage/* reports/coverage/api/ 2>/dev/null || true
