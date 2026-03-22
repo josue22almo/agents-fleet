@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Detail — Sessions — Agents Fleet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(240 10% 3.9%)',
+            card: 'hsl(0 0% 100%)',
+            'card-foreground': 'hsl(240 10% 3.9%)',
+            primary: 'hsl(262 83% 58%)',
+            'primary-foreground': 'hsl(0 0% 100%)',
+            secondary: 'hsl(240 4.8% 95.9%)',
+            'secondary-foreground': 'hsl(240 5.9% 10%)',
+            muted: 'hsl(240 4.8% 95.9%)',
+            'muted-foreground': 'hsl(240 3.8% 46.1%)',
+            border: 'hsl(240 5.9% 90%)',
+            input: 'hsl(240 5.9% 90%)',
+            ring: 'hsl(262 83% 58%)',
+            accent: 'hsl(262 83% 96%)',
+            'accent-foreground': 'hsl(262 83% 40%)',
+            sidebar: 'hsl(0 0% 100%)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background: hsl(240 4.8% 95.9%); color: hsl(240 10% 3.9%); font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-border flex flex-col">
+      <!-- Org Switcher -->
+      <div class="p-4 border-b border-border">
+        <button class="flex items-center justify-between w-full rounded-lg border border-input bg-background px-3 py-2 text-sm hover:bg-muted transition-colors">
+          <div class="flex items-center gap-2">
+            <div class="h-6 w-6 rounded-md bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">J</div>
+            <span class="font-medium">John's Space</span>
+          </div>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+        </button>
+      </div>
+
+      <!-- Nav -->
+      <nav class="flex-1 p-3 space-y-1">
+        <a href="../agents/dashboard.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+          Dashboard
+        </a>
+        <a href="../agents/agents-list.html" class="flex items-center gap-3 rounded-lg bg-accent text-accent-foreground px-3 py-2 text-sm font-medium transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Agents
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+          Metrics
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          Alarms
+        </a>
+        <a href="../agents/orgs.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+          Organizations
+        </a>
+      </nav>
+
+      <!-- User -->
+      <div class="p-3 border-t border-border">
+        <a href="../agents/profile.html" class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-muted transition-colors cursor-pointer">
+          <div class="h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-medium text-white">JD</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate">John Doe</p>
+            <p class="text-xs text-muted-foreground truncate">john@example.com</p>
+          </div>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-8">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <a href="../agents/agents-list.html" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Agents</a>
+            <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            <span class="text-sm text-muted-foreground">Detail</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <h1 class="text-3xl font-semibold tracking-tight">Claude Code — Production</h1>
+            <span class="inline-flex items-center rounded-full bg-violet-100 text-violet-700 px-2.5 py-0.5 text-xs font-medium">Claude</span>
+            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              Active
+            </span>
+          </div>
+        </div>
+        <a href="../agents/agent-settings.html" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium h-10 px-4 border border-input bg-background hover:bg-muted transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          Settings
+        </a>
+      </div>
+
+      <!-- Stats cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-muted-foreground">Total Runs</p>
+            <div class="h-8 w-8 rounded-lg bg-violet-100 flex items-center justify-center">
+              <svg class="h-4 w-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold">1,247</p>
+          <p class="text-xs text-muted-foreground mt-1">+38 today</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-muted-foreground">Success Rate</p>
+            <div class="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold">98.2%</p>
+          <p class="text-xs text-emerald-600 font-medium mt-1">+0.3% from last week</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-muted-foreground">Avg Duration</p>
+            <div class="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+              <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold">2.3s</p>
+          <p class="text-xs text-muted-foreground mt-1">-0.1s from last week</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-muted-foreground">Total Cost</p>
+            <div class="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center">
+              <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold">$12.45</p>
+          <p class="text-xs text-muted-foreground mt-1">$1.82 today</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex items-center gap-1 mb-6 border-b border-border">
+        <button class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-primary border-b-2 border-primary -mb-px">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+          Sessions
+        </button>
+        <a href="../agents/agent-detail.html" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-gray-300 transition-colors -mb-px">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          Runs
+        </a>
+      </div>
+
+      <!-- Sessions List -->
+      <div class="space-y-3">
+
+        <!-- Session 1: Expanded -->
+        <div class="rounded-xl border border-primary/30 bg-card shadow-sm overflow-hidden">
+          <!-- Session header -->
+          <div class="p-5 cursor-pointer hover:bg-muted/30 transition-colors">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <svg class="h-5 w-5 text-muted-foreground transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h3 class="text-sm font-semibold">Code Review PR #42</h3>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                      <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                      Completed
+                    </span>
+                  </div>
+                  <p class="text-xs text-muted-foreground mt-1">Session ID: sess_pr42_review</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-6 text-sm">
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Runs</p>
+                  <p class="font-medium">3</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Duration</p>
+                  <p class="font-medium">4.2s</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Cost</p>
+                  <p class="font-medium">$0.32</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Started</p>
+                  <p class="font-medium text-muted-foreground">2h ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded: nested runs -->
+          <div class="border-t border-border bg-muted/20">
+            <div class="px-5 py-3">
+              <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 pl-9">Session Runs</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="border-t border-border">
+                    <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-2 pl-14">Run ID</th>
+                    <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-2">Status</th>
+                    <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-2">Duration</th>
+                    <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-2">Tokens</th>
+                    <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-2">Cost</th>
+                    <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-2">Started</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-t border-border/50 hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-3 pl-14 text-sm font-mono text-muted-foreground">run_pr42_001</td>
+                    <td class="px-6 py-3">
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        Completed
+                      </span>
+                    </td>
+                    <td class="px-6 py-3 text-sm">1.4s</td>
+                    <td class="px-6 py-3 text-sm">1,240</td>
+                    <td class="px-6 py-3 text-sm">$0.12</td>
+                    <td class="px-6 py-3 text-sm text-muted-foreground">2h ago</td>
+                  </tr>
+                  <tr class="border-t border-border/50 hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-3 pl-14 text-sm font-mono text-muted-foreground">run_pr42_002</td>
+                    <td class="px-6 py-3">
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        Completed
+                      </span>
+                    </td>
+                    <td class="px-6 py-3 text-sm">1.6s</td>
+                    <td class="px-6 py-3 text-sm">980</td>
+                    <td class="px-6 py-3 text-sm">$0.10</td>
+                    <td class="px-6 py-3 text-sm text-muted-foreground">2h ago</td>
+                  </tr>
+                  <tr class="border-t border-border/50 hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-3 pl-14 text-sm font-mono text-muted-foreground">run_pr42_003</td>
+                    <td class="px-6 py-3">
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        Completed
+                      </span>
+                    </td>
+                    <td class="px-6 py-3 text-sm">1.2s</td>
+                    <td class="px-6 py-3 text-sm">1,100</td>
+                    <td class="px-6 py-3 text-sm">$0.10</td>
+                    <td class="px-6 py-3 text-sm text-muted-foreground">2h ago</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Session 2: Collapsed -->
+        <div class="rounded-xl border border-border bg-card shadow-sm">
+          <div class="p-5 cursor-pointer hover:bg-muted/30 transition-colors">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <svg class="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h3 class="text-sm font-semibold">Bug Fix: Auth Timeout</h3>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 text-red-700 px-2.5 py-0.5 text-xs font-medium">
+                      <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                      Failed
+                    </span>
+                  </div>
+                  <p class="text-xs text-muted-foreground mt-1">Session ID: sess_bugfix_auth</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-6 text-sm">
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Runs</p>
+                  <p class="font-medium">2</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Duration</p>
+                  <p class="font-medium">1.8s</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Cost</p>
+                  <p class="font-medium">$0.15</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Started</p>
+                  <p class="font-medium text-muted-foreground">5h ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Session 3: Collapsed, Active -->
+        <div class="rounded-xl border border-border bg-card shadow-sm">
+          <div class="p-5 cursor-pointer hover:bg-muted/30 transition-colors">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <svg class="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h3 class="text-sm font-semibold">Research: API Design</h3>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 text-blue-700 px-2.5 py-0.5 text-xs font-medium">
+                      <span class="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                      Active
+                    </span>
+                  </div>
+                  <p class="text-xs text-muted-foreground mt-1">Session ID: sess_api_research</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-6 text-sm">
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Runs</p>
+                  <p class="font-medium">1</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Duration</p>
+                  <p class="font-medium text-blue-600">running</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Cost</p>
+                  <p class="font-medium">--</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-muted-foreground">Started</p>
+                  <p class="font-medium text-muted-foreground">12 min ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between mt-6">
+        <p class="text-sm text-muted-foreground">Showing 1-3 of 3 sessions</p>
+        <div class="flex items-center gap-2">
+          <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-3 border border-input bg-background text-muted-foreground cursor-not-allowed opacity-50">
+            Previous
+          </button>
+          <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 w-9 bg-primary text-primary-foreground shadow-sm">1</button>
+          <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-3 border border-input bg-background text-muted-foreground cursor-not-allowed opacity-50">
+            Next
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

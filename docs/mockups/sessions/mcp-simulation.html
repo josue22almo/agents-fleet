@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Simulation — Agents Fleet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(240 10% 3.9%)',
+            card: 'hsl(0 0% 100%)',
+            'card-foreground': 'hsl(240 10% 3.9%)',
+            primary: 'hsl(262 83% 58%)',
+            'primary-foreground': 'hsl(0 0% 100%)',
+            secondary: 'hsl(240 4.8% 95.9%)',
+            'secondary-foreground': 'hsl(240 5.9% 10%)',
+            muted: 'hsl(240 4.8% 95.9%)',
+            'muted-foreground': 'hsl(240 3.8% 46.1%)',
+            border: 'hsl(240 5.9% 90%)',
+            input: 'hsl(240 5.9% 90%)',
+            ring: 'hsl(262 83% 58%)',
+            accent: 'hsl(262 83% 96%)',
+            'accent-foreground': 'hsl(262 83% 40%)',
+            sidebar: 'hsl(0 0% 100%)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background: hsl(240 4.8% 95.9%); color: hsl(240 10% 3.9%); font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-border flex flex-col">
+      <!-- Org Switcher -->
+      <div class="p-4 border-b border-border">
+        <button class="flex items-center justify-between w-full rounded-lg border border-input bg-background px-3 py-2 text-sm hover:bg-muted transition-colors">
+          <div class="flex items-center gap-2">
+            <div class="h-6 w-6 rounded-md bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">J</div>
+            <span class="font-medium">John's Space</span>
+          </div>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+        </button>
+      </div>
+
+      <!-- Nav -->
+      <nav class="flex-1 p-3 space-y-1">
+        <a href="../agents/dashboard.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+          Dashboard
+        </a>
+        <a href="../agents/agents-list.html" class="flex items-center gap-3 rounded-lg bg-accent text-accent-foreground px-3 py-2 text-sm font-medium transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Agents
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+          Metrics
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          Alarms
+        </a>
+        <a href="../agents/orgs.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+          Organizations
+        </a>
+      </nav>
+
+      <!-- User -->
+      <div class="p-3 border-t border-border">
+        <a href="../agents/profile.html" class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-muted transition-colors cursor-pointer">
+          <div class="h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-medium text-white">JD</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate">John Doe</p>
+            <p class="text-xs text-muted-foreground truncate">john@example.com</p>
+          </div>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main content: split layout -->
+    <div class="flex-1 flex">
+
+      <!-- Left: Agents list (narrower) -->
+      <main class="flex-1 p-8 min-w-0" style="flex: 0 0 55%;">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-3xl font-semibold tracking-tight">Agents</h1>
+            <p class="text-muted-foreground mt-1">Manage your connected agents</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium h-10 px-4 border border-primary text-primary hover:bg-accent transition-colors" disabled>
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /></svg>
+              Simulate
+            </button>
+            <a href="../agents/agents-new.html" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium h-10 px-5 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+              Connect Agent
+            </a>
+          </div>
+        </div>
+
+        <!-- Agent Cards -->
+        <div class="space-y-4">
+          <!-- New Simulation Agent (highlighted) -->
+          <div class="rounded-xl border-2 border-primary/50 bg-card p-5 shadow-md relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-violet-500 to-purple-600"></div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="h-10 w-10 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center text-lg font-semibold">S</div>
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h3 class="text-sm font-semibold">Simulation Agent — 2026-03-22</h3>
+                    <span class="inline-flex items-center rounded-full bg-violet-100 text-violet-700 px-2.5 py-0.5 text-xs font-medium">Simulated</span>
+                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                      Active
+                    </span>
+                  </div>
+                  <p class="text-xs text-muted-foreground mt-1">Created just now via simulation</p>
+                </div>
+              </div>
+              <a href="../agents/agent-settings.html" class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-4 border border-input bg-background hover:bg-muted transition-colors" onclick="event.stopPropagation()">
+                Settings
+              </a>
+            </div>
+          </div>
+
+          <!-- Agent 1: Claude Code -->
+          <div class="rounded-xl border border-border bg-card p-5 shadow-sm hover:border-primary/30 hover:shadow-md transition-all cursor-pointer">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="h-10 w-10 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center text-lg font-semibold">C</div>
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h3 class="text-sm font-semibold">Claude Code — Production</h3>
+                    <span class="inline-flex items-center rounded-full bg-violet-100 text-violet-700 px-2.5 py-0.5 text-xs font-medium">Claude</span>
+                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                      Active
+                    </span>
+                  </div>
+                  <p class="text-xs text-muted-foreground mt-1">Last seen 2 minutes ago</p>
+                </div>
+              </div>
+              <a href="../agents/agent-settings.html" class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-4 border border-input bg-background hover:bg-muted transition-colors" onclick="event.stopPropagation()">
+                Settings
+              </a>
+            </div>
+          </div>
+
+          <!-- Agent 2: Manus Research -->
+          <div class="rounded-xl border border-border bg-card p-5 shadow-sm hover:border-primary/30 hover:shadow-md transition-all cursor-pointer">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="h-10 w-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-lg font-semibold">M</div>
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h3 class="text-sm font-semibold">Manus Research</h3>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2.5 py-0.5 text-xs font-medium">Manus</span>
+                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                      Active
+                    </span>
+                  </div>
+                  <p class="text-xs text-muted-foreground mt-1">Last seen 3 hours ago</p>
+                </div>
+              </div>
+              <a href="../agents/agent-settings.html" class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-4 border border-input bg-background hover:bg-muted transition-colors" onclick="event.stopPropagation()">
+                Settings
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Right: MCP Simulation Panel -->
+      <aside class="border-l border-border bg-white flex flex-col" style="flex: 0 0 45%;">
+        <!-- Panel header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+          <div class="flex items-center gap-3">
+            <div class="h-8 w-8 rounded-lg bg-violet-100 flex items-center justify-center">
+              <svg class="h-4 w-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            </div>
+            <h2 class="text-lg font-semibold">MCP Simulation</h2>
+          </div>
+          <button class="inline-flex items-center justify-center rounded-lg h-8 w-8 hover:bg-muted transition-colors">
+            <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="px-6 py-3 border-b border-border">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium text-muted-foreground">Progress</span>
+            <span class="text-xs font-medium text-primary">13/13 complete</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-gradient-to-r from-violet-500 to-purple-600 h-2 rounded-full" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- Terminal output -->
+        <div class="flex-1 overflow-y-auto bg-gray-950 p-5 font-mono text-sm leading-relaxed">
+          <!-- Step 1 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[1/13]</span>
+              <span class="text-gray-300">Creating agent...</span>
+            </div>
+            <div class="ml-7 mt-1">
+              <span class="text-emerald-400">&#10003;</span>
+              <span class="text-gray-300">Agent</span>
+              <span class="text-amber-300">"Simulation Agent &mdash; 2026-03-22"</span>
+              <span class="text-gray-300">created</span>
+              <span class="text-gray-500">(id: abc123)</span>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[2/13]</span>
+              <span class="text-violet-300">start_session</span><span class="text-gray-500">(</span><span class="text-amber-300">"Demo: Code Review"</span><span class="text-gray-500">)</span>
+            </div>
+            <div class="ml-7 mt-1 flex items-center gap-3">
+              <span><span class="text-emerald-400">&#10003;</span> <span class="text-gray-300">Session created</span> <span class="text-gray-500">(id: sess_001)</span></span>
+              <span class="text-gray-600">&mdash; 120ms</span>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[3/13]</span>
+              <span class="text-violet-300">report_run_started</span><span class="text-gray-500">(run_001, sess_001)</span>
+            </div>
+            <div class="ml-7 mt-1 flex items-center gap-3">
+              <span><span class="text-emerald-400">&#10003;</span> <span class="text-gray-300">Run started</span></span>
+              <span class="text-gray-600">&mdash; 85ms</span>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[4/13]</span>
+              <span class="text-gray-300">Simulating work...</span>
+            </div>
+            <div class="ml-7 mt-1">
+              <span class="text-amber-400">&#9203;</span>
+              <span class="text-gray-400">Waiting 2s...</span>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[5/13]</span>
+              <span class="text-violet-300">report_run_completed</span><span class="text-gray-500">(run_001, {duration: 2300, tokens: 450, cost: 0.12})</span>
+            </div>
+            <div class="ml-7 mt-1 flex items-center gap-3">
+              <span><span class="text-emerald-400">&#10003;</span> <span class="text-gray-300">Run completed</span></span>
+              <span class="text-gray-600">&mdash; 95ms</span>
+            </div>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[6/13]</span>
+              <span class="text-violet-300">report_run_started</span><span class="text-gray-500">(run_002, sess_001)</span>
+            </div>
+            <div class="ml-7 mt-1 flex items-center gap-3">
+              <span><span class="text-emerald-400">&#10003;</span> <span class="text-gray-300">Run started</span></span>
+              <span class="text-gray-600">&mdash; 78ms</span>
+            </div>
+          </div>
+
+          <!-- Step 7 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[7/13]</span>
+              <span class="text-gray-300">Simulating work...</span>
+            </div>
+            <div class="ml-7 mt-1">
+              <span class="text-amber-400">&#9203;</span>
+              <span class="text-gray-400">Waiting 1s...</span>
+            </div>
+          </div>
+
+          <!-- Step 8 (failure) -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[8/13]</span>
+              <span class="text-violet-300">report_run_failed</span><span class="text-gray-500">(run_002, </span><span class="text-red-400">"Rate limit exceeded"</span><span class="text-gray-500">)</span>
+            </div>
+            <div class="ml-7 mt-1 flex items-center gap-3">
+              <span><span class="text-red-400">&#10007;</span> <span class="text-red-300">Run failed</span></span>
+              <span class="text-gray-600">&mdash; 92ms</span>
+            </div>
+          </div>
+
+          <!-- Step 9 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[9/13]</span>
+              <span class="text-violet-300">report_run_started</span><span class="text-gray-500">(run_003, sess_001)</span>
+            </div>
+            <div class="ml-7 mt-1 flex items-center gap-3">
+              <span><span class="text-emerald-400">&#10003;</span> <span class="text-gray-300">Run started</span></span>
+              <span class="text-gray-600">&mdash; 81ms</span>
+            </div>
+          </div>
+
+          <!-- Step 10 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[10/13]</span>
+              <span class="text-gray-300">Simulating work...</span>
+            </div>
+            <div class="ml-7 mt-1">
+              <span class="text-amber-400">&#9203;</span>
+              <span class="text-gray-400">Waiting 1.5s...</span>
+            </div>
+          </div>
+
+          <!-- Step 11 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[11/13]</span>
+              <span class="text-violet-300">report_run_completed</span><span class="text-gray-500">(run_003, {duration: 1800, tokens: 380, cost: 0.09})</span>
+            </div>
+            <div class="ml-7 mt-1 flex items-center gap-3">
+              <span><span class="text-emerald-400">&#10003;</span> <span class="text-gray-300">Run completed</span></span>
+              <span class="text-gray-600">&mdash; 88ms</span>
+            </div>
+          </div>
+
+          <!-- Step 12 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[12/13]</span>
+              <span class="text-violet-300">end_session</span><span class="text-gray-500">(sess_001)</span>
+            </div>
+            <div class="ml-7 mt-1 flex items-center gap-3">
+              <span><span class="text-emerald-400">&#10003;</span> <span class="text-gray-300">Session completed: 3 runs, 2 succeeded, 1 failed</span></span>
+              <span class="text-gray-600">&mdash; 110ms</span>
+            </div>
+          </div>
+
+          <!-- Step 13 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-violet-400 font-semibold">[13/13]</span>
+              <span class="text-violet-300">get_my_sessions</span><span class="text-gray-500">()</span>
+            </div>
+            <div class="ml-7 mt-1 flex items-center gap-3">
+              <span><span class="text-emerald-400">&#10003;</span> <span class="text-gray-300">Retrieved 1 session</span></span>
+              <span class="text-gray-600">&mdash; 75ms</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-border bg-white">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Simulation complete!
+              </span>
+            </div>
+            <div class="flex items-center gap-3">
+              <button class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium h-9 px-4 border border-input bg-background hover:bg-muted transition-colors">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                Run Again
+              </button>
+              <a href="agent-detail-sessions.html" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm">
+                View Agent
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
