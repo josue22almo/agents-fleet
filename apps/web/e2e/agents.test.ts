@@ -61,7 +61,7 @@ test.describe("Agents", () => {
 
     // Verify update succeeded
     await expect(
-      page.getByText(agentName + " Renamed").or(page.getByText(/saved|updated|success/i)),
+      page.getByText(agentName + " Renamed").first(),
     ).toBeVisible();
   });
 
