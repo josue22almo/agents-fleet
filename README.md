@@ -1,6 +1,6 @@
 # Agents Fleet
 
-[![CI](https://github.com/josue22almo/agents-fleet/actions/workflows/ci.yml/badge.svg)](https://github.com/josue22almo/agents-fleet/actions/workflows/ci.yml)
+[![Tests](https://github.com/josue22almo/agents-fleet/actions/workflows/ci.yml/badge.svg)](https://github.com/josue22almo/agents-fleet/actions/workflows/ci.yml)
 [![Test Reports](https://img.shields.io/badge/test_reports-live-blue)](https://josue22almo.github.io/agents-fleet/)
 
 A multi-tenant dashboard for monitoring AI agents metrics and performance. Connect agents like Claude, Manus, and others to track runs, response times, and set up alarms — all from a single pane of glass.
