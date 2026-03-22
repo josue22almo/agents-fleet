@@ -973,6 +973,7 @@ When a context triggers work in another, it publishes a domain event. Example: `
 3. **Shared errors live in `_shared`** — errors used across contexts (e.g., `InsufficientPermissionsError`) belong in `_shared/domain/errors/`
 4. **One write per request** — side effects happen via async events
 5. **Events for side effects, ports for queries**
+6. **Controllers validate responses against contracts** — use `Schema.parse(data)` before returning to catch mismatches at the API layer, not in the client
 
 ### When to Use What
 

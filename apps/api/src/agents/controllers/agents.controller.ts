@@ -1,5 +1,11 @@
 import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
-import { CreateAgentRequestSchema, UpdateAgentRequestSchema } from "@repo/contracts/agents";
+import {
+  CreateAgentRequestSchema,
+  UpdateAgentRequestSchema,
+  AgentResponseSchema,
+  AgentListItemResponseSchema,
+  AgentWithTokenResponseSchema,
+} from "@repo/contracts/agents";
 import {
   CreateAgent,
   ListAgents,
@@ -13,7 +19,7 @@ import type { IdGenerator, EventBus, IAMContextPort } from "@repo/contexts/_shar
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
 
-function formatAgentResponse(agent: ReturnType<import("@repo/contexts/agents").Agent["toPrimitives"]>) {
+function formatAgent(agent: ReturnType<import("@repo/contexts/agents").Agent["toPrimitives"]>) {
   return {
     id: agent.id,
     name: agent.name,
@@ -22,16 +28,6 @@ function formatAgentResponse(agent: ReturnType<import("@repo/contexts/agents").A
     tokenPrefix: agent.tokenPrefix,
     lastSeenAt: agent.lastSeenAt?.toISOString() ?? null,
     createdAt: agent.createdAt.toISOString(),
-  };
-}
-
-function formatAgentListItem(agent: ReturnType<import("@repo/contexts/agents").Agent["toPrimitives"]>) {
-  return {
-    id: agent.id,
-    name: agent.name,
-    type: agent.type,
-    status: agent.status,
-    lastSeenAt: agent.lastSeenAt?.toISOString() ?? null,
   };
 }
 
@@ -65,7 +61,9 @@ export class AgentsController {
     @Query("organizationId") organizationId: string,
   ) {
     const agents = await this.listAgents.execute(organizationId);
-    return agents.map((a) => formatAgentListItem(a.toPrimitives()));
+    return agents.map((a) => AgentListItemResponseSchema.parse({
+      ...formatAgent(a.toPrimitives()),
+    }));
   }
 
   @Post()
@@ -77,17 +75,16 @@ export class AgentsController {
       organizationId: data.organizationId,
       userId: user.id,
     });
-    const primitives = result.agent.toPrimitives();
-    return {
-      ...formatAgentResponse(primitives),
+    return AgentWithTokenResponseSchema.parse({
+      ...formatAgent(result.agent.toPrimitives()),
       connectionToken: result.token.value,
-    };
+    });
   }
 
   @Get(":id")
   async handleGet(@Param("id") id: string) {
     const agent = await this.getAgent.execute({ agentId: id });
-    return formatAgentResponse(agent.toPrimitives());
+    return AgentResponseSchema.parse(formatAgent(agent.toPrimitives()));
   }
 
   @Patch(":id")
@@ -102,7 +99,7 @@ export class AgentsController {
       name: data.name,
       userId: user.id,
     });
-    return formatAgentResponse(agent.toPrimitives());
+    return AgentResponseSchema.parse(formatAgent(agent.toPrimitives()));
   }
 
   @Delete(":id")
@@ -126,10 +123,9 @@ export class AgentsController {
       agentId: id,
       userId: user.id,
     });
-    const primitives = result.agent.toPrimitives();
-    return {
-      ...formatAgentResponse(primitives),
+    return AgentWithTokenResponseSchema.parse({
+      ...formatAgent(result.agent.toPrimitives()),
       connectionToken: result.token.value,
-    };
+    });
   }
 }

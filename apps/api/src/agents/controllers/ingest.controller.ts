@@ -1,5 +1,5 @@
 import { Body, Controller, Inject, Post, Req, UseGuards } from "@nestjs/common";
-import { IngestEventRequestSchema } from "@repo/contracts/agents";
+import { IngestEventRequestSchema, RunResponseSchema } from "@repo/contracts/agents";
 import { IngestEvent, type RunRepository } from "@repo/contexts/monitoring";
 import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
 import { ConnectionTokenGuard } from "../guards/connection-token.guard";
@@ -8,7 +8,7 @@ interface AgentRequest {
   agent: { agentId: string; organizationId: string };
 }
 
-function formatRunResponse(run: ReturnType<import("@repo/contexts/monitoring").Run["toPrimitives"]>) {
+function formatRun(run: ReturnType<import("@repo/contexts/monitoring").Run["toPrimitives"]>) {
   return {
     id: run.id,
     agentId: run.agentId,
@@ -49,6 +49,6 @@ export class IngestController {
       data: data.data,
     });
 
-    return formatRunResponse(run.toPrimitives());
+    return RunResponseSchema.parse(formatRun(run.toPrimitives()));
   }
 }

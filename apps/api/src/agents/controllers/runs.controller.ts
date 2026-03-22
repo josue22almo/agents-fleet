@@ -1,4 +1,5 @@
 import { Controller, Get, Inject, Param, Query, UseGuards } from "@nestjs/common";
+import { PaginatedRunsResponseSchema, AgentMetricsResponseSchema, DashboardMetricsResponseSchema } from "@repo/contracts/agents";
 import { ListRuns, GetAgentMetrics, GetDashboardMetrics, type RunRepository } from "@repo/contexts/monitoring";
 import { ListAgents, type AgentRepository } from "@repo/contexts/agents";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
@@ -47,18 +48,18 @@ export class RunsController {
       agentId,
       page: page ? parseInt(page, 10) : 1,
     });
-    return {
+    return PaginatedRunsResponseSchema.parse({
       data: result.runs.map((r) => formatRunResponse(r.toPrimitives())),
       total: result.total,
       page: result.page,
       pageSize: result.pageSize,
-    };
+    });
   }
 
   @Get("agents/:id/metrics")
   async handleGetAgentMetrics(@Param("id") agentId: string) {
     const metrics = await this.getAgentMetrics.execute(agentId);
-    return metrics.toPrimitives();
+    return AgentMetricsResponseSchema.parse(metrics.toPrimitives());
   }
 
   @Get("dashboard/metrics")
@@ -70,11 +71,11 @@ export class RunsController {
     const agentIds = agents.map((a) => a.id);
     const metrics = await this.getDashboardMetrics.execute(agentIds);
 
-    return {
+    return DashboardMetricsResponseSchema.parse({
       totalAgents: agents.length,
       activeRuns: metrics.activeRuns,
       avgResponseTimeMs: metrics.avgDurationMs,
       totalCost: metrics.totalCost,
-    };
+    });
   }
 }
