@@ -85,11 +85,11 @@ async function cleanup() {
     ).data?.map((m) => m.organization_id) ?? [];
 
     if (orgIds.length > 0) {
-      await Promise.all([
-        supabase.from("runs").delete().in("agent_id",
-          (await supabase.from("agents").select("id").in("organization_id", orgIds)).data?.map((a) => a.id) ?? [],
-        ),
-      ]);
+      const agentIds = (await supabase.from("agents").select("id").in("organization_id", orgIds)).data?.map((a) => a.id) ?? [];
+      if (agentIds.length > 0) {
+        await supabase.from("runs").delete().in("agent_id", agentIds);
+        await supabase.from("sessions").delete().in("agent_id", agentIds);
+      }
       await supabase.from("agents").delete().in("organization_id", orgIds);
       await supabase.from("invitations").delete().in("organization_id", orgIds);
     }
@@ -248,29 +248,116 @@ async function seed() {
     }),
   );
 
-  // 7. Ingest runs via API (parallel per agent)
-  console.log("\nCreating runs via ingest API...");
+  // 7. Ingest runs via API (parallel per agent), grouped into sessions
+  console.log("\nCreating sessions and runs via ingest API...");
   const activeAgents = createdAgents.filter((a): a is NonNullable<typeof a> => a !== null);
+
+  const sessionNames = [
+    "Code Review PR #42",
+    "Bug Fix: Auth Timeout",
+    "Research: API Design",
+    "Refactor: Database Queries",
+    "Feature: User Notifications",
+    "Test: Integration Suite",
+  ];
 
   await Promise.all(
     activeAgents.map(async (agent) => {
-      const runCount = randomInt(5, 10);
-      let created = 0;
+      const sessionCount = randomInt(1, 2);
+      let totalRuns = 0;
 
-      for (let i = 0; i < runCount; i++) {
-        const runId = `seed_${agent.id.substring(0, 8)}_${i.toString().padStart(3, "0")}`;
+      for (let s = 0; s < sessionCount; s++) {
+        const sessionName = sessionNames[randomInt(0, sessionNames.length - 1)]!;
+        let sessionId: string | undefined;
+
+        try {
+          // Start session
+          const sessionResult = await apiPost<{ sessionId: string }>("/ingest", {
+            event: "session.started",
+            timestamp: new Date().toISOString(),
+            data: { name: `${sessionName} (${agent.name.substring(0, 10)})` },
+          }, agent.connectionToken);
+          sessionId = sessionResult.sessionId;
+          console.log(`  Started session "${sessionName}" for "${agent.name}"`);
+        } catch (e) {
+          console.error(`  Session start for "${agent.name}":`, (e as Error).message);
+          continue;
+        }
+
+        // Create runs within the session
+        const runCount = randomInt(2, 5);
+        let allCompleted = true;
+
+        for (let i = 0; i < runCount; i++) {
+          const runId = `seed_${agent.id.substring(0, 8)}_s${s}_${i.toString().padStart(3, "0")}`;
+          const statusRoll = Math.random();
+
+          try {
+            // Start run with sessionId
+            await apiPost("/ingest", {
+              event: "run.started",
+              runId,
+              sessionId,
+              data: { metadata: { source: "seed", session: s, index: i } },
+            }, agent.connectionToken);
+
+            if (statusRoll < 0.6) {
+              // Complete
+              await apiPost("/ingest", {
+                event: "run.completed",
+                runId,
+                data: {
+                  durationMs: randomInt(500, 5000),
+                  tokensUsed: randomInt(100, 2000),
+                  cost: randomFloat(0.01, 0.5, 4),
+                },
+              }, agent.connectionToken);
+            } else if (statusRoll < 0.85) {
+              // Fail
+              allCompleted = false;
+              await apiPost("/ingest", {
+                event: "run.failed",
+                runId,
+                data: {
+                  durationMs: randomInt(200, 3000),
+                  error: ["Connection timeout", "Rate limit exceeded", "Model overloaded", "Context window exceeded"][randomInt(0, 3)],
+                },
+              }, agent.connectionToken);
+            }
+            // else: leave as running
+
+            totalRuns++;
+          } catch (e) {
+            console.error(`  Run ${runId}:`, (e as Error).message);
+          }
+        }
+
+        // Complete the session
+        try {
+          await apiPost("/ingest", {
+            event: allCompleted ? "session.completed" : "session.completed",
+            sessionId,
+            timestamp: new Date().toISOString(),
+          }, agent.connectionToken);
+        } catch (e) {
+          console.error(`  Session complete for "${agent.name}":`, (e as Error).message);
+        }
+      }
+
+      // Also create a few standalone runs (without sessions) for variety
+      const standaloneCount = randomInt(2, 4);
+      for (let i = 0; i < standaloneCount; i++) {
+        const runId = `seed_${agent.id.substring(0, 8)}_solo_${i.toString().padStart(3, "0")}`;
         const statusRoll = Math.random();
 
         try {
-          // Start run
           await apiPost("/ingest", {
             event: "run.started",
             runId,
-            data: { metadata: { source: "seed", index: i } },
+            data: { metadata: { source: "seed", standalone: true, index: i } },
           }, agent.connectionToken);
 
           if (statusRoll < 0.6) {
-            // Complete
             await apiPost("/ingest", {
               event: "run.completed",
               runId,
@@ -281,7 +368,6 @@ async function seed() {
               },
             }, agent.connectionToken);
           } else if (statusRoll < 0.85) {
-            // Fail
             await apiPost("/ingest", {
               event: "run.failed",
               runId,
@@ -291,15 +377,14 @@ async function seed() {
               },
             }, agent.connectionToken);
           }
-          // else: leave as running
 
-          created++;
+          totalRuns++;
         } catch (e) {
           console.error(`  Run ${runId}:`, (e as Error).message);
         }
       }
 
-      console.log(`  Created ${created} runs for "${agent.name}"`);
+      console.log(`  Created ${totalRuns} runs across ${sessionCount} sessions for "${agent.name}"`);
     }),
   );
 
