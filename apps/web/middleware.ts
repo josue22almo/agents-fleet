@@ -6,16 +6,14 @@ const publicPaths = ["/login", "/signup", "/forgot-password", "/reset-password",
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Root path serves the presentation landing page
+  if (pathname === "/") return NextResponse.next();
+
   const isPublic = publicPaths.some((p) => pathname.startsWith(p));
   if (isPublic) return NextResponse.next();
 
   // Client-side auth uses localStorage, so middleware can't check tokens.
   // The AuthProvider handles redirect to /login on the client side.
-  // This middleware only handles the root redirect.
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
   return NextResponse.next();
 }
 
