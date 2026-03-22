@@ -138,7 +138,12 @@ export const api = {
       const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
       const res = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${path}`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, apikey: supabaseKey, "x-upsert": "true" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          apikey: supabaseKey,
+          "x-upsert": "true",
+          "Content-Type": file.type,
+        },
         body: file,
       });
       if (!res.ok) throw new ApiError("UPLOAD_FAILED", "Avatar upload failed", res.status);
