@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Zap, Play, Clock, CheckCircle, Loader2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { useOrganizations } from "@/hooks/use-organizations";
+import { useOrgSwitcher } from "@/hooks/use-org-switcher";
 import { useDashboardMetrics } from "@/hooks/use-dashboard-metrics";
 
 function formatResponseTime(ms: number): string {
@@ -12,9 +12,8 @@ function formatResponseTime(ms: number): string {
 }
 
 export default function DashboardPage() {
-  const { data: orgs } = useOrganizations();
-  const currentOrgId = orgs?.[0]?.id ?? "";
-  const { data: metrics, isLoading } = useDashboardMetrics(currentOrgId);
+  const { currentOrg } = useOrgSwitcher();
+  const { data: metrics, isLoading } = useDashboardMetrics(currentOrg?.id ?? "");
 
   const totalAgents = metrics?.totalAgents ?? 0;
   const activeRuns = metrics?.activeRuns ?? 0;
