@@ -30,7 +30,7 @@ test.describe("MCP Simulation", () => {
     await viewAgentLink.click();
 
     // Verify we're on the agent detail page with the simulation agent
-    await expect(page.getByText(/Simulation Agent/)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/Simulation Agent/).first()).toBeVisible({ timeout: 5000 });
 
     // Verify the Sessions tab is visible (default tab)
     await expect(page.getByRole("button", { name: "Sessions" })).toBeVisible();
