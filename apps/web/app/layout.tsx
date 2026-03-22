@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/providers/auth-provider";
+import { OrgProvider } from "@/providers/org-provider";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -21,7 +22,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body>
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <OrgProvider>{children}</OrgProvider>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

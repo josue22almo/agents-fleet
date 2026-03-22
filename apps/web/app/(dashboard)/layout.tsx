@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
-import { OrgProvider } from "@/providers/org-provider";
 import { Sidebar } from "@/components/layout/sidebar";
 
 export default function DashboardLayout({
@@ -31,11 +30,9 @@ export default function DashboardLayout({
   if (!isAuthenticated) return null;
 
   return (
-    <OrgProvider>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <main className="flex-1 p-8 bg-muted/40">{children}</main>
-      </div>
-    </OrgProvider>
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1 p-8 bg-muted/40">{children}</main>
+    </div>
   );
 }
