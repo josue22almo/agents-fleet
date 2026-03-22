@@ -244,7 +244,23 @@ The MCP server and HTTP controller are both thin adapters in the `apps/api` laye
 - Invalid API key returns 401
 - Invalid event format returns 400
 
-### US-4: View agent runs
+### US-4: Connect via MCP
+
+**As** a user with an MCP-compatible agent (e.g., Claude Code)
+**I want to** connect my agent via MCP using the connection token
+**So that** runs are reported automatically without writing integration code
+
+**Acceptance criteria:**
+- MCP server is available at `/mcp` endpoint
+- Agent authenticates using the connection token in the Authorization header
+- Agent auto-discovers tools: `report_run_started`, `report_run_completed`, `report_run_failed`, `get_my_recent_runs`, `get_my_status`
+- Calling `report_run_started` / `report_run_completed` / `report_run_failed` creates and updates runs (same behavior as HTTP ingest)
+- Calling `get_my_recent_runs` returns the agent's last N runs
+- Calling `get_my_status` returns the agent's current status and basic stats
+- Invalid or missing token returns an auth error
+- MCP config snippet shown on agent creation page is copy-pasteable into the agent's config
+
+### US-5: View agent runs
 
 **As** an org member
 **I want to** see the run history for an agent
@@ -256,7 +272,7 @@ The MCP server and HTTP controller are both thin adapters in the `apps/api` laye
 - Failed runs show error message
 - Paginated (20 per page)
 
-### US-5: Agent settings
+### US-6: Agent settings
 
 **As** an org owner or admin
 **I want to** manage agent settings
@@ -268,7 +284,7 @@ The MCP server and HTTP controller are both thin adapters in the `apps/api` laye
 - Can delete the agent (soft delete — keeps run history)
 - Confirmation required for token regeneration and deletion
 
-### US-6: Dashboard metrics from agents
+### US-7: Dashboard metrics from agents
 
 **As** an org member
 **I want to** see aggregated metrics on the dashboard
