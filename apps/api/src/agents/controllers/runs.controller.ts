@@ -48,7 +48,7 @@ export class RunsController {
       page: page ? parseInt(page, 10) : 1,
     });
     return {
-      items: result.runs.map((r) => formatRunResponse(r.toPrimitives())),
+      data: result.runs.map((r) => formatRunResponse(r.toPrimitives())),
       total: result.total,
       page: result.page,
       pageSize: result.pageSize,
