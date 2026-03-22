@@ -24,9 +24,13 @@ const ACME_ORG_ID = "a0000000-0000-0000-0000-000000000001";
 const STARTUP_ORG_ID = "a0000000-0000-0000-0000-000000000002";
 
 const AGENT_IDS = {
+  // Acme Corp agents
   claudeCode: "b0000000-0000-0000-0000-000000000001",
   manusResearch: "b0000000-0000-0000-0000-000000000002",
   customScript: "b0000000-0000-0000-0000-000000000003",
+  // Startup Labs agents
+  startupClaude: "b0000000-0000-0000-0000-000000000004",
+  startupManus: "b0000000-0000-0000-0000-000000000005",
 };
 
 function generateConnectionToken(): { raw: string; hash: string; prefix: string } {
@@ -222,9 +226,10 @@ async function seed() {
   else console.log("  Created expired invite");
 
   // --- Agents ---
-  console.log("\nCreating agents for Acme Corp...");
+  console.log("\nCreating agents...");
 
   const agentDefinitions = [
+    // Acme Corp agents
     {
       id: AGENT_IDS.claudeCode,
       organization_id: ACME_ORG_ID,
@@ -252,6 +257,25 @@ async function seed() {
       created_by: bob,
       last_seen_at: null,
     },
+    // Startup Labs agents
+    {
+      id: AGENT_IDS.startupClaude,
+      organization_id: STARTUP_ORG_ID,
+      name: "Claude Code — Staging",
+      type: "claude",
+      status: "active",
+      created_by: alice,
+      last_seen_at: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+    },
+    {
+      id: AGENT_IDS.startupManus,
+      organization_id: STARTUP_ORG_ID,
+      name: "Manus Explorer",
+      type: "manus",
+      status: "active",
+      created_by: alice,
+      last_seen_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    },
   ];
 
   for (const agentDef of agentDefinitions) {
@@ -271,11 +295,13 @@ async function seed() {
   const activeAgents = [
     { id: AGENT_IDS.claudeCode, name: "Claude Code — Production" },
     { id: AGENT_IDS.manusResearch, name: "Manus Research" },
+    { id: AGENT_IDS.startupClaude, name: "Claude Code — Staging" },
+    { id: AGENT_IDS.startupManus, name: "Manus Explorer" },
   ];
 
   for (const agent of activeAgents) {
     const runCount = randomInt(5, 10);
-    const runs = [];
+    const runs: Record<string, unknown>[] = [];
 
     for (let i = 0; i < runCount; i++) {
       const statusRoll = Math.random();

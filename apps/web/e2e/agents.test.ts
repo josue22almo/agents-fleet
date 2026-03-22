@@ -4,6 +4,10 @@ import { loginAsAlice, fakeAgent } from "./helpers";
 test.describe("Agents", () => {
   test.beforeEach(async ({ page }) => {
     await loginAsAlice(page);
+    // Switch to Acme Corp org (has seeded agents)
+    await page.locator("aside button").first().click();
+    await page.getByRole("menuitem", { name: "Acme Corp" }).click();
+    await page.goto("/agents");
   });
 
   test("lists seeded agents on agents page", async ({ page }) => {
