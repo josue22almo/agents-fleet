@@ -94,6 +94,12 @@ export function useMcpSimulation(organizationId: string) {
       minute: "2-digit",
     });
 
+    if (!organizationId) {
+      addLog(1, "No organization selected", "error");
+      setState((prev) => ({ ...prev, isRunning: false, isDone: true }));
+      return;
+    }
+
     try {
       // Step 1: Create agent
       addLog(1, "Creating agent...", "running");

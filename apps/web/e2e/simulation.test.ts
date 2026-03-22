@@ -9,8 +9,12 @@ test.describe("MCP Simulation", () => {
   test("runs simulation end-to-end and creates agent with session", async ({ page }) => {
     await page.goto("/agents");
 
-    // Find the MCP Simulation intro card
+    // Wait for agents list to load (org context ready)
+    await expect(page.getByRole("heading", { name: "Agents" })).toBeVisible();
     await expect(page.getByText("MCP Simulation")).toBeVisible();
+
+    // Wait for org to be loaded (sidebar shows org name, not "Select org")
+    await expect(page.locator("aside button").first()).not.toHaveText("Select org", { timeout: 10000 });
 
     // Click "Start Simulation"
     await page.getByRole("button", { name: "Start Simulation" }).click();
