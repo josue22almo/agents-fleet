@@ -9,13 +9,11 @@ import { SupabaseOrganizationRepository } from "@repo/contexts/iam";
 import { SUPABASE_ADMIN, supabaseAdminProvider } from "../common/providers/supabase-admin.provider";
 import { SupabaseRequestClient } from "../common/providers/supabase-request.provider";
 
-import { IamModule } from "../iam/iam.module";
 import { AgentsController } from "./controllers/agents.controller";
 import { IngestController } from "./controllers/ingest.controller";
 import { RunsController } from "./controllers/runs.controller";
 
 @Module({
-  imports: [IamModule],
   controllers: [AgentsController, IngestController, RunsController],
   providers: [
     supabaseAdminProvider,
