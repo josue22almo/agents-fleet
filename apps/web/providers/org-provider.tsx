@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrganizations } from "@/hooks/use-organizations";
+import { useAuth } from "@/providers/auth-provider";
 import type { OrgListItemResponse } from "@repo/contracts/iam";
 
 interface OrgContextType {
@@ -20,7 +21,8 @@ interface OrgContextType {
 const OrgContext = createContext<OrgContextType | null>(null);
 
 export function OrgProvider({ children }: { children: ReactNode }) {
-  const { data: orgs } = useOrganizations();
+  const { isAuthenticated } = useAuth();
+  const { data: orgs } = useOrganizations(isAuthenticated);
   const [selected, setSelected] = useState<OrgListItemResponse | null>(null);
   const queryClient = useQueryClient();
 

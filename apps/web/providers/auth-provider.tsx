@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { setTokens, clearTokens, getAccessToken } from "@/lib/auth";
 import type { ProfileResponse } from "@repo/contracts/iam";
@@ -28,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<ProfileResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -54,9 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const tokens = await api.auth.login({ email, password });
       setTokens(tokens.accessToken, tokens.refreshToken);
       await fetchProfile();
+      await queryClient.invalidateQueries({ queryKey: ["organizations"] });
       router.push("/dashboard");
     },
-    [fetchProfile, router],
+    [fetchProfile, router, queryClient],
   );
 
   const signup = useCallback(
@@ -65,9 +68,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const tokens = await api.auth.login({ email, password });
       setTokens(tokens.accessToken, tokens.refreshToken);
       await fetchProfile();
+      await queryClient.invalidateQueries({ queryKey: ["organizations"] });
       router.push("/dashboard");
     },
-    [fetchProfile, router],
+    [fetchProfile, router, queryClient],
   );
 
   const logout = useCallback(() => {

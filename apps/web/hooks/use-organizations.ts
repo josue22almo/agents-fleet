@@ -4,10 +4,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import type { CreateOrgRequest, UpdateOrgRequest } from "@repo/contracts/iam";
 
-export function useOrganizations() {
+export function useOrganizations(enabled = true) {
   return useQuery({
     queryKey: ["organizations"],
     queryFn: () => api.organizations.list(),
+    enabled,
   });
 }
 
