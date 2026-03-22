@@ -1,14 +1,12 @@
 import type { EventBus } from "../../../_shared/domain/events/event-bus";
 import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
-import type { OrganizationRepository } from "../../../iam/ports/repositories/organization-repository";
+import type { IAMContextPort } from "../../../_shared/domain/ports/iam-context-port";
+import { InsufficientPermissionsError } from "../../../_shared/domain/errors/insufficient-permissions.error";
 import { Agent } from "../../domain/entities/agent";
-import { AgentNotFoundError } from "../../domain/errors/agent-not-found.error";
 import { AgentCreatedEvent } from "../../domain/events/agent-created.event";
 import type { AgentType } from "../../domain/value-objects/agent-type";
 import type { ConnectionToken } from "../../domain/value-objects/connection-token";
 import type { AgentRepository } from "../../ports/repositories/agent-repository";
-import { InsufficientPermissionsError } from "../../../iam/domain/errors/insufficient-permissions.error";
-import { OrganizationNotFoundError } from "../../../iam/domain/errors/organization-not-found.error";
 
 interface CreateAgentParams {
   name: string;
@@ -25,16 +23,13 @@ interface CreateAgentResult {
 export class CreateAgent {
   constructor(
     private readonly agentRepo: AgentRepository,
-    private readonly orgRepo: OrganizationRepository,
+    private readonly iam: IAMContextPort,
     private readonly idGenerator: IdGenerator,
     private readonly eventBus: EventBus,
   ) {}
 
   async execute(params: CreateAgentParams): Promise<CreateAgentResult> {
-    const org = await this.orgRepo.findById(params.organizationId);
-    if (!org) throw new OrganizationNotFoundError(params.organizationId);
-
-    if (!org.canMemberManage(params.userId)) {
+    if (!await this.iam.canUserManageOrganization(params.userId, params.organizationId)) {
       throw new InsufficientPermissionsError("create agents in this organization");
     }
 

@@ -9,8 +9,7 @@ import {
   RegenerateToken,
   type AgentRepository,
 } from "@repo/contexts/agents";
-import type { OrganizationRepository } from "@repo/contexts/iam";
-import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
+import type { IdGenerator, EventBus, IAMContextPort } from "@repo/contexts/_shared";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
 
@@ -48,16 +47,16 @@ export class AgentsController {
 
   constructor(
     @Inject("AgentRepository") agentRepo: AgentRepository,
-    @Inject("OrganizationRepository") orgRepo: OrganizationRepository,
+    @Inject("IAMContextPort") iam: IAMContextPort,
     @Inject("IdGenerator") idGenerator: IdGenerator,
     @Inject("EventBus") eventBus: EventBus,
   ) {
-    this.createAgent = new CreateAgent(agentRepo, orgRepo, idGenerator, eventBus);
+    this.createAgent = new CreateAgent(agentRepo, iam, idGenerator, eventBus);
     this.listAgents = new ListAgents(agentRepo);
     this.getAgent = new GetAgent(agentRepo);
-    this.updateAgent = new UpdateAgent(agentRepo, orgRepo);
-    this.deleteAgent = new DeleteAgent(agentRepo, orgRepo);
-    this.regenerateToken = new RegenerateToken(agentRepo, orgRepo);
+    this.updateAgent = new UpdateAgent(agentRepo, iam);
+    this.deleteAgent = new DeleteAgent(agentRepo, iam);
+    this.regenerateToken = new RegenerateToken(agentRepo, iam);
   }
 
   @Get()
@@ -86,12 +85,8 @@ export class AgentsController {
   }
 
   @Get(":id")
-  async handleGet(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param("id") id: string,
-    @Query("organizationId") organizationId: string,
-  ) {
-    const agent = await this.getAgent.execute({ agentId: id, organizationId });
+  async handleGet(@Param("id") id: string) {
+    const agent = await this.getAgent.execute({ agentId: id });
     return formatAgentResponse(agent.toPrimitives());
   }
 
@@ -99,14 +94,12 @@ export class AgentsController {
   async handleUpdate(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
-    @Query("organizationId") organizationId: string,
     @Body() body: unknown,
   ) {
     const data = UpdateAgentRequestSchema.parse(body);
     const agent = await this.updateAgent.execute({
       agentId: id,
       name: data.name,
-      organizationId,
       userId: user.id,
     });
     return formatAgentResponse(agent.toPrimitives());
@@ -116,11 +109,9 @@ export class AgentsController {
   async handleDelete(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
-    @Query("organizationId") organizationId: string,
   ) {
     await this.deleteAgent.execute({
       agentId: id,
-      organizationId,
       userId: user.id,
     });
     return { message: "Agent deleted" };
@@ -130,11 +121,9 @@ export class AgentsController {
   async handleRegenerateToken(
     @CurrentUser() user: AuthenticatedUser,
     @Param("id") id: string,
-    @Query("organizationId") organizationId: string,
   ) {
     const result = await this.regenerateToken.execute({
       agentId: id,
-      organizationId,
       userId: user.id,
     });
     const primitives = result.agent.toPrimitives();

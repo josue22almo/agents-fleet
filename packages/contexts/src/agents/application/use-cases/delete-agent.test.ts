@@ -4,21 +4,13 @@ import { CreateAgent } from "./create-agent";
 import { ListAgents } from "./list-agents";
 import { AgentType } from "../../domain/value-objects/agent-type";
 import { AgentNotFoundError } from "../../domain/errors/agent-not-found.error";
-import { InsufficientPermissionsError } from "../../../iam/domain/errors/insufficient-permissions.error";
-import { MemberRole } from "../../../iam/domain/value-objects/member-role";
-import { createTestDeps, seedOrganization } from "./_test-helpers";
+import { InsufficientPermissionsError } from "../../../_shared/domain/errors/insufficient-permissions.error";
+import type { IAMContextPort } from "../../../_shared/domain/ports/iam-context-port";
+import { createTestDeps } from "./_test-helpers";
 
 describe("DeleteAgent", () => {
   async function setupWithAgent(deps: ReturnType<typeof createTestDeps>) {
-    await seedOrganization(deps.orgRepo, {
-      orgId: "org-1",
-      ownerId: "user-1",
-      ownerMemberId: "member-1",
-      additionalMembers: [
-        { memberId: "member-2", userId: "user-admin", role: MemberRole.ADMIN },
-      ],
-    });
-    const createAgent = new CreateAgent(deps.agentRepo, deps.orgRepo, deps.idGenerator, deps.eventBus);
+    const createAgent = new CreateAgent(deps.agentRepo, deps.iam, deps.idGenerator, deps.eventBus);
     return createAgent.execute({
       name: "Agent",
       type: AgentType.CLAUDE,
@@ -30,11 +22,10 @@ describe("DeleteAgent", () => {
   it("soft deletes the agent (owner only)", async () => {
     const deps = createTestDeps();
     const { agent: created } = await setupWithAgent(deps);
-    const deleteAgent = new DeleteAgent(deps.agentRepo, deps.orgRepo);
+    const deleteAgent = new DeleteAgent(deps.agentRepo, deps.iam);
 
     await deleteAgent.execute({
       agentId: created.id,
-      organizationId: "org-1",
       userId: "user-1",
     });
 
@@ -44,15 +35,18 @@ describe("DeleteAgent", () => {
     expect(agents).toHaveLength(0);
   });
 
-  it("rejects when user is admin (not owner)", async () => {
+  it("rejects when user is not owner", async () => {
     const deps = createTestDeps();
     const { agent: created } = await setupWithAgent(deps);
-    const deleteAgent = new DeleteAgent(deps.agentRepo, deps.orgRepo);
+    const restrictedIAM: IAMContextPort = {
+      canUserManageOrganization: async () => true,
+      isUserOwnerOfOrganization: async () => false,
+    };
+    const deleteAgent = new DeleteAgent(deps.agentRepo, restrictedIAM);
 
     await expect(
       deleteAgent.execute({
         agentId: created.id,
-        organizationId: "org-1",
         userId: "user-admin",
       }),
     ).rejects.toThrow(InsufficientPermissionsError);
@@ -60,13 +54,11 @@ describe("DeleteAgent", () => {
 
   it("throws when agent does not exist", async () => {
     const deps = createTestDeps();
-    await seedOrganization(deps.orgRepo, { orgId: "org-1", ownerId: "user-1", ownerMemberId: "member-1" });
-    const deleteAgent = new DeleteAgent(deps.agentRepo, deps.orgRepo);
+    const deleteAgent = new DeleteAgent(deps.agentRepo, deps.iam);
 
     await expect(
       deleteAgent.execute({
         agentId: "non-existent",
-        organizationId: "org-1",
         userId: "user-1",
       }),
     ).rejects.toThrow(AgentNotFoundError);

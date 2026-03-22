@@ -1,20 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { CreateAgent } from "./create-agent";
 import { AgentType } from "../../domain/value-objects/agent-type";
-import { createTestDeps, seedOrganization } from "./_test-helpers";
-import { InsufficientPermissionsError } from "../../../iam/domain/errors/insufficient-permissions.error";
-import { OrganizationNotFoundError } from "../../../iam/domain/errors/organization-not-found.error";
-import { MemberRole } from "../../../iam/domain/value-objects/member-role";
+import { createTestDeps } from "./_test-helpers";
+import { InsufficientPermissionsError } from "../../../_shared/domain/errors/insufficient-permissions.error";
+import type { IAMContextPort } from "../../../_shared/domain/ports/iam-context-port";
 
 describe("CreateAgent", () => {
   it("creates an agent and returns the raw token", async () => {
     const deps = createTestDeps();
-    await seedOrganization(deps.orgRepo, {
-      orgId: "org-1",
-      ownerId: "user-1",
-      ownerMemberId: "member-1",
-    });
-    const useCase = new CreateAgent(deps.agentRepo, deps.orgRepo, deps.idGenerator, deps.eventBus);
+    const useCase = new CreateAgent(deps.agentRepo, deps.iam, deps.idGenerator, deps.eventBus);
 
     const result = await useCase.execute({
       name: "My Agent",
@@ -30,15 +24,7 @@ describe("CreateAgent", () => {
 
   it("allows admins to create agents", async () => {
     const deps = createTestDeps();
-    await seedOrganization(deps.orgRepo, {
-      orgId: "org-1",
-      ownerId: "user-1",
-      ownerMemberId: "member-1",
-      additionalMembers: [
-        { memberId: "member-2", userId: "user-2", role: MemberRole.ADMIN },
-      ],
-    });
-    const useCase = new CreateAgent(deps.agentRepo, deps.orgRepo, deps.idGenerator, deps.eventBus);
+    const useCase = new CreateAgent(deps.agentRepo, deps.iam, deps.idGenerator, deps.eventBus);
 
     const result = await useCase.execute({
       name: "Admin Agent",
@@ -50,17 +36,13 @@ describe("CreateAgent", () => {
     expect(result.agent.toPrimitives().name).toBe("Admin Agent");
   });
 
-  it("rejects when user is a regular member", async () => {
+  it("rejects when user cannot manage organization", async () => {
     const deps = createTestDeps();
-    await seedOrganization(deps.orgRepo, {
-      orgId: "org-1",
-      ownerId: "user-1",
-      ownerMemberId: "member-1",
-      additionalMembers: [
-        { memberId: "member-2", userId: "user-2", role: MemberRole.MEMBER },
-      ],
-    });
-    const useCase = new CreateAgent(deps.agentRepo, deps.orgRepo, deps.idGenerator, deps.eventBus);
+    const restrictedIAM: IAMContextPort = {
+      canUserManageOrganization: async () => false,
+      isUserOwnerOfOrganization: async () => false,
+    };
+    const useCase = new CreateAgent(deps.agentRepo, restrictedIAM, deps.idGenerator, deps.eventBus);
 
     await expect(
       useCase.execute({
@@ -72,28 +54,9 @@ describe("CreateAgent", () => {
     ).rejects.toThrow(InsufficientPermissionsError);
   });
 
-  it("throws when organization does not exist", async () => {
-    const deps = createTestDeps();
-    const useCase = new CreateAgent(deps.agentRepo, deps.orgRepo, deps.idGenerator, deps.eventBus);
-
-    await expect(
-      useCase.execute({
-        name: "Agent",
-        type: AgentType.CLAUDE,
-        organizationId: "non-existent",
-        userId: "user-1",
-      }),
-    ).rejects.toThrow(OrganizationNotFoundError);
-  });
-
   it("publishes AgentCreatedEvent", async () => {
     const deps = createTestDeps();
-    await seedOrganization(deps.orgRepo, {
-      orgId: "org-1",
-      ownerId: "user-1",
-      ownerMemberId: "member-1",
-    });
-    const useCase = new CreateAgent(deps.agentRepo, deps.orgRepo, deps.idGenerator, deps.eventBus);
+    const useCase = new CreateAgent(deps.agentRepo, deps.iam, deps.idGenerator, deps.eventBus);
 
     await useCase.execute({
       name: "My Agent",

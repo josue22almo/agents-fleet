@@ -14,7 +14,7 @@ export { OrgType } from "./domain/value-objects/org-type";
 export { UserNotFoundError } from "./domain/errors/user-not-found.error";
 export { OrganizationNotFoundError } from "./domain/errors/organization-not-found.error";
 export { SlugAlreadyTakenError } from "./domain/errors/slug-already-taken.error";
-export { InsufficientPermissionsError } from "./domain/errors/insufficient-permissions.error";
+export { InsufficientPermissionsError } from "../_shared/domain/errors/insufficient-permissions.error";
 export { AlreadyMemberError } from "./domain/errors/already-member.error";
 export { InvalidCredentialsError } from "./domain/errors/invalid-credentials.error";
 export { InvalidTokenError } from "./domain/errors/invalid-token.error";
@@ -64,6 +64,7 @@ export { ListMembers } from "./application/use-cases/list-members";
 export { ChangePassword } from "./application/use-cases/change-password";
 
 // Infrastructure
+export { IAMContextAdapter } from "./infrastructure/iam-context.adapter";
 export { SupabaseAuthService } from "./infrastructure/services/supabase-auth.service";
 export { SupabaseUserRepository } from "./infrastructure/persistence/supabase-user.repository";
 export { SupabaseOrganizationRepository } from "./infrastructure/persistence/supabase-organization.repository";

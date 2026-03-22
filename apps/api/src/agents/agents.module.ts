@@ -5,7 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { SupabaseAgentRepository, UpdateAgentOnRunIngestedEventHandler } from "@repo/contexts/agents";
 import { SupabaseRunRepository } from "@repo/contexts/monitoring";
-import { SupabaseOrganizationRepository } from "@repo/contexts/iam";
+import { SupabaseOrganizationRepository, IAMContextAdapter } from "@repo/contexts/iam";
 import type { EventBus, Logger } from "@repo/contexts/_shared";
 
 import { SUPABASE_ADMIN, supabaseAdminProvider } from "../common/providers/supabase-admin.provider";
@@ -36,6 +36,12 @@ import { RunsController } from "./controllers/runs.controller";
       provide: "OrganizationRepository",
       scope: Scope.REQUEST,
       useFactory: (supabase: SupabaseRequestClient) => new SupabaseOrganizationRepository(supabase.client),
+      inject: [SupabaseRequestClient],
+    },
+    {
+      provide: "IAMContextPort",
+      scope: Scope.REQUEST,
+      useFactory: (supabase: SupabaseRequestClient) => new IAMContextAdapter(new SupabaseOrganizationRepository(supabase.client)),
       inject: [SupabaseRequestClient],
     },
     {

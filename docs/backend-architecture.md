@@ -968,10 +968,11 @@ When a context triggers work in another, it publishes a domain event. Example: `
 
 ### Rules
 
-1. **Context ports live in `_shared`** — contracts, not owned by any single context
-2. **Implementations live in `apps/`** — NestJS wires the adapter
-3. **One write per request** — side effects happen via async events
-4. **Events for side effects, ports for queries**
+1. **Context port interfaces live in `_shared`** — contracts, not owned by any single context
+2. **Context port implementations live in the owning context** — e.g., `IAMContextAdapter` lives in `iam/infrastructure/` because IAM owns org membership data. The app layer only wires via DI.
+3. **Shared errors live in `_shared`** — errors used across contexts (e.g., `InsufficientPermissionsError`) belong in `_shared/domain/errors/`
+4. **One write per request** — side effects happen via async events
+5. **Events for side effects, ports for queries**
 
 ### When to Use What
 

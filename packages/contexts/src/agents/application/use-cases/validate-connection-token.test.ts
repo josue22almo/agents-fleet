@@ -3,13 +3,12 @@ import { ValidateConnectionToken } from "./validate-connection-token";
 import { CreateAgent } from "./create-agent";
 import { AgentType } from "../../domain/value-objects/agent-type";
 import { InvalidConnectionTokenError } from "../../domain/errors/invalid-connection-token.error";
-import { createTestDeps, seedOrganization } from "./_test-helpers";
+import { createTestDeps } from "./_test-helpers";
 
 describe("ValidateConnectionToken", () => {
   it("returns agentId and organizationId for a valid token", async () => {
     const deps = createTestDeps();
-    await seedOrganization(deps.orgRepo, { orgId: "org-1", ownerId: "user-1", ownerMemberId: "member-1" });
-    const createAgent = new CreateAgent(deps.agentRepo, deps.orgRepo, deps.idGenerator, deps.eventBus);
+    const createAgent = new CreateAgent(deps.agentRepo, deps.iam, deps.idGenerator, deps.eventBus);
     const { agent, token } = await createAgent.execute({
       name: "Agent",
       type: AgentType.CLAUDE,
@@ -35,8 +34,7 @@ describe("ValidateConnectionToken", () => {
 
   it("throws for a deleted agent's token", async () => {
     const deps = createTestDeps();
-    await seedOrganization(deps.orgRepo, { orgId: "org-1", ownerId: "user-1", ownerMemberId: "member-1" });
-    const createAgent = new CreateAgent(deps.agentRepo, deps.orgRepo, deps.idGenerator, deps.eventBus);
+    const createAgent = new CreateAgent(deps.agentRepo, deps.iam, deps.idGenerator, deps.eventBus);
     const { agent, token } = await createAgent.execute({
       name: "Agent",
       type: AgentType.CLAUDE,

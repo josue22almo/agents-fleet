@@ -10,5 +10,6 @@ export type { EventBus } from "./domain/events/event-bus";
 export { EventHandler } from "./domain/events/event-handler";
 export type { Logger } from "./domain/ports/logger";
 export type { IAMContextPort } from "./domain/ports/iam-context-port";
+export { InsufficientPermissionsError } from "./domain/errors/insufficient-permissions.error";
 export { InMemoryEventBus } from "./application/in-memory-event-bus";
 export { SmtpEmailService, type SmtpConfig } from "./infrastructure/smtp-email.service";

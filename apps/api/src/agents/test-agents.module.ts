@@ -28,6 +28,13 @@ let idCounter = 0;
       useFactory: () => new InMemoryOrganizationRepository(),
     },
     {
+      provide: "IAMContextPort",
+      useValue: {
+        canUserManageOrganization: async () => true,
+        isUserOwnerOfOrganization: async () => true,
+      },
+    },
+    {
       provide: "RunRepository",
       useFactory: () => new InMemoryRunRepository(),
     },

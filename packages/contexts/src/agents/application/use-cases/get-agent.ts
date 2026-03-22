@@ -4,7 +4,6 @@ import type { AgentRepository } from "../../ports/repositories/agent-repository"
 
 interface GetAgentParams {
   agentId: string;
-  organizationId: string;
 }
 
 export class GetAgent {
@@ -12,7 +11,7 @@ export class GetAgent {
 
   async execute(params: GetAgentParams): Promise<Agent> {
     const agent = await this.agentRepo.findById(params.agentId);
-    if (!agent || !agent.belongsToOrganization(params.organizationId)) {
+    if (!agent) {
       throw new AgentNotFoundError(params.agentId);
     }
     return agent;
