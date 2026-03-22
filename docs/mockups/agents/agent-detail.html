@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Detail — Agents Fleet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(240 10% 3.9%)',
+            card: 'hsl(0 0% 100%)',
+            'card-foreground': 'hsl(240 10% 3.9%)',
+            primary: 'hsl(262 83% 58%)',
+            'primary-foreground': 'hsl(0 0% 100%)',
+            secondary: 'hsl(240 4.8% 95.9%)',
+            'secondary-foreground': 'hsl(240 5.9% 10%)',
+            muted: 'hsl(240 4.8% 95.9%)',
+            'muted-foreground': 'hsl(240 3.8% 46.1%)',
+            border: 'hsl(240 5.9% 90%)',
+            input: 'hsl(240 5.9% 90%)',
+            ring: 'hsl(262 83% 58%)',
+            accent: 'hsl(262 83% 96%)',
+            'accent-foreground': 'hsl(262 83% 40%)',
+            sidebar: 'hsl(0 0% 100%)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background: hsl(240 4.8% 95.9%); color: hsl(240 10% 3.9%); font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-border flex flex-col">
+      <!-- Org Switcher -->
+      <div class="p-4 border-b border-border">
+        <button class="flex items-center justify-between w-full rounded-lg border border-input bg-background px-3 py-2 text-sm hover:bg-muted transition-colors">
+          <div class="flex items-center gap-2">
+            <div class="h-6 w-6 rounded-md bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">J</div>
+            <span class="font-medium">John's Space</span>
+          </div>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+        </button>
+      </div>
+
+      <!-- Nav -->
+      <nav class="flex-1 p-3 space-y-1">
+        <a href="dashboard.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+          Dashboard
+        </a>
+        <a href="agents-list.html" class="flex items-center gap-3 rounded-lg bg-accent text-accent-foreground px-3 py-2 text-sm font-medium transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Agents
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+          Metrics
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          Alarms
+        </a>
+        <a href="orgs.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+          Organizations
+        </a>
+      </nav>
+
+      <!-- User -->
+      <div class="p-3 border-t border-border">
+        <a href="profile.html" class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-muted transition-colors cursor-pointer">
+          <div class="h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-medium text-white">JD</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate">John Doe</p>
+            <p class="text-xs text-muted-foreground truncate">john@example.com</p>
+          </div>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-8">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <a href="agents-list.html" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Agents</a>
+            <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            <span class="text-sm text-muted-foreground">Detail</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <h1 class="text-3xl font-semibold tracking-tight">Claude Code — Production</h1>
+            <span class="inline-flex items-center rounded-full bg-violet-100 text-violet-700 px-2.5 py-0.5 text-xs font-medium">Claude</span>
+            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              Active
+            </span>
+          </div>
+        </div>
+        <a href="agent-settings.html" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium h-10 px-4 border border-input bg-background hover:bg-muted transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          Settings
+        </a>
+      </div>
+
+      <!-- Stats cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-muted-foreground">Total Runs</p>
+            <div class="h-8 w-8 rounded-lg bg-violet-100 flex items-center justify-center">
+              <svg class="h-4 w-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold">1,247</p>
+          <p class="text-xs text-muted-foreground mt-1">+38 today</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-muted-foreground">Success Rate</p>
+            <div class="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold">98.2%</p>
+          <p class="text-xs text-emerald-600 font-medium mt-1">+0.3% from last week</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-muted-foreground">Avg Duration</p>
+            <div class="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+              <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold">2.3s</p>
+          <p class="text-xs text-muted-foreground mt-1">-0.1s from last week</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-muted-foreground">Total Cost</p>
+            <div class="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center">
+              <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold">$12.45</p>
+          <p class="text-xs text-muted-foreground mt-1">$1.82 today</p>
+        </div>
+      </div>
+
+      <!-- Runs Table -->
+      <div class="rounded-xl border border-border bg-card shadow-sm">
+        <div class="p-6 border-b border-border">
+          <h2 class="text-lg font-semibold">Recent Runs</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Run ID</th>
+                <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Status</th>
+                <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Duration</th>
+                <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Tokens</th>
+                <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Cost</th>
+                <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Started</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-border hover:bg-muted/50 transition-colors">
+                <td class="px-6 py-4 text-sm font-mono text-muted-foreground">run_a1b2c3d4</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 text-blue-700 px-2.5 py-0.5 text-xs font-medium">
+                    <span class="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                    Running
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm">1.2s</td>
+                <td class="px-6 py-4 text-sm">842</td>
+                <td class="px-6 py-4 text-sm">$0.008</td>
+                <td class="px-6 py-4 text-sm text-muted-foreground">Just now</td>
+              </tr>
+              <tr class="border-b border-border hover:bg-muted/50 transition-colors">
+                <td class="px-6 py-4 text-sm font-mono text-muted-foreground">run_e5f6g7h8</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    Completed
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm">2.4s</td>
+                <td class="px-6 py-4 text-sm">1,520</td>
+                <td class="px-6 py-4 text-sm">$0.012</td>
+                <td class="px-6 py-4 text-sm text-muted-foreground">2 min ago</td>
+              </tr>
+              <tr class="border-b border-border hover:bg-muted/50 transition-colors">
+                <td class="px-6 py-4 text-sm font-mono text-muted-foreground">run_i9j0k1l2</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    Completed
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm">1.8s</td>
+                <td class="px-6 py-4 text-sm">1,104</td>
+                <td class="px-6 py-4 text-sm">$0.009</td>
+                <td class="px-6 py-4 text-sm text-muted-foreground">8 min ago</td>
+              </tr>
+              <tr class="border-b border-border hover:bg-muted/50 transition-colors">
+                <td class="px-6 py-4 text-sm font-mono text-muted-foreground">run_m3n4o5p6</td>
+                <td class="px-6 py-4">
+                  <div>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 text-red-700 px-2.5 py-0.5 text-xs font-medium">
+                      <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                      Failed
+                    </span>
+                    <p class="text-xs text-red-600 mt-1">Error: Rate limit exceeded — retry after 30s</p>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm">0.4s</td>
+                <td class="px-6 py-4 text-sm">0</td>
+                <td class="px-6 py-4 text-sm">$0.000</td>
+                <td class="px-6 py-4 text-sm text-muted-foreground">15 min ago</td>
+              </tr>
+              <tr class="hover:bg-muted/50 transition-colors">
+                <td class="px-6 py-4 text-sm font-mono text-muted-foreground">run_q7r8s9t0</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    Completed
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm">3.1s</td>
+                <td class="px-6 py-4 text-sm">2,340</td>
+                <td class="px-6 py-4 text-sm">$0.019</td>
+                <td class="px-6 py-4 text-sm text-muted-foreground">22 min ago</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between px-6 py-4 border-t border-border">
+          <p class="text-sm text-muted-foreground">Showing 1-5 of 1,247 runs</p>
+          <div class="flex items-center gap-2">
+            <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-3 border border-input bg-background text-muted-foreground cursor-not-allowed opacity-50">
+              Previous
+            </button>
+            <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 w-9 bg-primary text-primary-foreground shadow-sm">1</button>
+            <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 w-9 border border-input bg-background hover:bg-muted transition-colors">2</button>
+            <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 w-9 border border-input bg-background hover:bg-muted transition-colors">3</button>
+            <span class="text-sm text-muted-foreground px-1">...</span>
+            <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 w-9 border border-input bg-background hover:bg-muted transition-colors">250</button>
+            <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-3 border border-input bg-background hover:bg-muted transition-colors">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

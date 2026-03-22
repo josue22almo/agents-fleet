@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connect Agent — Agents Fleet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(240 10% 3.9%)',
+            card: 'hsl(0 0% 100%)',
+            'card-foreground': 'hsl(240 10% 3.9%)',
+            primary: 'hsl(262 83% 58%)',
+            'primary-foreground': 'hsl(0 0% 100%)',
+            secondary: 'hsl(240 4.8% 95.9%)',
+            'secondary-foreground': 'hsl(240 5.9% 10%)',
+            muted: 'hsl(240 4.8% 95.9%)',
+            'muted-foreground': 'hsl(240 3.8% 46.1%)',
+            border: 'hsl(240 5.9% 90%)',
+            input: 'hsl(240 5.9% 90%)',
+            ring: 'hsl(262 83% 58%)',
+            accent: 'hsl(262 83% 96%)',
+            'accent-foreground': 'hsl(262 83% 40%)',
+            sidebar: 'hsl(0 0% 100%)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background: hsl(240 4.8% 95.9%); color: hsl(240 10% 3.9%); font-family: system-ui, -apple-system, sans-serif; }
+    input::placeholder { color: hsl(240 3.8% 46.1%); }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-border flex flex-col">
+      <!-- Org Switcher -->
+      <div class="p-4 border-b border-border">
+        <button class="flex items-center justify-between w-full rounded-lg border border-input bg-background px-3 py-2 text-sm hover:bg-muted transition-colors">
+          <div class="flex items-center gap-2">
+            <div class="h-6 w-6 rounded-md bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">J</div>
+            <span class="font-medium">John's Space</span>
+          </div>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+        </button>
+      </div>
+
+      <!-- Nav -->
+      <nav class="flex-1 p-3 space-y-1">
+        <a href="dashboard.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+          Dashboard
+        </a>
+        <a href="agents-list.html" class="flex items-center gap-3 rounded-lg bg-accent text-accent-foreground px-3 py-2 text-sm font-medium transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Agents
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+          Metrics
+        </a>
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          Alarms
+        </a>
+        <a href="orgs.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+          Organizations
+        </a>
+      </nav>
+
+      <!-- User -->
+      <div class="p-3 border-t border-border">
+        <a href="profile.html" class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-muted transition-colors cursor-pointer">
+          <div class="h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-medium text-white">JD</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate">John Doe</p>
+            <p class="text-xs text-muted-foreground truncate">john@example.com</p>
+          </div>
+          <svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-8">
+      <div class="mb-8">
+        <h1 class="text-3xl font-semibold tracking-tight">Connect Agent</h1>
+        <p class="text-muted-foreground mt-1">Set up a new agent connection</p>
+      </div>
+
+      <div class="max-w-2xl space-y-6">
+        <!-- Form Card -->
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="space-y-4">
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none" for="agent-name">Agent Name</label>
+              <input
+                id="agent-name"
+                type="text"
+                placeholder="Claude Code — Production"
+                class="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none" for="agent-type">Agent Type</label>
+              <select
+                id="agent-type"
+                class="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <option value="claude">Claude</option>
+                <option value="manus">Manus</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+              <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-10 px-5 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm">
+                Connect Agent
+              </button>
+              <a href="agents-list.html" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Cancel</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connection Token Card -->
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center gap-3 mb-4">
+            <h2 class="text-lg font-semibold">Connection Token</h2>
+            <span class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">Created</span>
+          </div>
+
+          <!-- Token display -->
+          <div class="flex items-center gap-2 mb-3">
+            <div class="flex-1 rounded-lg bg-muted border border-border px-4 py-3 font-mono text-sm select-all">
+              af_sk_x7k9m2p4q8r1s5t3v6w0y2a4b7c9d1e3f5g8h0j2k4l6m8n1p3q5r7s9t1u3
+            </div>
+            <button class="inline-flex items-center justify-center rounded-lg text-sm font-medium h-10 px-4 border border-input bg-background hover:bg-muted transition-colors">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 mb-6">
+            <svg class="h-4 w-4 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+            <p class="text-sm text-amber-800">Save this token now. It won't be shown again.</p>
+          </div>
+
+          <!-- Tabs -->
+          <div class="border-b border-border mb-4">
+            <div class="flex gap-4">
+              <button class="text-sm font-medium pb-3 border-b-2 border-primary text-primary -mb-px">MCP Config</button>
+              <button class="text-sm font-medium pb-3 border-b-2 border-transparent text-muted-foreground hover:text-foreground -mb-px">HTTP Usage</button>
+            </div>
+          </div>
+
+          <!-- MCP Config Tab Content -->
+          <div>
+            <p class="text-sm text-muted-foreground mb-3">Add this to your MCP client configuration:</p>
+            <div class="rounded-lg bg-gray-900 text-gray-100 p-4 font-mono text-sm overflow-x-auto">
+              <pre>{
+  "mcpServers": {
+    "agents-fleet": {
+      "url": "https://api.agentsfleet.com/mcp",
+      "headers": {
+        "Authorization": "Bearer af_sk_x7k9m2p4q8r1..."
+      }
+    }
+  }
+}</pre>
+            </div>
+          </div>
+
+          <!-- HTTP Usage Tab Content (hidden by default, shown for mockup) -->
+          <div class="mt-6 pt-6 border-t border-border">
+            <p class="text-sm text-muted-foreground mb-1">Or use the HTTP API directly:</p>
+            <p class="text-xs text-muted-foreground mb-3">HTTP Usage</p>
+            <div class="rounded-lg bg-gray-900 text-gray-100 p-4 font-mono text-sm overflow-x-auto">
+              <pre>curl -X POST https://api.agentsfleet.com/v1/runs \
+  -H "Authorization: Bearer af_sk_x7k9m2p4q8r1..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "completed",
+    "duration_ms": 2340,
+    "tokens_used": 1520,
+    "cost": 0.0124
+  }'</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
