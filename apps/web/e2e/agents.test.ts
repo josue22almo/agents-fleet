@@ -39,7 +39,7 @@ test.describe("Agents", () => {
 
     // Token should be displayed after creation
     await expect(page.getByText("Connection Token")).toBeVisible();
-    await expect(page.getByText(/af_/)).toBeVisible();
+    await expect(page.getByText(/af_/).first()).toBeVisible();
     await expect(page.getByText(/won't be shown again/i)).toBeVisible();
 
     // Navigate to agents list and verify the new agent appears
@@ -57,8 +57,8 @@ test.describe("Agents", () => {
 
   test("agent settings allows renaming agent", async ({ page }) => {
     // Find and click Settings for an agent
-    const agentCard = page.locator("text=Claude Code — Production").locator("..").locator("..");
-    const settingsButton = agentCard.getByText("Settings");
+    const agentCard = page.locator("main > div > div").filter({ hasText: "Claude Code — Production" });
+    const settingsButton = agentCard.getByRole("link", { name: "Settings" });
     await settingsButton.click();
 
     await expect(page.getByRole("heading", { name: "Agent Settings" })).toBeVisible();
@@ -80,14 +80,12 @@ test.describe("Agents", () => {
   });
 
   test("agent settings shows danger zone with delete", async ({ page }) => {
-    await page.goto("/agents");
-
-    const agentCard = page.locator("text=Custom Script").locator("..").locator("..");
-    const settingsButton = agentCard.getByText("Settings");
+    const agentCard = page.locator("main > div > div").filter({ hasText: "Custom Script" });
+    const settingsButton = agentCard.getByRole("link", { name: "Settings" });
     await settingsButton.click();
 
     await expect(page.getByText("Danger Zone")).toBeVisible();
-    await expect(page.getByText("Delete Agent")).toBeVisible();
+    await expect(page.getByText("Delete Agent").nth(1)).toBeVisible();
   });
 
   test("delete agent removes it from the list", async ({ page }) => {
@@ -97,10 +95,9 @@ test.describe("Agents", () => {
     await page.goto("/agents/new");
     await page.fill('[name="name"], #agent-name', agent.name);
 
-    const typeSelect = page.locator('[name="type"], #agent-type');
-    if (await typeSelect.isVisible()) {
-      await typeSelect.selectOption("custom");
-    }
+    // Select agent type via shadcn Select (Radix)
+    await page.getByText("Select type").or(page.getByText("claude")).click();
+    await page.getByRole("option", { name: "custom" }).click();
 
     await page.click('button[type="submit"], button:has-text("Connect Agent")');
     await expect(page.getByText("Connection Token")).toBeVisible();
@@ -110,8 +107,8 @@ test.describe("Agents", () => {
     await expect(page.getByText(agent.name)).toBeVisible();
 
     // Go to settings for this agent
-    const agentCard = page.locator(`text=${agent.name}`).locator("..").locator("..");
-    const settingsButton = agentCard.getByText("Settings");
+    const agentCard = page.locator("main > div > div").filter({ hasText: agent.name });
+    const settingsButton = agentCard.getByRole("link", { name: "Settings" });
     await settingsButton.click();
 
     // Delete the agent
