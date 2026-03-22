@@ -1,13 +1,12 @@
 import { test, expect } from "@playwright/test";
-import { loginAsAlice, fakeAgent } from "./helpers";
+import { loginAsAlice, createAgent, switchToOrg, goToAgentSettings } from "./helpers";
 
 test.describe("Agents", () => {
   test.beforeEach(async ({ page }) => {
     await loginAsAlice(page);
     await page.goto("/agents");
     // Switch to Acme Corp org (has seeded agents)
-    await page.locator("aside button").first().click();
-    await page.getByRole("menuitem", { name: "Acme Corp" }).click();
+    await switchToOrg(page, "Acme Corp");
     // Wait for agents list to refresh after org switch
     await expect(page.locator("main").getByText("Claude Code — Production")).toBeVisible();
   });
@@ -24,18 +23,7 @@ test.describe("Agents", () => {
   });
 
   test("create new agent shows token and agent appears in list", async ({ page }) => {
-    const agent = fakeAgent();
-
-    await page.goto("/agents/new");
-    await expect(page.getByRole("heading", { name: "Connect Agent" })).toBeVisible();
-
-    await page.fill('[name="name"], #agent-name', agent.name);
-
-    // Select agent type via shadcn Select (Radix)
-    await page.getByText("Select type").or(page.getByText("claude")).click();
-    await page.getByRole("option", { name: agent.type }).click();
-
-    await page.click('button[type="submit"], button:has-text("Connect Agent")');
+    const agentName = await createAgent(page);
 
     // Token should be displayed after creation
     await expect(page.getByText("Connection Token")).toBeVisible();
@@ -44,7 +32,7 @@ test.describe("Agents", () => {
 
     // Navigate to agents list and verify the new agent appears
     await page.goto("/agents");
-    await expect(page.getByText(agent.name)).toBeVisible();
+    await expect(page.getByText(agentName)).toBeVisible();
   });
 
   test("click agent navigates to detail page", async ({ page }) => {
@@ -56,33 +44,29 @@ test.describe("Agents", () => {
   });
 
   test("agent settings allows renaming agent", async ({ page }) => {
-    // Find and click Settings for an agent
-    const agentCard = page.locator("main > div > div").filter({ hasText: "Claude Code — Production" });
-    const settingsButton = agentCard.getByRole("link", { name: "Settings" });
-    await settingsButton.click();
+    // Create a fresh agent to rename
+    const agentName = await createAgent(page, undefined, "custom");
+
+    // Go to agents list and find our agent
+    await page.goto("/agents");
+    await goToAgentSettings(page, agentName);
 
     await expect(page.getByRole("heading", { name: "Agent Settings" })).toBeVisible();
 
     // Rename the agent
     const nameInput = page.locator('[name="name"], #agent-name');
     await nameInput.clear();
-    await nameInput.fill("Claude Code — Staging");
+    await nameInput.fill(agentName + " Renamed");
     await page.click('button:has-text("Save Changes")');
 
-    // Verify update succeeded (look for success message or updated name)
-    await expect(page.getByText("Claude Code — Staging").or(page.getByText(/saved|updated|success/i))).toBeVisible();
-
-    // Rename back for idempotency
-    const nameInputAgain = page.locator('[name="name"], #agent-name');
-    await nameInputAgain.clear();
-    await nameInputAgain.fill("Claude Code — Production");
-    await page.click('button:has-text("Save Changes")');
+    // Verify update succeeded
+    await expect(
+      page.getByText(agentName + " Renamed").or(page.getByText(/saved|updated|success/i)),
+    ).toBeVisible();
   });
 
   test("agent settings shows danger zone with delete", async ({ page }) => {
-    const agentCard = page.locator("main > div > div").filter({ hasText: "Custom Script" });
-    const settingsButton = agentCard.getByRole("link", { name: "Settings" });
-    await settingsButton.click();
+    await goToAgentSettings(page, "Custom Script");
 
     await expect(page.getByText("Danger Zone")).toBeVisible();
     await expect(page.getByText("Delete Agent").nth(1)).toBeVisible();
@@ -90,26 +74,14 @@ test.describe("Agents", () => {
 
   test("delete agent removes it from the list", async ({ page }) => {
     // First create a temp agent to delete
-    const agent = fakeAgent();
-
-    await page.goto("/agents/new");
-    await page.fill('[name="name"], #agent-name', agent.name);
-
-    // Select agent type via shadcn Select (Radix)
-    await page.getByText("Select type").or(page.getByText("claude")).click();
-    await page.getByRole("option", { name: "custom" }).click();
-
-    await page.click('button[type="submit"], button:has-text("Connect Agent")');
-    await expect(page.getByText("Connection Token")).toBeVisible();
+    const agentName = await createAgent(page, undefined, "custom");
 
     // Navigate to agents list and find our agent
     await page.goto("/agents");
-    await expect(page.getByText(agent.name)).toBeVisible();
+    await expect(page.getByText(agentName)).toBeVisible();
 
     // Go to settings for this agent
-    const agentCard = page.locator("main > div > div").filter({ hasText: agent.name });
-    const settingsButton = agentCard.getByRole("link", { name: "Settings" });
-    await settingsButton.click();
+    await goToAgentSettings(page, agentName);
 
     // Delete the agent
     await page.click('button:has-text("Delete Agent")');
@@ -122,6 +94,6 @@ test.describe("Agents", () => {
 
     // Should redirect to agents list and agent should be gone
     await page.waitForURL("/agents");
-    await expect(page.getByText(agent.name)).not.toBeVisible();
+    await expect(page.getByText(agentName)).not.toBeVisible();
   });
 });

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { loginAsAlice } from "./helpers";
+import { loginAsAlice, switchToOrg } from "./helpers";
 
 test.describe("Agent Detail", () => {
   test.beforeEach(async ({ page }) => {
@@ -44,8 +44,7 @@ test.describe("Agent Detail", () => {
     await expect(page.locator("main").getByText("Alice's Claude")).toBeVisible();
 
     // Switch to Acme Corp
-    await page.locator("aside button").first().click();
-    await page.getByRole("menuitem", { name: "Acme Corp" }).click();
+    await switchToOrg(page, "Acme Corp");
 
     // Wait for agents list to refresh
     await expect(page.locator("main").getByText("Claude Code — Production")).toBeVisible();

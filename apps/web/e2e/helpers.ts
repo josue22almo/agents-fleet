@@ -58,3 +58,48 @@ export function fakeAgent() {
   const type = faker.helpers.arrayElement(["claude", "manus", "custom"] as const);
   return { name, type };
 }
+
+/**
+ * Creates a new agent via the UI form. Returns the agent's name.
+ * Assumes the user is already logged in and on any page.
+ */
+export async function createAgent(
+  page: Page,
+  name?: string,
+  type?: "claude" | "manus" | "custom",
+): Promise<string> {
+  const agent = fakeAgent();
+  const agentName = name ?? agent.name;
+  const agentType = type ?? agent.type;
+
+  await page.goto("/agents/new");
+  await page.fill('[name="name"], #agent-name', agentName);
+
+  // Select agent type via shadcn Select (Radix)
+  await page.getByText("Select type").or(page.getByText("claude")).click();
+  await page.getByRole("option", { name: agentType }).click();
+
+  await page.click('button[type="submit"], button:has-text("Connect Agent")');
+
+  // Wait for token to be displayed (confirms creation succeeded)
+  await page.locator("text=Connection Token").waitFor();
+
+  return agentName;
+}
+
+/**
+ * Switches to the given organization via the sidebar org switcher.
+ */
+export async function switchToOrg(page: Page, orgName: string) {
+  await page.locator("aside button").first().click();
+  await page.getByRole("menuitem", { name: orgName }).click();
+}
+
+/**
+ * Navigates to the settings page for a specific agent from the agents list.
+ * Assumes the agents list is currently visible.
+ */
+export async function goToAgentSettings(page: Page, agentName: string) {
+  const agentCard = page.locator("main > div > div").filter({ hasText: agentName });
+  await agentCard.getByRole("link", { name: "Settings" }).click();
+}
