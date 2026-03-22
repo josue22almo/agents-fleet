@@ -6,6 +6,7 @@ import { AppController } from "./app.controller";
 import { SharedModule } from "./common/shared.module";
 import { IamModule } from "./iam/iam.module";
 import { AgentsModule } from "./agents/agents.module";
+import { McpModule } from "./mcp/mcp.module";
 import { CatchAllFilter } from "./common/filters/catch-all.filter";
 import { DomainErrorFilter } from "./common/filters/domain-error.filter";
 import { ZodErrorFilter } from "./common/filters/zod-error.filter";
@@ -17,6 +18,7 @@ import { ZodErrorFilter } from "./common/filters/zod-error.filter";
     SharedModule,
     IamModule,
     AgentsModule,
+    McpModule,
   ],
   controllers: [AppController],
   providers: [
