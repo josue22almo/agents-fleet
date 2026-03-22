@@ -25,6 +25,7 @@ export function TokenDisplay({ agent }: { agent: AgentWithTokenResponse }) {
     {
       mcpServers: {
         "agents-fleet": {
+          type: "http",
           url: `${API_URL}/mcp`,
           headers: {
             Authorization: `Bearer ${truncatedToken}`,
