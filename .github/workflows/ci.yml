@@ -37,6 +37,20 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter web exec playwright install chromium --with-deps
 
+      - name: Seed database
+        run: |
+          pnpm run build --filter=api
+          node scripts/patch-exports-for-node.js
+          NODE_ENV=e2e node apps/api/dist/main.js &
+          API_PID=$!
+          sleep 5
+          pnpm db:seed || true
+          kill $API_PID 2>/dev/null || true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
       - name: E2E tests
         run: pnpm --filter web e2e
         env:

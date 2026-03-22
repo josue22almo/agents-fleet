@@ -28,11 +28,12 @@ test.describe("Agent Detail", () => {
     await expect(page.getByText("Recent Runs")).toBeVisible();
     // Verify at least one run row with a status is visible
     await expect(
-      page.locator("main").getByText("Completed").or(
-        page.locator("main").getByText("Failed"),
-      ).or(
-        page.locator("main").getByText("Running"),
-      ).first(),
+      page
+        .locator("main")
+        .getByText("Completed")
+        .or(page.locator("main").getByText("Failed"))
+        .or(page.locator("main").getByText("Running"))
+        .first(),
     ).toBeVisible();
   });
 
