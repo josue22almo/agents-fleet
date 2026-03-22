@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { Zap, Play, Clock, CheckCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { useOrganizations } from "@/hooks/use-organizations";
 import { useDashboardMetrics } from "@/hooks/use-dashboard-metrics";
 
@@ -91,7 +92,7 @@ export default function DashboardPage() {
           <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
             Connect your first agent to start monitoring metrics and performance.
           </p>
-          <Button>Connect Agent</Button>
+          <Link href="/agents/new" className={buttonVariants()}>Connect Agent</Link>
         </div>
       )}
     </>
