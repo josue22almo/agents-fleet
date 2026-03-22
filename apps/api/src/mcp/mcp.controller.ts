@@ -106,12 +106,14 @@ export class McpController {
       version: "1.0.0",
     });
 
-    server.tool(
+    server.registerTool(
       "report_run_started",
-      "Report that a new agent run has begun",
       {
-        runId: z.string().describe("Unique identifier for this run"),
-        metadata: z.record(z.unknown()).optional().describe("Optional metadata about the run"),
+        description: "Report that a new agent run has begun",
+        inputSchema: {
+          runId: z.string().describe("Unique identifier for this run"),
+          metadata: z.record(z.unknown()).optional().describe("Optional metadata about the run"),
+        },
       },
       async ({ runId, metadata }) => {
         const run = await this.ingestEvent.execute({
@@ -127,15 +129,17 @@ export class McpController {
       },
     );
 
-    server.tool(
+    server.registerTool(
       "report_run_completed",
-      "Report that an agent run has completed successfully",
       {
-        runId: z.string().describe("Unique identifier for this run"),
-        durationMs: z.number().optional().describe("Total duration in milliseconds"),
-        tokensUsed: z.number().optional().describe("Total tokens consumed"),
-        cost: z.number().optional().describe("Estimated cost in USD"),
-        metadata: z.record(z.unknown()).optional().describe("Optional metadata about the run"),
+        description: "Report that an agent run has completed successfully",
+        inputSchema: {
+          runId: z.string().describe("Unique identifier for this run"),
+          durationMs: z.number().optional().describe("Total duration in milliseconds"),
+          tokensUsed: z.number().optional().describe("Total tokens consumed"),
+          cost: z.number().optional().describe("Estimated cost in USD"),
+          metadata: z.record(z.unknown()).optional().describe("Optional metadata about the run"),
+        },
       },
       async ({ runId, durationMs, tokensUsed, cost, metadata }) => {
         const run = await this.ingestEvent.execute({
@@ -151,15 +155,17 @@ export class McpController {
       },
     );
 
-    server.tool(
+    server.registerTool(
       "report_run_failed",
-      "Report that an agent run has failed",
       {
-        runId: z.string().describe("Unique identifier for this run"),
-        error: z.string().describe("Error message describing the failure"),
-        durationMs: z.number().optional().describe("Total duration in milliseconds"),
-        tokensUsed: z.number().optional().describe("Total tokens consumed"),
-        metadata: z.record(z.unknown()).optional().describe("Optional metadata about the run"),
+        description: "Report that an agent run has failed",
+        inputSchema: {
+          runId: z.string().describe("Unique identifier for this run"),
+          error: z.string().describe("Error message describing the failure"),
+          durationMs: z.number().optional().describe("Total duration in milliseconds"),
+          tokensUsed: z.number().optional().describe("Total tokens consumed"),
+          metadata: z.record(z.unknown()).optional().describe("Optional metadata about the run"),
+        },
       },
       async ({ runId, error, durationMs, tokensUsed, metadata }) => {
         const run = await this.ingestEvent.execute({
@@ -175,11 +181,13 @@ export class McpController {
       },
     );
 
-    server.tool(
+    server.registerTool(
       "get_my_recent_runs",
-      "Get this agent's recent runs",
       {
-        limit: z.number().optional().default(10).describe("Maximum number of runs to return (default 10)"),
+        description: "Get this agent's recent runs",
+        inputSchema: {
+          limit: z.number().optional().default(10).describe("Maximum number of runs to return (default 10)"),
+        },
       },
       async ({ limit }) => {
         const result = await this.listRuns.execute({
@@ -195,10 +203,11 @@ export class McpController {
       },
     );
 
-    server.tool(
+    server.registerTool(
       "get_my_status",
-      "Get this agent's current status and stats",
-      {},
+      {
+        description: "Get this agent's current status and stats",
+      },
       async () => {
         const [agent, metrics] = await Promise.all([
           this.getAgent.execute({ agentId }),
