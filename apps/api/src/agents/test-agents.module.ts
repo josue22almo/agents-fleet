@@ -20,12 +20,20 @@ let idCounter = 0;
       useFactory: () => new InMemoryAgentRepository(),
     },
     {
+      provide: "AdminAgentRepository",
+      useExisting: "AgentRepository",
+    },
+    {
       provide: "OrganizationRepository",
       useFactory: () => new InMemoryOrganizationRepository(),
     },
     {
       provide: "RunRepository",
       useFactory: () => new InMemoryRunRepository(),
+    },
+    {
+      provide: "AdminRunRepository",
+      useExisting: "RunRepository",
     },
     {
       provide: "EventBus",

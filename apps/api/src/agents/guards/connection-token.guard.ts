@@ -5,7 +5,7 @@ import { ValidateConnectionToken, type AgentRepository } from "@repo/contexts/ag
 export class ConnectionTokenGuard implements CanActivate {
   private readonly validateConnectionToken: ValidateConnectionToken;
 
-  constructor(@Inject("AgentRepository") agentRepo: AgentRepository) {
+  constructor(@Inject("AdminAgentRepository") agentRepo: AgentRepository) {
     this.validateConnectionToken = new ValidateConnectionToken(agentRepo);
   }
 

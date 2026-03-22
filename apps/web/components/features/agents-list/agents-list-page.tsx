@@ -67,10 +67,10 @@ export function AgentsListPage() {
             const tc = typeColors[agent.type] ?? { bg: "bg-gray-100", text: "text-gray-600" };
             const sc = statusStyles[agent.status] ?? { bg: "bg-gray-100", text: "text-gray-500", dot: "bg-gray-400" };
             return (
-              <Link
+              <div
                 key={agent.id}
-                href={`/agents/${agent.id}`}
-                className="block rounded-xl border border-border bg-card p-5 shadow-sm hover:border-primary/30 hover:shadow-md transition-all"
+                onClick={() => window.location.href = `/agents/${agent.id}`}
+                className="block rounded-xl border border-border bg-card p-5 shadow-sm hover:border-primary/30 hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -101,7 +101,7 @@ export function AgentsListPage() {
                     Settings
                   </Link>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>

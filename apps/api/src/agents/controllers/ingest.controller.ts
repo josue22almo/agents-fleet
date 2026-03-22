@@ -31,8 +31,8 @@ export class IngestController {
   private readonly ingestEvent: IngestEvent;
 
   constructor(
-    @Inject("RunRepository") runRepo: RunRepository,
-    @Inject("AgentRepository") private readonly agentRepo: AgentRepository,
+    @Inject("AdminRunRepository") runRepo: RunRepository,
+    @Inject("AdminAgentRepository") private readonly agentRepo: AgentRepository,
     @Inject("IdGenerator") idGenerator: IdGenerator,
   ) {
     this.ingestEvent = new IngestEvent(runRepo, idGenerator);
