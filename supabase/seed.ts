@@ -272,12 +272,12 @@ async function seed() {
 
         try {
           // Start session
-          const sessionResult = await apiPost<{ sessionId: string }>("/ingest", {
+          const sessionResult = await apiPost<{ id: string }>("/ingest", {
             event: "session.started",
             timestamp: new Date().toISOString(),
             data: { name: `${sessionName} (${agent.name.substring(0, 10)})` },
           }, agent.connectionToken);
-          sessionId = sessionResult.sessionId;
+          sessionId = sessionResult.id;
           console.log(`  Started session "${sessionName}" for "${agent.name}"`);
         } catch (e) {
           console.error(`  Session start for "${agent.name}":`, (e as Error).message);
