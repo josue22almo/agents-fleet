@@ -4,15 +4,15 @@ import { loginAsAlice, fakeAgent } from "./helpers";
 test.describe("Agents", () => {
   test.beforeEach(async ({ page }) => {
     await loginAsAlice(page);
+    await page.goto("/agents");
     // Switch to Acme Corp org (has seeded agents)
     await page.locator("aside button").first().click();
     await page.getByRole("menuitem", { name: "Acme Corp" }).click();
-    await page.goto("/agents");
+    // Wait for agents list to refresh after org switch
+    await expect(page.locator("main").getByText("Claude Code — Production")).toBeVisible();
   });
 
   test("lists seeded agents on agents page", async ({ page }) => {
-    await page.goto("/agents");
-
     await expect(page.getByRole("heading", { name: "Agents" })).toBeVisible();
     await expect(page.getByText("Claude Code — Production")).toBeVisible();
     await expect(page.getByText("Manus Research")).toBeVisible();
@@ -20,8 +20,6 @@ test.describe("Agents", () => {
   });
 
   test("shows agent status badges", async ({ page }) => {
-    await page.goto("/agents");
-
     await expect(page.getByText("Active").first()).toBeVisible();
     await expect(page.getByText("Inactive")).toBeVisible();
   });
@@ -53,9 +51,7 @@ test.describe("Agents", () => {
   });
 
   test("click agent navigates to detail page", async ({ page }) => {
-    await page.goto("/agents");
-
-    await page.getByText("Claude Code — Production").click();
+    await page.locator("main").getByText("Claude Code — Production").click();
 
     // Should navigate to detail page
     await expect(page.getByRole("heading", { name: "Claude Code — Production" })).toBeVisible();
@@ -63,8 +59,6 @@ test.describe("Agents", () => {
   });
 
   test("agent settings allows renaming agent", async ({ page }) => {
-    await page.goto("/agents");
-
     // Find and click Settings for an agent
     const agentCard = page.locator("text=Claude Code — Production").locator("..").locator("..");
     const settingsButton = agentCard.getByText("Settings");

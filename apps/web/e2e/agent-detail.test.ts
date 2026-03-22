@@ -26,8 +26,14 @@ test.describe("Agent Detail", () => {
     await page.locator("main").getByText("Alice's Claude").click();
 
     await expect(page.getByText("Recent Runs")).toBeVisible();
-    const statusBadges = page.locator("text=/Completed|Failed|Running/");
-    await expect(statusBadges.first()).toBeVisible();
+    // Verify at least one run row with a status is visible
+    await expect(
+      page.locator("main").getByText("Completed").or(
+        page.locator("main").getByText("Failed"),
+      ).or(
+        page.locator("main").getByText("Running"),
+      ).first(),
+    ).toBeVisible();
   });
 
   test("switches org and shows different agents", async ({ page }) => {
@@ -41,7 +47,6 @@ test.describe("Agent Detail", () => {
     await page.getByRole("menuitem", { name: "Acme Corp" }).click();
 
     // Wait for agents list to refresh
-    await page.goto("/agents");
     await expect(page.locator("main").getByText("Claude Code — Production")).toBeVisible();
     await expect(page.locator("main").getByText("Manus Research")).toBeVisible();
   });
