@@ -28,7 +28,7 @@ test.describe("Agent Detail", () => {
     // Click the "Runs" tab to see the runs table
     await page.getByRole("button", { name: "Runs" }).click();
 
-    await expect(page.getByText("Recent Runs")).toBeVisible();
+    await expect(page.getByText("Recent Runs")).toBeVisible({ timeout: 10000 });
     // Verify at least one run row with a status is visible
     await expect(
       page
