@@ -42,7 +42,15 @@ export const DashboardMetricsResponseSchema = z.object({
   totalCost: z.number(),
 });
 
+export const PaginatedRunsResponseSchema = z.object({
+  data: z.array(RunResponseSchema),
+  total: z.number(),
+  page: z.number(),
+  pageSize: z.number(),
+});
+
 export type IngestEventRequest = z.infer<typeof IngestEventRequestSchema>;
 export type RunResponse = z.infer<typeof RunResponseSchema>;
 export type AgentMetricsResponse = z.infer<typeof AgentMetricsResponseSchema>;
 export type DashboardMetricsResponse = z.infer<typeof DashboardMetricsResponseSchema>;
+export type PaginatedRunsResponse = z.infer<typeof PaginatedRunsResponseSchema>;

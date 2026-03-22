@@ -17,6 +17,17 @@ import type {
   InviteDetailsResponse,
 } from "@repo/contracts/iam";
 
+import type {
+  CreateAgentRequest,
+  UpdateAgentRequest,
+  AgentResponse,
+  AgentListItemResponse,
+  AgentWithTokenResponse,
+  AgentMetricsResponse,
+  DashboardMetricsResponse,
+  PaginatedRunsResponse,
+} from "@repo/contracts/agents";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 export class ApiError extends Error {
@@ -78,36 +89,6 @@ function del<T>(path: string) {
   return request<T>(path, { method: "DELETE" });
 }
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-
-async function uploadAvatar(userId: string, file: File): Promise<string> {
-  const ext = file.name.split(".").pop() ?? "png";
-  const path = `${userId}/avatar.${ext}`;
-
-  const token = getAccessToken();
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/avatars/${path}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      apikey: SUPABASE_ANON_KEY,
-      "x-upsert": "true",
-    },
-    body: file,
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new ApiError(
-      "UPLOAD_FAILED",
-      body?.message ?? `Upload failed with status ${res.status}`,
-      res.status,
-    );
-  }
-
-  return `${SUPABASE_URL}/storage/v1/object/public/avatars/${path}`;
-}
-
 export const api = {
   auth: {
     login: (data: LoginRequest) => post<AuthTokensResponse>("/auth/login", data),
@@ -137,7 +118,31 @@ export const api = {
     accept: (token: string) => post<void>(`/invitations/${token}/accept`),
     decline: (token: string) => post<void>(`/invitations/${token}/decline`),
   },
+  agents: {
+    list: (orgId: string) => get<AgentListItemResponse[]>(`/agents?organizationId=${orgId}`),
+    create: (data: CreateAgentRequest) => post<AgentWithTokenResponse>("/agents", data),
+    get: (id: string) => get<AgentResponse>(`/agents/${id}`),
+    update: (id: string, data: UpdateAgentRequest) => patch<AgentResponse>(`/agents/${id}`, data),
+    delete: (id: string) => del<void>(`/agents/${id}`),
+    regenerateToken: (id: string) => post<AgentWithTokenResponse>(`/agents/${id}/regenerate-token`),
+    runs: (id: string, page?: number) => get<PaginatedRunsResponse>(`/agents/${id}/runs?page=${page ?? 1}`),
+    metrics: (id: string) => get<AgentMetricsResponse>(`/agents/${id}/metrics`),
+    dashboardMetrics: (orgId: string) => get<DashboardMetricsResponse>(`/dashboard/metrics?organizationId=${orgId}`),
+  },
   avatars: {
-    upload: (userId: string, file: File) => uploadAvatar(userId, file),
+    upload: async (userId: string, file: File): Promise<string> => {
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `${userId}/avatar.${ext}`;
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+      const res = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${path}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, apikey: supabaseKey, "x-upsert": "true" },
+        body: file,
+      });
+      if (!res.ok) throw new ApiError("UPLOAD_FAILED", "Avatar upload failed", res.status);
+      return `${supabaseUrl}/storage/v1/object/public/avatars/${path}`;
+    },
   },
 };
