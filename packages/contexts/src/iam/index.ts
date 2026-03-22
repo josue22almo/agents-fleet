@@ -61,6 +61,7 @@ export { DeclineInvitation } from "./application/use-cases/decline-invitation";
 export { ChangeMemberRole } from "./application/use-cases/change-member-role";
 export { RemoveMember } from "./application/use-cases/remove-member";
 export { ListMembers } from "./application/use-cases/list-members";
+export { ChangePassword } from "./application/use-cases/change-password";
 
 // Infrastructure
 export { SupabaseAuthService } from "./infrastructure/services/supabase-auth.service";

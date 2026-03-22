@@ -38,6 +38,9 @@ function createMockAuthService(): AuthService {
     logout: async () => {},
     sendPasswordResetEmail: async () => {},
     resetPassword: async () => {},
+    changePassword: async (_userId: string, currentPassword: string, _newPassword: string) => {
+      // In test mode, just verify something was passed
+    },
     verifyToken: async (token: string): Promise<AuthUser> => {
       const userId = token.replace("token-", "");
       for (const user of users.values()) {

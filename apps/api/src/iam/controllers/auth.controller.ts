@@ -5,6 +5,7 @@ import {
   ForgotPasswordRequestSchema,
   ResetPasswordRequestSchema,
   UpdateProfileRequestSchema,
+  ChangePasswordRequestSchema,
 } from "@repo/contracts/iam";
 import {
   SignUp,
@@ -13,6 +14,7 @@ import {
   ResetPassword,
   GetProfile,
   UpdateProfile,
+  ChangePassword,
   type AuthService,
   type UserRepository,
 } from "@repo/contexts/iam";
@@ -28,6 +30,7 @@ export class AuthController {
   private readonly resetPassword: ResetPassword;
   private readonly getProfile: GetProfile;
   private readonly updateProfile: UpdateProfile;
+  private readonly changePassword: ChangePassword;
 
   constructor(
     @Inject("AuthService") authService: AuthService,
@@ -41,6 +44,7 @@ export class AuthController {
     this.resetPassword = new ResetPassword(authService);
     this.getProfile = new GetProfile(userRepo);
     this.updateProfile = new UpdateProfile(userRepo);
+    this.changePassword = new ChangePassword(authService);
   }
 
   @Post("signup")
@@ -94,5 +98,17 @@ export class AuthController {
       avatarUrl: data.avatarUrl ?? null,
     });
     return updated.toPrimitives();
+  }
+
+  @Patch("password")
+  @UseGuards(JwtAuthGuard)
+  async handleChangePassword(@CurrentUser() user: AuthenticatedUser, @Body() body: unknown) {
+    const data = ChangePasswordRequestSchema.parse(body);
+    await this.changePassword.execute({
+      userId: user.id,
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    });
+    return { message: "Password changed successfully" };
   }
 }
