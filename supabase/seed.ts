@@ -9,7 +9,7 @@
  *   4. Personal orgs (one per user with owner membership)
  *   5. Team orgs (Acme Corp + Startup Labs with role-based memberships)
  *   6. Invitations (pending + expired)
- *   7. Agents (3 for Acme Corp, 2 for Startup Labs — with connection tokens)
+ *   7. Agents (3 for Acme Corp, 2 for Startup Labs, 1 per personal org — with connection tokens)
  *   8. Runs (5-10 per active agent — 60% completed, 25% failed, 15% running)
  *
  * Usage: pnpm db:seed
@@ -154,9 +154,11 @@ async function seed() {
 
   // Create personal organizations for each user
   console.log("\nCreating personal organizations...");
+  const personalOrgIds: Record<string, string> = {};
   for (const user of TEST_USERS) {
     const userId = userIds[user.email]!;
     const personalOrgId = crypto.randomUUID();
+    personalOrgIds[user.email] = personalOrgId;
     const slug = user.fullName.toLowerCase().replace(/\s+/g, "-") + "-personal-" + userId.substring(0, 8);
 
     const { error: orgError } = await supabase.from("organizations").insert({
@@ -292,8 +294,28 @@ async function seed() {
       created_by: alice,
       last_seen_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     },
+    // Personal org agents
+    {
+      id: crypto.randomUUID(),
+      organization_id: personalOrgIds["alice@test.com"]!,
+      name: "Alice's Claude",
+      type: "claude",
+      status: "active",
+      created_by: alice,
+      last_seen_at: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    },
+    {
+      id: crypto.randomUUID(),
+      organization_id: personalOrgIds["bob@test.com"]!,
+      name: "Bob's Custom Agent",
+      type: "custom",
+      status: "active",
+      created_by: bob,
+      last_seen_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+    },
   ];
 
+  const activeAgentsList: { id: string; name: string }[] = [];
   for (const agentDef of agentDefinitions) {
     const token = generateConnectionToken();
     const { error } = await supabase.from("agents").insert({
@@ -302,18 +324,18 @@ async function seed() {
       token_prefix: token.prefix,
     });
     if (error) console.error(`  Agent "${agentDef.name}":`, error.message);
-    else console.log(`  Created agent "${agentDef.name}" (${agentDef.status})`);
+    else {
+      console.log(`  Created agent "${agentDef.name}" (${agentDef.status})`);
+      if (agentDef.status === "active") {
+        activeAgentsList.push({ id: agentDef.id, name: agentDef.name });
+      }
+    }
   }
 
   // --- Runs ---
   console.log("\nCreating runs for active agents...");
 
-  const activeAgents = [
-    { id: AGENT_IDS.claudeCode, name: "Claude Code — Production" },
-    { id: AGENT_IDS.manusResearch, name: "Manus Research" },
-    { id: AGENT_IDS.startupClaude, name: "Claude Code — Staging" },
-    { id: AGENT_IDS.startupManus, name: "Manus Explorer" },
-  ];
+  const activeAgents = activeAgentsList;
 
   for (const agent of activeAgents) {
     const runCount = randomInt(5, 10);
