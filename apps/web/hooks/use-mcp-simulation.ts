@@ -22,38 +22,23 @@ interface SimulationState {
   createdAgentId: string | null;
 }
 
-let jsonRpcId = 1;
-
-async function mcpCall(
+async function ingestEvent(
   connectionToken: string,
-  toolName: string,
-  args: Record<string, unknown>,
+  body: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
-  const res = await fetch(`${API_URL}/mcp`, {
+  const res = await fetch(`${API_URL}/ingest`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Accept: "application/json, text/event-stream",
       Authorization: `Bearer ${connectionToken}`,
     },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: jsonRpcId++,
-      method: "tools/call",
-      params: { name: toolName, arguments: args },
-    }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     const errBody = await res.json().catch(() => null);
-    throw new Error(errBody?.error?.message ?? `MCP call failed with status ${res.status}`);
+    throw new Error(errBody?.error?.message ?? `Ingest failed with status ${res.status}`);
   }
-  const result = await res.json();
-  if (result.error) {
-    throw new Error(result.error.message ?? JSON.stringify(result.error));
-  }
-  // MCP tool results are in result.result.content[0].text (JSON string)
-  const content = result.result?.content?.[0]?.text;
-  return content ? JSON.parse(content) : result.result;
+  return res.json();
 }
 
 function wait(ms: number): Promise<void> {
@@ -116,7 +101,7 @@ export function useMcpSimulation(organizationId: string) {
     }
 
     try {
-      // Step 1: Create agent (via REST API — gets connection token)
+      // Step 1: Create agent
       addLog(1, "Creating agent...", "running");
       const t0 = performance.now();
       const agent = await api.agents.create({
@@ -134,11 +119,13 @@ export function useMcpSimulation(organizationId: string) {
       setState((prev) => ({ ...prev, createdAgentId: agentId }));
       if (abortRef.current) return;
 
-      // Step 2: MCP start_session
-      addLog(2, 'MCP: start_session("Demo: Code Review")', "running");
+      // Step 2: start_session
+      addLog(2, 'start_session("Demo: Code Review")', "running");
       const t2 = performance.now();
-      const sessionResult = await mcpCall(connectionToken, "start_session", {
-        name: "Demo: Code Review",
+      const sessionResult = await ingestEvent(connectionToken, {
+        event: "session.started",
+        timestamp: new Date().toISOString(),
+        data: { name: "Demo: Code Review" },
       });
       const sessionId = (sessionResult as { id?: string }).id;
       updateLog(2, {
@@ -148,12 +135,14 @@ export function useMcpSimulation(organizationId: string) {
       });
       if (abortRef.current) return;
 
-      // Step 3: MCP report_run_started (run_001)
-      addLog(3, "MCP: report_run_started(run_001)", "running");
+      // Step 3: report_run_started (run_001)
+      addLog(3, "report_run_started(run_001)", "running");
       const t3 = performance.now();
-      await mcpCall(connectionToken, "report_run_started", {
+      await ingestEvent(connectionToken, {
+        event: "run.started",
         runId: "sim_run_001",
         sessionId,
+        timestamp: new Date().toISOString(),
       });
       updateLog(3, {
         status: "success",
@@ -167,28 +156,30 @@ export function useMcpSimulation(organizationId: string) {
       updateLog(4, { status: "success", durationMs: 2000 });
       if (abortRef.current) return;
 
-      // Step 5: MCP report_run_completed (run_001)
-      addLog(5, "MCP: report_run_completed(run_001)", "running");
+      // Step 5: report_run_completed (run_001)
+      addLog(5, "report_run_completed(run_001)", "running");
       const t5 = performance.now();
-      const run1Result = await mcpCall(connectionToken, "report_run_completed", {
+      await ingestEvent(connectionToken, {
+        event: "run.completed",
         runId: "sim_run_001",
-        durationMs: 2300,
-        tokensUsed: 450,
-        cost: 0.12,
+        timestamp: new Date().toISOString(),
+        data: { durationMs: 2300, tokensUsed: 450, cost: 0.12 },
       });
       updateLog(5, {
         status: "success",
         durationMs: Math.round(performance.now() - t5),
-        detail: `Completed: 2.3s, 450 tokens, $0.12`,
+        detail: "Completed: 2.3s, 450 tokens, $0.12",
       });
       if (abortRef.current) return;
 
-      // Step 6: MCP report_run_started (run_002)
-      addLog(6, "MCP: report_run_started(run_002)", "running");
+      // Step 6: report_run_started (run_002)
+      addLog(6, "report_run_started(run_002)", "running");
       const t6 = performance.now();
-      await mcpCall(connectionToken, "report_run_started", {
+      await ingestEvent(connectionToken, {
+        event: "run.started",
         runId: "sim_run_002",
         sessionId,
+        timestamp: new Date().toISOString(),
       });
       updateLog(6, {
         status: "success",
@@ -202,12 +193,14 @@ export function useMcpSimulation(organizationId: string) {
       updateLog(7, { status: "success", durationMs: 1000 });
       if (abortRef.current) return;
 
-      // Step 8: MCP report_run_failed (run_002)
-      addLog(8, "MCP: report_run_failed(run_002)", "running");
+      // Step 8: report_run_failed (run_002)
+      addLog(8, "report_run_failed(run_002)", "running");
       const t8 = performance.now();
-      await mcpCall(connectionToken, "report_run_failed", {
+      await ingestEvent(connectionToken, {
+        event: "run.failed",
         runId: "sim_run_002",
-        error: "Rate limit exceeded",
+        timestamp: new Date().toISOString(),
+        data: { error: "Rate limit exceeded" },
       });
       updateLog(8, {
         status: "error",
@@ -216,12 +209,14 @@ export function useMcpSimulation(organizationId: string) {
       });
       if (abortRef.current) return;
 
-      // Step 9: MCP report_run_started (run_003 — retry)
-      addLog(9, "MCP: report_run_started(run_003) — retry", "running");
+      // Step 9: report_run_started (run_003 — retry)
+      addLog(9, "report_run_started(run_003) — retry", "running");
       const t9 = performance.now();
-      await mcpCall(connectionToken, "report_run_started", {
+      await ingestEvent(connectionToken, {
+        event: "run.started",
         runId: "sim_run_003",
         sessionId,
+        timestamp: new Date().toISOString(),
       });
       updateLog(9, {
         status: "success",
@@ -235,44 +230,48 @@ export function useMcpSimulation(organizationId: string) {
       updateLog(10, { status: "success", durationMs: 1500 });
       if (abortRef.current) return;
 
-      // Step 11: MCP report_run_completed (run_003)
-      addLog(11, "MCP: report_run_completed(run_003)", "running");
+      // Step 11: report_run_completed (run_003)
+      addLog(11, "report_run_completed(run_003)", "running");
       const t11 = performance.now();
-      await mcpCall(connectionToken, "report_run_completed", {
+      await ingestEvent(connectionToken, {
+        event: "run.completed",
         runId: "sim_run_003",
-        durationMs: 1800,
-        tokensUsed: 380,
-        cost: 0.09,
+        timestamp: new Date().toISOString(),
+        data: { durationMs: 1800, tokensUsed: 380, cost: 0.09 },
       });
       updateLog(11, {
         status: "success",
         durationMs: Math.round(performance.now() - t11),
-        detail: `Completed: 1.8s, 380 tokens, $0.09`,
+        detail: "Completed: 1.8s, 380 tokens, $0.09",
       });
       if (abortRef.current) return;
 
-      // Step 12: MCP end_session
-      addLog(12, "MCP: end_session(completed)", "running");
+      // Step 12: end_session
+      addLog(12, "end_session(completed)", "running");
       const t12 = performance.now();
-      const sessionCompleted = await mcpCall(connectionToken, "end_session", {
-        sessionId: sessionId!,
-        status: "completed",
+      await ingestEvent(connectionToken, {
+        event: "session.completed",
+        sessionId,
+        timestamp: new Date().toISOString(),
       });
       updateLog(12, {
         status: "success",
         durationMs: Math.round(performance.now() - t12),
-        detail: JSON.stringify(sessionCompleted),
+        detail: "Session completed",
       });
       if (abortRef.current) return;
 
-      // Step 13: MCP get_my_sessions
-      addLog(13, "MCP: get_my_sessions()", "running");
+      // Step 13: get_my_sessions
+      addLog(13, "get_my_sessions()", "running");
       const t13 = performance.now();
-      const sessionsResult = await mcpCall(connectionToken, "get_my_sessions", {});
+      const sessions = await api.agents.sessions(agentId);
+      const sessionData = sessions.data[0];
       updateLog(13, {
         status: "success",
         durationMs: Math.round(performance.now() - t13),
-        detail: JSON.stringify(sessionsResult),
+        detail: sessionData
+          ? `Session "${sessionData.name}": ${sessionData.runCount} runs, Status: ${sessionData.status}`
+          : `Sessions: ${sessions.total} total`,
       });
 
       // Invalidate caches
