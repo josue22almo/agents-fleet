@@ -96,10 +96,49 @@ export async function switchToOrg(page: Page, orgName: string) {
 }
 
 /**
+ * Returns a locator for an agent card by name in the agents list.
+ */
+export function agentCard(page: Page, agentName: string) {
+  return page.locator("main > div > div").filter({ hasText: agentName });
+}
+
+/**
+ * Asserts an agent is visible in the agents list.
+ */
+export async function expectAgentVisible(page: Page, agentName: string) {
+  const { expect } = await import("@playwright/test");
+  await expect(agentCard(page, agentName)).toBeVisible();
+}
+
+/**
+ * Navigates to agent detail page by clicking the agent name in the list.
+ * Assumes the agents list is currently visible.
+ */
+export async function navigateToAgentDetail(page: Page, agentName: string) {
+  await page.locator("main").getByText(agentName).click();
+}
+
+/**
  * Navigates to the settings page for a specific agent from the agents list.
  * Assumes the agents list is currently visible.
  */
 export async function goToAgentSettings(page: Page, agentName: string) {
-  const agentCard = page.locator("main > div > div").filter({ hasText: agentName });
-  await agentCard.getByRole("link", { name: "Settings" }).click();
+  const card = agentCard(page, agentName);
+  await card.getByRole("link", { name: "Settings" }).click();
+}
+
+/**
+ * Navigates to agents list page.
+ */
+export async function goToAgentsList(page: Page) {
+  await page.goto("/agents");
+}
+
+/**
+ * Navigates back from agent detail to agents list via breadcrumb.
+ */
+export async function navigateBackToAgentsList(page: Page) {
+  await page.locator("a").filter({ hasText: "Agents" }).first().click();
+  const { expect } = await import("@playwright/test");
+  await expect(page.getByRole("heading", { name: "Agents" })).toBeVisible();
 }
