@@ -1,8 +1,9 @@
 import { Module } from "@nestjs/common";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 import { InMemoryEventBus } from "@repo/contexts/_shared";
 import { InMemoryAgentRepository, UpdateAgentOnRunIngestedEventHandler } from "@repo/contexts/agents";
 import { InMemoryOrganizationRepository } from "@repo/contexts/iam";
-import { InMemoryRunRepository, InMemorySessionRepository } from "@repo/contexts/monitoring";
+import { InMemoryRunRepository, InMemorySessionRepository, InMemoryToolCallRepository } from "@repo/contexts/monitoring";
 import { TestIamModule } from "../iam/test-iam.module";
 
 import { AgentsController } from "./controllers/agents.controller";
@@ -12,7 +13,7 @@ import { RunsController } from "./controllers/runs.controller";
 let idCounter = 0;
 
 @Module({
-  imports: [TestIamModule],
+  imports: [TestIamModule, EventEmitterModule.forRoot()],
   controllers: [AgentsController, IngestController, RunsController],
   providers: [
     {
@@ -51,6 +52,14 @@ let idCounter = 0;
       useExisting: "SessionRepository",
     },
     {
+      provide: "ToolCallRepository",
+      useFactory: () => new InMemoryToolCallRepository(),
+    },
+    {
+      provide: "AdminToolCallRepository",
+      useExisting: "ToolCallRepository",
+    },
+    {
       provide: "EventBus",
       useFactory: (agentRepo: InMemoryAgentRepository) => {
         const eventBus = new InMemoryEventBus();
@@ -64,6 +73,6 @@ let idCounter = 0;
       useValue: { generate: () => `id-${++idCounter}` },
     },
   ],
-  exports: ["AgentRepository", "OrganizationRepository", "RunRepository", "SessionRepository"],
+  exports: ["AgentRepository", "OrganizationRepository", "RunRepository", "SessionRepository", "ToolCallRepository"],
 })
 export class TestAgentsModule {}

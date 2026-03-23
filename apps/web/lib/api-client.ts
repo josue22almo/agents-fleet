@@ -28,6 +28,7 @@ import type {
   DashboardChartDataResponse,
   AgentComparisonResponse,
   AgentUsageStatsResponse,
+  ToolCallSummaryResponse,
   PaginatedRunsResponse,
   PaginatedSessionsResponse,
   SessionWithRunsResponse,
@@ -139,6 +140,7 @@ export const api = {
     dashboardComparison: (orgId: string) => get<AgentComparisonResponse>(`/dashboard/comparison?organizationId=${orgId}`),
     agentCharts: (id: string) => get<DashboardChartDataResponse>(`/agents/${id}/charts`),
     agentUsage: (id: string) => get<AgentUsageStatsResponse>(`/agents/${id}/usage`),
+    tools: (id: string) => get<ToolCallSummaryResponse>(`/agents/${id}/tools`),
   },
   avatars: {
     upload: async (userId: string, file: File): Promise<string> => {

@@ -8,6 +8,7 @@ export const IngestEventRequestSchema = z.object({
     "session.started",
     "session.completed",
     "session.failed",
+    "tool.called",
   ]),
   runId: z.string().min(1, "Run ID is required").optional(),
   sessionId: z.string().optional(),
@@ -22,6 +23,8 @@ export const IngestEventRequestSchema = z.object({
     totalDurationMs: z.number().optional(),
     totalTokensUsed: z.number().optional(),
     totalCost: z.number().optional(),
+    toolName: z.string().optional(),
+    success: z.boolean().optional(),
   }).optional(),
 });
 
@@ -135,3 +138,12 @@ export const AgentUsageStatsResponseSchema = z.object({
   history: z.array(z.object({ period: z.string(), runs: z.number(), tokens: z.number(), cost: z.number(), successRate: z.number() })),
 });
 export type AgentUsageStatsResponse = z.infer<typeof AgentUsageStatsResponseSchema>;
+
+export const ToolCallSummarySchema = z.object({
+  toolName: z.string(),
+  calls: z.number(),
+  avgDurationMs: z.number(),
+  successRate: z.number(),
+});
+export const ToolCallSummaryResponseSchema = z.array(ToolCallSummarySchema);
+export type ToolCallSummaryResponse = z.infer<typeof ToolCallSummaryResponseSchema>;

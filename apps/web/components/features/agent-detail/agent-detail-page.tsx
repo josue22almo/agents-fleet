@@ -11,6 +11,7 @@ import { RunsTable } from "@/components/features/agent-detail/runs-table";
 import { SessionsList } from "@/components/features/agent-detail/sessions-list";
 import { AgentCharts } from "@/components/features/agent-detail/agent-charts";
 import { AgentUsageStats } from "@/components/features/agent-detail/agent-usage-stats";
+import { ToolUsageTable } from "@/components/features/agent-detail/tool-usage-table";
 import { Spinner } from "@/components/ui/spinner";
 
 const typeColors: Record<string, { bg: string; text: string }> = {
@@ -159,12 +160,7 @@ export function AgentDetailPage({ id }: { id: string }) {
           onPageChange={setRunsPage}
         />
       )}
-      {activeTab === "tools" && (
-        <div className="rounded-xl border border-border bg-card p-8 text-center">
-          <Wrench className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">Tool call tracking coming soon</p>
-        </div>
-      )}
+      {activeTab === "tools" && <ToolUsageTable agentId={id} />}
 
       {/* Usage Stats */}
       <AgentUsageStats agentId={id} />

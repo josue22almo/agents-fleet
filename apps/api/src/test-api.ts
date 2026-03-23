@@ -202,6 +202,36 @@ export class TestApi {
       .set("Authorization", `Bearer ${accessToken}`);
   }
 
+  getDashboardCharts(accessToken: string, organizationId: string) {
+    return request(this.app.getHttpServer())
+      .get(`/dashboard/charts?organizationId=${organizationId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  getDashboardComparison(accessToken: string, organizationId: string) {
+    return request(this.app.getHttpServer())
+      .get(`/dashboard/comparison?organizationId=${organizationId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  getAgentUsage(accessToken: string, agentId: string) {
+    return request(this.app.getHttpServer())
+      .get(`/agents/${agentId}/usage`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  getAgentCharts(accessToken: string, agentId: string) {
+    return request(this.app.getHttpServer())
+      .get(`/agents/${agentId}/charts`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  getAgentTools(accessToken: string, agentId: string) {
+    return request(this.app.getHttpServer())
+      .get(`/agents/${agentId}/tools`)
+      .set("Authorization", `Bearer ${accessToken}`);
+  }
+
   // Helpers
   async signupAndLogin(email: string, password: string, fullName?: string): Promise<string> {
     await this.signup(email, password, fullName);

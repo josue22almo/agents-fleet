@@ -6,6 +6,7 @@ import {
   DashboardChartDataResponseSchema,
   AgentComparisonResponseSchema,
   AgentUsageStatsResponseSchema,
+  ToolCallSummaryResponseSchema,
   PaginatedSessionsResponseSchema,
   SessionWithRunsResponseSchema,
 } from "@repo/contracts/agents";
@@ -16,10 +17,12 @@ import {
   GetDashboardChartData,
   GetAgentComparison,
   GetAgentUsageStats,
+  GetAgentToolCalls,
   ListSessions,
   GetSession,
   type RunRepository,
   type SessionRepository,
+  type ToolCallRepository,
 } from "@repo/contexts/monitoring";
 import { ListAgents, type AgentRepository } from "@repo/contexts/agents";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
@@ -84,11 +87,13 @@ export class RunsController {
   private readonly getDashboardChartData: GetDashboardChartData;
   private readonly getAgentComparison: GetAgentComparison;
   private readonly getAgentUsageStats: GetAgentUsageStats;
+  private readonly getAgentToolCalls: GetAgentToolCalls;
 
   constructor(
     @Inject("RunRepository") runRepo: RunRepository,
     @Inject("AgentRepository") agentRepo: AgentRepository,
     @Inject("SessionRepository") sessionRepo: SessionRepository,
+    @Inject("ToolCallRepository") toolCallRepo: ToolCallRepository,
   ) {
     this.listRuns = new ListRuns(runRepo);
     this.getAgentMetrics = new GetAgentMetrics(runRepo);
@@ -96,6 +101,7 @@ export class RunsController {
     this.getDashboardChartData = new GetDashboardChartData(runRepo);
     this.getAgentComparison = new GetAgentComparison(runRepo);
     this.getAgentUsageStats = new GetAgentUsageStats(runRepo);
+    this.getAgentToolCalls = new GetAgentToolCalls(toolCallRepo);
     this.listAgents = new ListAgents(agentRepo);
     this.listSessions = new ListSessions(sessionRepo);
     this.getSession = new GetSession(sessionRepo, runRepo);
@@ -199,6 +205,12 @@ export class RunsController {
   async handleAgentUsage(@Param("id") agentId: string) {
     const result = await this.getAgentUsageStats.execute({ agentId });
     return AgentUsageStatsResponseSchema.parse(result);
+  }
+
+  @Get("agents/:id/tools")
+  async handleAgentTools(@Param("id") agentId: string) {
+    const result = await this.getAgentToolCalls.execute({ agentId });
+    return ToolCallSummaryResponseSchema.parse(result);
   }
 
   private async getAgentIdsForOrg(organizationId: string): Promise<string[]> {
