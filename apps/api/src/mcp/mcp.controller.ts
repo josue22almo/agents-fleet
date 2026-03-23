@@ -76,7 +76,7 @@ export class McpController {
     this.validateConnectionToken = new ValidateConnectionToken(agentRepo);
     this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus, sessionRepo);
     this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator);
-    this.ingestToolCall = new IngestToolCall(toolCallRepo, idGenerator);
+    this.ingestToolCall = new IngestToolCall(toolCallRepo, runRepo, idGenerator);
     this.listRuns = new ListRuns(runRepo);
     this.listSessions = new ListSessions(sessionRepo);
     this.getAgent = new GetAgent(agentRepo);
@@ -298,7 +298,7 @@ export class McpController {
       async ({ runId, toolName, durationMs, success }) => {
         const toolCall = await this.ingestToolCall.execute({
           agentId,
-          runId,
+          externalRunId: runId,
           toolName,
           durationMs,
           success,

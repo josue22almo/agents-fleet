@@ -2,7 +2,7 @@ import { Entity } from "../../../_shared/domain/models/entity";
 
 export interface ToolCallPrimitives {
   id: string;
-  runId: string;
+  runId: string | null;
   agentId: string;
   toolName: string;
   durationMs: number | null;
@@ -13,7 +13,7 @@ export interface ToolCallPrimitives {
 
 interface ToolCallProps {
   id: string;
-  runId: string;
+  runId: string | null;
   agentId: string;
   toolName: string;
   durationMs: number | null;
@@ -23,7 +23,7 @@ interface ToolCallProps {
 }
 
 export class ToolCall extends Entity {
-  private _runId: string;
+  private _runId: string | null;
   private _agentId: string;
   private _toolName: string;
   private _durationMs: number | null;
@@ -61,7 +61,7 @@ export class ToolCall extends Entity {
 
   static record(params: {
     id: string;
-    runId: string;
+    runId: string | null;
     agentId: string;
     toolName: string;
     durationMs?: number;

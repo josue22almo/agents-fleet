@@ -70,7 +70,7 @@ export class IngestController {
   ) {
     this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus, sessionRepo);
     this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator);
-    this.ingestToolCall = new IngestToolCall(toolCallRepo, idGenerator);
+    this.ingestToolCall = new IngestToolCall(toolCallRepo, runRepo, idGenerator);
   }
 
   @Post()
@@ -100,7 +100,7 @@ export class IngestController {
       }
       const toolCall = await this.ingestToolCall.execute({
         agentId: req.agent.agentId,
-        runId: data.runId,
+        externalRunId: data.runId,
         toolName: data.data?.toolName ?? "unknown",
         durationMs: data.data?.durationMs,
         success: data.data?.success,
