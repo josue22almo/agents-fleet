@@ -3,6 +3,9 @@ import {
   PaginatedRunsResponseSchema,
   AgentMetricsResponseSchema,
   DashboardMetricsResponseSchema,
+  DashboardChartDataResponseSchema,
+  AgentComparisonResponseSchema,
+  AgentUsageStatsResponseSchema,
   PaginatedSessionsResponseSchema,
   SessionWithRunsResponseSchema,
 } from "@repo/contracts/agents";
@@ -10,6 +13,9 @@ import {
   ListRuns,
   GetAgentMetrics,
   GetDashboardMetrics,
+  GetDashboardChartData,
+  GetAgentComparison,
+  GetAgentUsageStats,
   ListSessions,
   GetSession,
   type RunRepository,
@@ -75,6 +81,9 @@ export class RunsController {
   private readonly listAgents: ListAgents;
   private readonly listSessions: ListSessions;
   private readonly getSession: GetSession;
+  private readonly getDashboardChartData: GetDashboardChartData;
+  private readonly getAgentComparison: GetAgentComparison;
+  private readonly getAgentUsageStats: GetAgentUsageStats;
 
   constructor(
     @Inject("RunRepository") runRepo: RunRepository,
@@ -84,6 +93,9 @@ export class RunsController {
     this.listRuns = new ListRuns(runRepo);
     this.getAgentMetrics = new GetAgentMetrics(runRepo);
     this.getDashboardMetrics = new GetDashboardMetrics(runRepo);
+    this.getDashboardChartData = new GetDashboardChartData(runRepo);
+    this.getAgentComparison = new GetAgentComparison(runRepo);
+    this.getAgentUsageStats = new GetAgentUsageStats(runRepo);
     this.listAgents = new ListAgents(agentRepo);
     this.listSessions = new ListSessions(sessionRepo);
     this.getSession = new GetSession(sessionRepo, runRepo);
@@ -155,5 +167,36 @@ export class RunsController {
       avgResponseTimeMs: metrics.avgDurationMs,
       totalCost: metrics.totalCost,
     });
+  }
+
+  @Get("dashboard/charts")
+  async handleDashboardCharts(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query("organizationId") organizationId: string,
+  ) {
+    const agentIds = await this.getAgentIdsForOrg(organizationId);
+    const result = await this.getDashboardChartData.execute({ agentIds });
+    return DashboardChartDataResponseSchema.parse(result);
+  }
+
+  @Get("dashboard/comparison")
+  async handleDashboardComparison(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query("organizationId") organizationId: string,
+  ) {
+    const agentIds = await this.getAgentIdsForOrg(organizationId);
+    const result = await this.getAgentComparison.execute({ agentIds });
+    return AgentComparisonResponseSchema.parse(result);
+  }
+
+  @Get("agents/:id/usage")
+  async handleAgentUsage(@Param("id") agentId: string) {
+    const result = await this.getAgentUsageStats.execute({ agentId });
+    return AgentUsageStatsResponseSchema.parse(result);
+  }
+
+  private async getAgentIdsForOrg(organizationId: string): Promise<string[]> {
+    const agents = await this.listAgents.execute(organizationId);
+    return agents.map((a) => a.id);
   }
 }
