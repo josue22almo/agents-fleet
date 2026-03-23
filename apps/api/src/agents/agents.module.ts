@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { SupabaseAgentRepository, UpdateAgentOnRunIngestedEventHandler } from "@repo/contexts/agents";
-import { SupabaseRunRepository, SupabaseSessionRepository } from "@repo/contexts/monitoring";
+import { SupabaseRunRepository, SupabaseSessionRepository, SupabaseToolCallRepository } from "@repo/contexts/monitoring";
 import { SupabaseOrganizationRepository, IAMContextAdapter } from "@repo/contexts/iam";
 import type { EventBus, Logger } from "@repo/contexts/_shared";
 
@@ -12,11 +12,12 @@ import { SUPABASE_ADMIN, supabaseAdminProvider } from "../common/providers/supab
 import { SupabaseRequestClient } from "../common/providers/supabase-request.provider";
 
 import { AgentsController } from "./controllers/agents.controller";
+import { EventsController } from "./controllers/events.controller";
 import { IngestController } from "./controllers/ingest.controller";
 import { RunsController } from "./controllers/runs.controller";
 
 @Module({
-  controllers: [AgentsController, IngestController, RunsController],
+  controllers: [AgentsController, EventsController, IngestController, RunsController],
   providers: [
     supabaseAdminProvider,
     SupabaseRequestClient,
@@ -64,6 +65,17 @@ import { RunsController } from "./controllers/runs.controller";
     {
       provide: "AdminSessionRepository",
       useFactory: (client: SupabaseClient) => new SupabaseSessionRepository(client),
+      inject: [SUPABASE_ADMIN],
+    },
+    {
+      provide: "ToolCallRepository",
+      scope: Scope.REQUEST,
+      useFactory: (supabase: SupabaseRequestClient) => new SupabaseToolCallRepository(supabase.client),
+      inject: [SupabaseRequestClient],
+    },
+    {
+      provide: "AdminToolCallRepository",
+      useFactory: (client: SupabaseClient) => new SupabaseToolCallRepository(client),
       inject: [SUPABASE_ADMIN],
     },
     {

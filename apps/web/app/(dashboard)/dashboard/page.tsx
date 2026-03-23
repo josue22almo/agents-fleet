@@ -11,6 +11,7 @@ import { RunDurationHistogram } from "@/components/features/dashboard-charts/run
 import { TokensByAgentChart } from "@/components/features/dashboard-charts/tokens-by-agent-chart";
 import { ErrorBreakdownChart } from "@/components/features/dashboard-charts/error-breakdown-chart";
 import { AgentComparisonTable } from "@/components/features/dashboard-comparison/agent-comparison-table";
+import { ActivityFeed } from "@/components/features/dashboard-activity/activity-feed";
 
 function formatResponseTime(ms: number): string {
   if (ms === 0) return "\u2014";
@@ -112,11 +113,7 @@ export default function DashboardPage() {
       {/* Error Breakdown + Activity Feed placeholder */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <ErrorBreakdownChart data={chartData?.errorBreakdown ?? []} />
-        {/* Activity feed placeholder */}
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <h3 className="text-sm font-semibold">Activity Feed</h3>
-          <p className="text-xs text-muted-foreground">Coming soon</p>
-        </div>
+        <ActivityFeed orgId={currentOrg?.id ?? ""} />
       </div>
 
       {/* Comparison Table */}
