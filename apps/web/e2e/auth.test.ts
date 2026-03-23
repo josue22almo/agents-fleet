@@ -53,4 +53,32 @@ test.describe("Authentication", () => {
 
     await expect(page.getByText("Password must be at least 8 characters")).toBeVisible();
   });
+
+  test("change password flow", async ({ page }) => {
+    await loginAs(page, "alice@test.com", "password123");
+    await page.goto("/profile");
+
+    await page.fill('[name="currentPassword"]', "password123");
+    await page.fill('[name="newPassword"]', "newpassword456");
+    await page.getByRole("button", { name: "Change Password" }).click();
+
+    await expect(
+      page.getByText(/password changed|password updated|success/i),
+    ).toBeVisible({ timeout: 5000 });
+
+    // Logout and login with new password
+    await page.getByRole("button", { name: "Sign Out" }).click();
+    await page.waitForURL("/login");
+    await loginAs(page, "alice@test.com", "newpassword456");
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+
+    // Reset password back for other tests
+    await page.goto("/profile");
+    await page.fill('[name="currentPassword"]', "newpassword456");
+    await page.fill('[name="newPassword"]', "password123");
+    await page.getByRole("button", { name: "Change Password" }).click();
+    await expect(
+      page.getByText(/password changed|password updated|success/i),
+    ).toBeVisible({ timeout: 5000 });
+  });
 });
