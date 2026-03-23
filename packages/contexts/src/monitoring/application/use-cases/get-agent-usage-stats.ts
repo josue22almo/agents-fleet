@@ -1,18 +1,6 @@
 import { RunStatus } from "../../domain/value-objects/run-status";
 import type { RunRepository } from "../../ports/repositories/run-repository";
-
-interface PeriodStats {
-  period: string;
-  runs: number;
-  tokens: number;
-  cost: number;
-  successRate: number;
-}
-
-interface AgentUsageStats {
-  currentPeriod: PeriodStats;
-  history: PeriodStats[];
-}
+import { AgentUsageStats } from "../../domain/read-models/agent-usage-stats";
 
 export class GetAgentUsageStats {
   constructor(private readonly runRepo: RunRepository) {}
@@ -43,22 +31,14 @@ export class GetAgentUsageStats {
       const entry = periodMap.get(period)!;
       entry.runs++;
 
-      if (p.tokensUsed !== null) {
-        entry.tokens += p.tokensUsed;
-      }
-      if (p.cost !== null) {
-        entry.cost += p.cost;
-      }
-      if (p.status === RunStatus.COMPLETED) {
-        entry.completed++;
-      }
+      if (p.tokensUsed !== null) entry.tokens += p.tokensUsed;
+      if (p.cost !== null) entry.cost += p.cost;
+      if (p.status === RunStatus.COMPLETED) entry.completed++;
     }
 
-    const toPeriodStats = (period: string): PeriodStats => {
+    const toPeriodStats = (period: string) => {
       const data = periodMap.get(period);
-      if (!data) {
-        return { period, runs: 0, tokens: 0, cost: 0, successRate: 0 };
-      }
+      if (!data) return { period, runs: 0, tokens: 0, cost: 0, successRate: 0 };
       return {
         period,
         runs: data.runs,
@@ -69,12 +49,11 @@ export class GetAgentUsageStats {
     };
 
     const currentPeriod = toPeriodStats(currentPeriodKey);
-
     const history = Array.from(periodMap.keys())
       .filter((p) => p !== currentPeriodKey)
       .sort((a, b) => b.localeCompare(a))
       .map(toPeriodStats);
 
-    return { currentPeriod, history };
+    return AgentUsageStats.create({ currentPeriod, history });
   }
 }

@@ -9,7 +9,7 @@ export function ToolUsageTable({ agentId }: { agentId: string }) {
 
   if (isLoading) return <Spinner className="mx-auto mt-8" />;
 
-  if (!data || data.length === 0) {
+  if (!data || data.tools.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-8 text-center">
         <Wrench className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
@@ -30,7 +30,7 @@ export function ToolUsageTable({ agentId }: { agentId: string }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {data.map((tool) => (
+          {data.tools.map((tool) => (
             <tr key={tool.toolName} className="hover:bg-muted/30 transition-colors">
               <td className="py-3 px-4 font-medium">{tool.toolName}</td>
               <td className="py-3 px-4 text-right text-muted-foreground">{tool.calls}</td>

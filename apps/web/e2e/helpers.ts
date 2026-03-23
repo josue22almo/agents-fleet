@@ -63,11 +63,7 @@ export function fakeAgent() {
  * Creates a new agent via the UI form. Returns the agent's name.
  * Assumes the user is already logged in and on any page.
  */
-export async function createAgent(
-  page: Page,
-  name?: string,
-  type?: "claude" | "manus" | "custom",
-): Promise<string> {
+export async function createAgent(page: Page, name?: string, type?: "claude" | "manus" | "custom"): Promise<string> {
   const agent = fakeAgent();
   const agentName = name ?? agent.name;
   const agentType = type ?? agent.type;
@@ -132,6 +128,7 @@ export async function goToAgentSettings(page: Page, agentName: string) {
  */
 export async function goToAgentsList(page: Page) {
   await page.goto("/agents");
+  await page.waitForLoadState("networkidle");
 }
 
 /**

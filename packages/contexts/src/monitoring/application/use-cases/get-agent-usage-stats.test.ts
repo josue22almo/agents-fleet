@@ -14,14 +14,14 @@ describe("GetAgentUsageStats", () => {
 
     const result = await useCase.execute({ agentId: "agent-1" });
 
-    expect(result.currentPeriod).toEqual({
+    expect(result.toPrimitives().currentPeriod).toEqual({
       period: currentPeriod,
       runs: 0,
       tokens: 0,
       cost: 0,
       successRate: 0,
     });
-    expect(result.history).toEqual([]);
+    expect(result.toPrimitives().history).toEqual([]);
   });
 
   it("groups runs by month correctly", async () => {
@@ -101,7 +101,7 @@ describe("GetAgentUsageStats", () => {
     const result = await useCase.execute({ agentId: "agent-1" });
 
     // Current period is March 2026
-    expect(result.currentPeriod).toEqual({
+    expect(result.toPrimitives().currentPeriod).toEqual({
       period: "2026-03",
       runs: 1,
       tokens: 300,
@@ -110,15 +110,15 @@ describe("GetAgentUsageStats", () => {
     });
 
     // History sorted newest first (excluding current month)
-    expect(result.history).toHaveLength(2);
-    expect(result.history[0]).toEqual({
+    expect(result.toPrimitives().history).toHaveLength(2);
+    expect(result.toPrimitives().history[0]).toEqual({
       period: "2026-02",
       runs: 2,
       tokens: 250,
       cost: expect.closeTo(0.12, 5),
       successRate: 50,
     });
-    expect(result.history[1]).toEqual({
+    expect(result.toPrimitives().history[1]).toEqual({
       period: "2026-01",
       runs: 1,
       tokens: 100,
@@ -154,7 +154,7 @@ describe("GetAgentUsageStats", () => {
     const result = await useCase.execute({ agentId: "agent-1" });
 
     // All in history (none in current month March 2026)
-    const periods = result.history.map((h) => h.period);
+    const periods = result.toPrimitives().history.map((h) => h.period);
     expect(periods).toEqual(["2025-12", "2025-11", "2025-10"]);
   });
 });

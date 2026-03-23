@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { SupabaseAgentRepository, UpdateAgentOnRunIngestedEventHandler, AgentsContextAdapter } from "@repo/contexts/agents";
-import { SupabaseRunRepository, SupabaseSessionRepository, SupabaseToolCallRepository } from "@repo/contexts/monitoring";
+import { SupabaseRunRepository, SupabaseSessionRepository, SupabaseToolCallRepository, UpdateSessionOnRunIngestedEventHandler } from "@repo/contexts/monitoring";
 import { SupabaseOrganizationRepository, IAMContextAdapter } from "@repo/contexts/iam";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { EventBus, Logger } from "@repo/contexts/_shared";
@@ -103,6 +103,8 @@ export class AgentsModule implements OnModuleInit {
   constructor(
     @Inject("EventBus") private readonly eventBus: EventBus,
     @Inject("AdminAgentRepository") private readonly adminAgentRepo: SupabaseAgentRepository,
+    @Inject("AdminSessionRepository") private readonly adminSessionRepo: SupabaseSessionRepository,
+    @Inject("AdminRunRepository") private readonly adminRunRepo: SupabaseRunRepository,
     @Inject("Logger") private readonly logger: Logger,
     @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -110,6 +112,11 @@ export class AgentsModule implements OnModuleInit {
   onModuleInit() {
     this.eventBus.register(
       new UpdateAgentOnRunIngestedEventHandler(this.adminAgentRepo, this.logger),
+    );
+
+    // Update session run count when a run is ingested
+    this.eventBus.register(
+      new UpdateSessionOnRunIngestedEventHandler(this.adminSessionRepo, this.adminRunRepo),
     );
 
     // Bridge domain events to SSE activity feed

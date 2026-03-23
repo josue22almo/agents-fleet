@@ -156,5 +156,8 @@ export const ToolCallSummarySchema = z.object({
   avgDurationMs: z.number(),
   successRate: z.number(),
 });
-export const ToolCallSummaryResponseSchema = z.array(ToolCallSummarySchema);
+export const ToolCallSummaryResponseSchema = z.object({
+  tools: z.array(ToolCallSummarySchema),
+  totalCalls: z.number(),
+});
 export type ToolCallSummaryResponse = z.infer<typeof ToolCallSummaryResponseSchema>;

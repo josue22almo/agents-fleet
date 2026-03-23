@@ -1,16 +1,7 @@
 import { RunStatus } from "../../domain/value-objects/run-status";
 import type { RunRepository } from "../../ports/repositories/run-repository";
 import type { AgentsContextPort } from "../../../_shared/domain/ports/agents-context-port";
-
-interface DashboardMetrics {
-  totalAgents: number;
-  totalRuns: number;
-  successRate: number;
-  avgDurationMs: number;
-  avgResponseTimeMs: number;
-  totalCost: number;
-  activeRuns: number;
-}
+import { DashboardMetrics } from "../../domain/read-models/dashboard-metrics";
 
 export class GetDashboardMetrics {
   constructor(
@@ -22,20 +13,11 @@ export class GetDashboardMetrics {
     const agentIds = await this.agentsPort.getAgentIdsForOrganization(organizationId);
 
     if (agentIds.length === 0) {
-      return {
-        totalAgents: 0,
-        totalRuns: 0,
-        successRate: 0,
-        avgDurationMs: 0,
-        avgResponseTimeMs: 0,
-        totalCost: 0,
-        activeRuns: 0,
-      };
+      return DashboardMetrics.empty();
     }
 
     const runs = await this.runRepo.findByAgentIds(agentIds);
 
-    const totalRuns = runs.length;
     let completedCount = 0;
     let totalDurationMs = 0;
     let durationCount = 0;
@@ -44,29 +26,17 @@ export class GetDashboardMetrics {
 
     for (const run of runs) {
       const p = run.toPrimitives();
-
-      if (p.status === RunStatus.COMPLETED) {
-        completedCount++;
-      }
-
-      if (p.status === RunStatus.RUNNING) {
-        activeRuns++;
-      }
-
-      if (p.durationMs !== null) {
-        totalDurationMs += p.durationMs;
-        durationCount++;
-      }
-
-      if (p.cost !== null) {
-        totalCost += p.cost;
-      }
+      if (p.status === RunStatus.COMPLETED) completedCount++;
+      if (p.status === RunStatus.RUNNING) activeRuns++;
+      if (p.durationMs !== null) { totalDurationMs += p.durationMs; durationCount++; }
+      if (p.cost !== null) totalCost += p.cost;
     }
 
+    const totalRuns = runs.length;
     const successRate = totalRuns > 0 ? completedCount / totalRuns : 0;
     const avgDurationMs = durationCount > 0 ? totalDurationMs / durationCount : 0;
 
-    return {
+    return DashboardMetrics.create({
       totalAgents: agentIds.length,
       totalRuns,
       successRate,
@@ -74,6 +44,6 @@ export class GetDashboardMetrics {
       avgResponseTimeMs: avgDurationMs,
       totalCost,
       activeRuns,
-    };
+    });
   }
 }

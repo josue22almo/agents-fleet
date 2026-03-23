@@ -1,27 +1,6 @@
 import type { RunRepository } from "../../ports/repositories/run-repository";
 import type { AgentsContextPort } from "../../../_shared/domain/ports/agents-context-port";
-
-interface DurationBucket {
-  bucket: string;
-  count: number;
-}
-
-interface TokensByAgent {
-  agentId: string;
-  agentName?: string;
-  tokens: number;
-}
-
-interface ErrorBreakdown {
-  type: string;
-  count: number;
-}
-
-interface DashboardChartData {
-  durationHistogram: DurationBucket[];
-  tokensByAgent: TokensByAgent[];
-  errorBreakdown: ErrorBreakdown[];
-}
+import { DashboardChartData } from "../../domain/read-models/dashboard-chart-data";
 
 const DURATION_BUCKETS = [
   { label: "<1s", max: 1000 },
@@ -41,7 +20,7 @@ export class GetDashboardChartData {
     const agentIds = params.agentIds ?? await this.agentsPort.getAgentIdsForOrganization(params.organizationId!);
 
     if (agentIds.length === 0) {
-      return { durationHistogram: [], tokensByAgent: [], errorBreakdown: [] };
+      return DashboardChartData.empty();
     }
 
     const [runs, agentNames] = await Promise.all([
@@ -59,20 +38,14 @@ export class GetDashboardChartData {
       if (p.durationMs !== null) {
         for (const bucket of DURATION_BUCKETS) {
           if (p.durationMs < bucket.max || bucket.max === Infinity) {
-            bucketCounts.set(
-              bucket.label,
-              (bucketCounts.get(bucket.label) ?? 0) + 1,
-            );
+            bucketCounts.set(bucket.label, (bucketCounts.get(bucket.label) ?? 0) + 1);
             break;
           }
         }
       }
 
       if (p.tokensUsed !== null) {
-        tokensByAgent.set(
-          p.agentId,
-          (tokensByAgent.get(p.agentId) ?? 0) + p.tokensUsed,
-        );
+        tokensByAgent.set(p.agentId, (tokensByAgent.get(p.agentId) ?? 0) + p.tokensUsed);
       }
 
       if (p.error !== null) {
@@ -80,30 +53,16 @@ export class GetDashboardChartData {
       }
     }
 
-    const durationHistogram: DurationBucket[] = DURATION_BUCKETS.filter(
-      (b) => (bucketCounts.get(b.label) ?? 0) > 0,
-    ).map((b) => ({ bucket: b.label, count: bucketCounts.get(b.label)! }));
-
-    const tokensByAgentResult: TokensByAgent[] = Array.from(
-      tokensByAgent.entries(),
-    )
-      .map(([agentId, tokens]) => ({
-        agentId,
-        agentName: agentNames[agentId],
-        tokens,
-      }))
-      .sort((a, b) => b.tokens - a.tokens);
-
-    const errorBreakdown: ErrorBreakdown[] = Array.from(
-      errorCounts.entries(),
-    )
-      .map(([type, count]) => ({ type, count }))
-      .sort((a, b) => b.count - a.count);
-
-    return {
-      durationHistogram,
-      tokensByAgent: tokensByAgentResult,
-      errorBreakdown,
-    };
+    return DashboardChartData.create({
+      durationHistogram: DURATION_BUCKETS
+        .filter((b) => (bucketCounts.get(b.label) ?? 0) > 0)
+        .map((b) => ({ bucket: b.label, count: bucketCounts.get(b.label)! })),
+      tokensByAgent: Array.from(tokensByAgent.entries())
+        .map(([agentId, tokens]) => ({ agentId, agentName: agentNames[agentId], tokens }))
+        .sort((a, b) => b.tokens - a.tokens),
+      errorBreakdown: Array.from(errorCounts.entries())
+        .map(([type, count]) => ({ type, count }))
+        .sort((a, b) => b.count - a.count),
+    });
   }
 }

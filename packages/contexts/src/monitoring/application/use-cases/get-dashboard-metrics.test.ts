@@ -11,12 +11,12 @@ describe("GetDashboardMetrics", () => {
 
     const result = await getDashboard.execute("empty-org");
 
-    expect(result.totalAgents).toBe(0);
-    expect(result.totalRuns).toBe(0);
-    expect(result.successRate).toBe(0);
-    expect(result.avgDurationMs).toBe(0);
-    expect(result.totalCost).toBe(0);
-    expect(result.activeRuns).toBe(0);
+    expect(result.toPrimitives().totalAgents).toBe(0);
+    expect(result.toPrimitives().totalRuns).toBe(0);
+    expect(result.toPrimitives().successRate).toBe(0);
+    expect(result.toPrimitives().avgDurationMs).toBe(0);
+    expect(result.toPrimitives().totalCost).toBe(0);
+    expect(result.toPrimitives().activeRuns).toBe(0);
   });
 
   it("aggregates metrics across multiple agents", async () => {
@@ -72,12 +72,12 @@ describe("GetDashboardMetrics", () => {
 
     const result = await getDashboard.execute("org-1");
 
-    expect(result.totalAgents).toBe(2);
-    expect(result.totalRuns).toBe(3);
-    expect(result.successRate).toBeCloseTo(1 / 3);
-    expect(result.avgDurationMs).toBe((1000 + 500) / 2);
-    expect(result.totalCost).toBeCloseTo(0.07);
-    expect(result.activeRuns).toBe(1);
+    expect(result.toPrimitives().totalAgents).toBe(2);
+    expect(result.toPrimitives().totalRuns).toBe(3);
+    expect(result.toPrimitives().successRate).toBeCloseTo(1 / 3);
+    expect(result.toPrimitives().avgDurationMs).toBe((1000 + 500) / 2);
+    expect(result.toPrimitives().totalCost).toBeCloseTo(0.07);
+    expect(result.toPrimitives().activeRuns).toBe(1);
   });
 
   it("returns zero metrics when agents have no runs", async () => {
@@ -89,8 +89,8 @@ describe("GetDashboardMetrics", () => {
 
     const result = await getDashboard.execute("org-1");
 
-    expect(result.totalAgents).toBe(2);
-    expect(result.totalRuns).toBe(0);
-    expect(result.successRate).toBe(0);
+    expect(result.toPrimitives().totalAgents).toBe(2);
+    expect(result.toPrimitives().totalRuns).toBe(0);
+    expect(result.toPrimitives().successRate).toBe(0);
   });
 });

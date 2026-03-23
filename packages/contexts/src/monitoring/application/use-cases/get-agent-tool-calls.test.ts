@@ -48,24 +48,27 @@ describe("GetAgentToolCalls", () => {
     const useCase = new GetAgentToolCalls(repo);
     const result = await useCase.execute({ agentId: "agent-1" });
 
-    expect(result).toHaveLength(2);
+    const p = result.toPrimitives();
+    expect(p.tools).toHaveLength(2);
+    expect(p.totalCalls).toBe(3);
 
-    const readFile = result.find((r) => r.toolName === "readFile");
+    const readFile = p.tools.find((r) => r.toolName === "readFile");
     expect(readFile).toBeDefined();
     expect(readFile!.calls).toBe(2);
     expect(readFile!.avgDurationMs).toBe(150);
     expect(readFile!.successRate).toBe(0.5);
 
-    const writeFile = result.find((r) => r.toolName === "writeFile");
+    const writeFile = p.tools.find((r) => r.toolName === "writeFile");
     expect(writeFile).toBeDefined();
     expect(writeFile!.calls).toBe(1);
     expect(writeFile!.successRate).toBe(1);
   });
 
-  it("returns empty array when no tool calls exist", async () => {
+  it("returns empty summary when no tool calls exist", async () => {
     const repo = new InMemoryToolCallRepository();
     const useCase = new GetAgentToolCalls(repo);
     const result = await useCase.execute({ agentId: "nonexistent" });
-    expect(result).toEqual([]);
+    expect(result.hasData).toBe(false);
+    expect(result.toPrimitives().tools).toEqual([]);
   });
 });

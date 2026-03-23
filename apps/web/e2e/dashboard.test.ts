@@ -14,7 +14,7 @@ test.describe("Enhanced Dashboard", () => {
 
     // Chart sections should be visible
     await expect(page.getByText("Run Duration Distribution")).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("Tokens by Agent")).toBeVisible();
+    await expect(page.getByText("Token Usage by Agent")).toBeVisible();
     await expect(page.getByText("Error Breakdown")).toBeVisible();
   });
 
@@ -35,7 +35,7 @@ test.describe("Enhanced Dashboard", () => {
     await page.goto("/dashboard");
 
     await expect(page.getByText("Total Agents")).toBeVisible();
-    await expect(page.getByText("Active Runs")).toBeVisible();
+    await expect(page.getByText("Active Runs").first()).toBeVisible();
     await expect(page.getByText("Avg Response Time")).toBeVisible();
   });
 

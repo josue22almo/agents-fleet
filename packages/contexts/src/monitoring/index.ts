@@ -24,6 +24,11 @@ export { SessionFailedEvent } from "./domain/events/session-failed.event";
 
 // Read Models
 export { AgentMetrics } from "./domain/read-models/agent-metrics";
+export { DashboardChartData } from "./domain/read-models/dashboard-chart-data";
+export { DashboardMetrics } from "./domain/read-models/dashboard-metrics";
+export { AgentComparisonEntry } from "./domain/read-models/agent-comparison";
+export { AgentUsageStats } from "./domain/read-models/agent-usage-stats";
+export { ToolCallSummary } from "./domain/read-models/tool-call-summary";
 
 // Ports
 export type { RunRepository } from "./ports/repositories/run-repository";
@@ -44,7 +49,7 @@ export { GetAgentComparison } from "./application/use-cases/get-agent-comparison
 export { GetAgentUsageStats } from "./application/use-cases/get-agent-usage-stats";
 export { IngestToolCall } from "./application/use-cases/ingest-tool-call";
 export { GetAgentToolCalls } from "./application/use-cases/get-agent-tool-calls";
-export type { ToolCallSummary } from "./application/use-cases/get-agent-tool-calls";
+export { UpdateSessionOnRunIngestedEventHandler } from "./application/event-handlers/update-session-on-run-ingested.event-handler";
 
 // Infrastructure
 export { SupabaseRunRepository } from "./infrastructure/persistence/supabase-run.repository";

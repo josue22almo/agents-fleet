@@ -74,7 +74,7 @@ export class McpController {
     @Inject("IdGenerator") idGenerator: IdGenerator,
   ) {
     this.validateConnectionToken = new ValidateConnectionToken(agentRepo);
-    this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus, sessionRepo);
+    this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus);
     this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
     this.ingestToolCall = new IngestToolCall(toolCallRepo, runRepo, idGenerator);
     this.listRuns = new ListRuns(runRepo);

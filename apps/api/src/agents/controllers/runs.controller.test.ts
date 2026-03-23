@@ -101,12 +101,11 @@ describe("RunsController (e2e)", () => {
   it("GET /agents/:id/tools returns tool summaries (empty initially)", async () => {
     const res = await api.getAgentTools(accessToken, agentId);
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body).toHaveLength(0);
+    expect(res.body.tools).toEqual([]);
+    expect(res.body.totalCalls).toBe(0);
   });
 
   it("GET /agents/:id/tools returns summaries after tool.called ingest", async () => {
-    // Ingest tool calls
     await api.ingestEvent(connectionToken, {
       event: "tool.called",
       runId: "chart-run-1",
@@ -125,9 +124,10 @@ describe("RunsController (e2e)", () => {
 
     const res = await api.getAgentTools(accessToken, agentId);
     expect(res.status).toBe(200);
-    expect(res.body.length).toBe(2);
+    expect(res.body.tools.length).toBe(2);
+    expect(res.body.totalCalls).toBe(3);
 
-    const readFile = res.body.find((t: { toolName: string }) => t.toolName === "readFile");
+    const readFile = res.body.tools.find((t: { toolName: string }) => t.toolName === "readFile");
     expect(readFile).toBeDefined();
     expect(readFile.calls).toBe(2);
     expect(readFile.avgDurationMs).toBe(150);

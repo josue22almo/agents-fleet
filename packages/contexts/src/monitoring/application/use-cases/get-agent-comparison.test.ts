@@ -102,7 +102,7 @@ describe("GetAgentComparison", () => {
     expect(result).toHaveLength(2);
 
     // Agent 1 first (more runs)
-    expect(result[0]).toEqual({
+    expect(result[0]!.toPrimitives()).toEqual({
       agentId: "agent-1",
       agentName: "Agent One",
       totalRuns: 3,
@@ -115,7 +115,7 @@ describe("GetAgentComparison", () => {
     });
 
     // Agent 2 second
-    expect(result[1]).toEqual({
+    expect(result[1]!.toPrimitives()).toEqual({
       agentId: "agent-2",
       agentName: "Agent Two",
       totalRuns: 1,
@@ -168,6 +168,6 @@ describe("GetAgentComparison", () => {
 
     const result = await useCase.execute({ organizationId: "org-1" });
 
-    expect(result[0]!.successRate).toBe(50);
+    expect(result[0]!.toPrimitives().successRate).toBe(50);
   });
 });

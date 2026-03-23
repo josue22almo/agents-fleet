@@ -1,6 +1,7 @@
-import { Controller, Inject, Query, Sse } from "@nestjs/common";
+import { Controller, Inject, Query, Sse, UseGuards } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { Observable } from "rxjs";
+import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 
 interface ActivityEvent {
   agentId: string;
@@ -10,6 +11,7 @@ interface ActivityEvent {
 }
 
 @Controller("dashboard")
+@UseGuards(JwtAuthGuard)
 export class EventsController {
   constructor(@Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2) {}
 

@@ -11,9 +11,9 @@ describe("GetDashboardChartData", () => {
 
     const result = await useCase.execute({ organizationId: "empty-org" });
 
-    expect(result.durationHistogram).toEqual([]);
-    expect(result.tokensByAgent).toEqual([]);
-    expect(result.errorBreakdown).toEqual([]);
+    expect(result.toPrimitives().durationHistogram).toEqual([]);
+    expect(result.toPrimitives().tokensByAgent).toEqual([]);
+    expect(result.toPrimitives().errorBreakdown).toEqual([]);
   });
 
   it("builds duration histogram with correct buckets", async () => {
@@ -49,7 +49,7 @@ describe("GetDashboardChartData", () => {
 
     const result = await useCase.execute({ organizationId: "org-1" });
 
-    expect(result.durationHistogram).toEqual([
+    expect(result.toPrimitives().durationHistogram).toEqual([
       { bucket: "<1s", count: 1 },
       { bucket: "1-3s", count: 1 },
       { bucket: "3-5s", count: 1 },
@@ -88,7 +88,7 @@ describe("GetDashboardChartData", () => {
 
     const result = await useCase.execute({ organizationId: "org-1" });
 
-    expect(result.durationHistogram).toEqual([{ bucket: "<1s", count: 1 }]);
+    expect(result.toPrimitives().durationHistogram).toEqual([{ bucket: "<1s", count: 1 }]);
   });
 
   it("groups tokens by agent sorted desc", async () => {
@@ -156,7 +156,7 @@ describe("GetDashboardChartData", () => {
 
     const result = await useCase.execute({ organizationId: "org-1" });
 
-    expect(result.tokensByAgent).toEqual([
+    expect(result.toPrimitives().tokensByAgent).toEqual([
       { agentId: "agent-2", agentName: "Agent Two", tokens: 300 },
       { agentId: "agent-1", agentName: "Agent One", tokens: 100 },
     ]);
@@ -195,7 +195,7 @@ describe("GetDashboardChartData", () => {
 
     const result = await useCase.execute({ organizationId: "org-1" });
 
-    expect(result.errorBreakdown).toEqual([
+    expect(result.toPrimitives().errorBreakdown).toEqual([
       { type: "timeout", count: 3 },
       { type: "rate_limit", count: 1 },
       { type: "crash", count: 1 },
