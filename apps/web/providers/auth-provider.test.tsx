@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "./auth-provider";
 
 const { mockPush, mockApi } = vi.hoisted(() => ({
@@ -30,6 +31,12 @@ vi.mock("@/lib/api-client", () => ({
   },
 }));
 
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+}
+
 function TestConsumer() {
   const { user, isLoading, isAuthenticated, login, signup, logout } = useAuth();
 
@@ -45,6 +52,15 @@ function TestConsumer() {
   );
 }
 
+function renderWithProviders(ui: React.ReactElement) {
+  const queryClient = createTestQueryClient();
+  return render(
+    <QueryClientProvider client={queryClient}>
+      {ui}
+    </QueryClientProvider>,
+  );
+}
+
 describe("AuthProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -52,7 +68,7 @@ describe("AuthProvider", () => {
   });
 
   it("starts not loading and unauthenticated when no token exists", async () => {
-    render(
+    renderWithProviders(
       <AuthProvider>
         <TestConsumer />
       </AuthProvider>,
@@ -69,7 +85,7 @@ describe("AuthProvider", () => {
     localStorage.setItem("access_token", "valid-token");
     mockApi.auth.getProfile.mockResolvedValueOnce({ id: "1", email: "alice@test.com", fullName: "Alice" });
 
-    render(
+    renderWithProviders(
       <AuthProvider>
         <TestConsumer />
       </AuthProvider>,
@@ -87,7 +103,7 @@ describe("AuthProvider", () => {
     localStorage.setItem("access_token", "expired-token");
     mockApi.auth.getProfile.mockRejectedValueOnce(new Error("Unauthorized"));
 
-    render(
+    renderWithProviders(
       <AuthProvider>
         <TestConsumer />
       </AuthProvider>,
@@ -107,7 +123,7 @@ describe("AuthProvider", () => {
     });
     mockApi.auth.getProfile.mockResolvedValueOnce({ id: "1", email: "test@test.com", fullName: "Test" });
 
-    render(
+    renderWithProviders(
       <AuthProvider>
         <TestConsumer />
       </AuthProvider>,
@@ -134,7 +150,7 @@ describe("AuthProvider", () => {
     mockApi.auth.login.mockResolvedValueOnce({ accessToken: "at", refreshToken: "rt" });
     mockApi.auth.getProfile.mockResolvedValueOnce({ id: "2", email: "new@test.com", fullName: "New User" });
 
-    render(
+    renderWithProviders(
       <AuthProvider>
         <TestConsumer />
       </AuthProvider>,
@@ -164,7 +180,7 @@ describe("AuthProvider", () => {
     localStorage.setItem("refresh_token", "refresh");
     mockApi.auth.getProfile.mockResolvedValueOnce({ id: "1", email: "alice@test.com", fullName: "Alice" });
 
-    render(
+    renderWithProviders(
       <AuthProvider>
         <TestConsumer />
       </AuthProvider>,

@@ -11,11 +11,13 @@ import {
 import {
   IngestEvent,
   IngestSessionEvent,
+  IngestToolCall,
   ListRuns,
   ListSessions,
   GetAgentMetrics,
   type RunRepository,
   type SessionRepository,
+  type ToolCallRepository,
 } from "@repo/contexts/monitoring";
 import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
 
@@ -57,6 +59,7 @@ export class McpController {
   private readonly validateConnectionToken: ValidateConnectionToken;
   private readonly ingestEvent: IngestEvent;
   private readonly ingestSessionEvent: IngestSessionEvent;
+  private readonly ingestToolCall: IngestToolCall;
   private readonly listRuns: ListRuns;
   private readonly listSessions: ListSessions;
   private readonly getAgent: GetAgent;
@@ -66,12 +69,14 @@ export class McpController {
     @Inject("AdminAgentRepository") agentRepo: AgentRepository,
     @Inject("AdminRunRepository") runRepo: RunRepository,
     @Inject("AdminSessionRepository") sessionRepo: SessionRepository,
+    @Inject("AdminToolCallRepository") toolCallRepo: ToolCallRepository,
     @Inject("EventBus") eventBus: EventBus,
     @Inject("IdGenerator") idGenerator: IdGenerator,
   ) {
     this.validateConnectionToken = new ValidateConnectionToken(agentRepo);
-    this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus, sessionRepo);
-    this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator);
+    this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus);
+    this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
+    this.ingestToolCall = new IngestToolCall(toolCallRepo, runRepo, idGenerator);
     this.listRuns = new ListRuns(runRepo);
     this.listSessions = new ListSessions(sessionRepo);
     this.getAgent = new GetAgent(agentRepo);
@@ -275,6 +280,32 @@ export class McpController {
 
         return {
           content: [{ type: "text" as const, text: JSON.stringify(formatRun(run.toPrimitives())) }],
+        };
+      },
+    );
+
+    server.registerTool(
+      "report_tool_call",
+      {
+        description: "Report a tool call that happened during a run",
+        inputSchema: {
+          runId: z.string().describe("Run ID this tool call belongs to"),
+          toolName: z.string().describe("Name of the tool that was called"),
+          durationMs: z.number().optional().describe("Duration of the tool call in milliseconds"),
+          success: z.boolean().optional().default(true).describe("Whether the tool call succeeded"),
+        },
+      },
+      async ({ runId, toolName, durationMs, success }) => {
+        const toolCall = await this.ingestToolCall.execute({
+          agentId,
+          externalRunId: runId,
+          toolName,
+          durationMs,
+          success,
+        });
+
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(toolCall.toPrimitives()) }],
         };
       },
     );

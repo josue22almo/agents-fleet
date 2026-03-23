@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "agents-fleet": {
+      "type": "http",
+      "url": "https://api-agentsfleet.alcantaramoreno.com/mcp",
+      "headers": {
+        "Authorization": "Bearer af_lvI5dN6F9BcvfXWK-Q6W5H1f9nJSnlWQrhhW5NeiDpQ"
+      }
+    }
+  }
+}

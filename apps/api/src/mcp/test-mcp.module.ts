@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { InMemoryEventBus } from "@repo/contexts/_shared";
 import { InMemoryAgentRepository, UpdateAgentOnRunIngestedEventHandler } from "@repo/contexts/agents";
-import { InMemoryRunRepository, InMemorySessionRepository } from "@repo/contexts/monitoring";
+import { InMemoryRunRepository, InMemorySessionRepository, InMemoryToolCallRepository } from "@repo/contexts/monitoring";
 
 import { McpController } from "./mcp.controller";
 
@@ -21,6 +21,10 @@ let idCounter = 0;
     {
       provide: "AdminSessionRepository",
       useFactory: () => new InMemorySessionRepository(),
+    },
+    {
+      provide: "AdminToolCallRepository",
+      useFactory: () => new InMemoryToolCallRepository(),
     },
     {
       provide: "EventBus",

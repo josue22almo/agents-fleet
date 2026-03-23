@@ -1,6 +1,18 @@
 import { InMemoryRunRepository } from "../../infrastructure/persistence/in-memory-run-repository";
 import { InMemorySessionRepository } from "../../infrastructure/persistence/in-memory-session-repository";
+import { InMemoryEventBus } from "../../../_shared/application/in-memory-event-bus";
 import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
+import type { AgentsContextPort } from "../../../_shared/domain/ports/agents-context-port";
+
+export function createStubAgentsPort(
+  agentIds: string[] = [],
+  agentNames: Record<string, string> = {},
+): AgentsContextPort {
+  return {
+    getAgentIdsForOrganization: async () => agentIds,
+    getAgentNamesByIds: async () => agentNames,
+  };
+}
 
 export function createTestDeps() {
   let idCounter = 0;
@@ -12,9 +24,12 @@ export function createTestDeps() {
     generate: () => `id-${++idCounter}`,
   };
 
+  const eventBus = new InMemoryEventBus();
+
   return {
     runRepo,
     sessionRepo,
     idGenerator,
+    eventBus,
   };
 }

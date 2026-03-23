@@ -1,32 +1,23 @@
-import { AgentMetrics } from "../../domain/read-models/agent-metrics";
 import { RunStatus } from "../../domain/value-objects/run-status";
 import type { RunRepository } from "../../ports/repositories/run-repository";
-
-interface DashboardMetrics {
-  totalRuns: number;
-  successRate: number;
-  avgDurationMs: number;
-  totalCost: number;
-  activeRuns: number;
-}
+import type { AgentsContextPort } from "../../../_shared/domain/ports/agents-context-port";
+import { DashboardMetrics } from "../../domain/read-models/dashboard-metrics";
 
 export class GetDashboardMetrics {
-  constructor(private readonly runRepo: RunRepository) {}
+  constructor(
+    private readonly runRepo: RunRepository,
+    private readonly agentsPort: AgentsContextPort,
+  ) {}
 
-  async execute(agentIds: string[]): Promise<DashboardMetrics> {
+  async execute(organizationId: string): Promise<DashboardMetrics> {
+    const agentIds = await this.agentsPort.getAgentIdsForOrganization(organizationId);
+
     if (agentIds.length === 0) {
-      return {
-        totalRuns: 0,
-        successRate: 0,
-        avgDurationMs: 0,
-        totalCost: 0,
-        activeRuns: 0,
-      };
+      return DashboardMetrics.empty();
     }
 
     const runs = await this.runRepo.findByAgentIds(agentIds);
 
-    const totalRuns = runs.length;
     let completedCount = 0;
     let totalDurationMs = 0;
     let durationCount = 0;
@@ -35,34 +26,24 @@ export class GetDashboardMetrics {
 
     for (const run of runs) {
       const p = run.toPrimitives();
-
-      if (p.status === RunStatus.COMPLETED) {
-        completedCount++;
-      }
-
-      if (p.status === RunStatus.RUNNING) {
-        activeRuns++;
-      }
-
-      if (p.durationMs !== null) {
-        totalDurationMs += p.durationMs;
-        durationCount++;
-      }
-
-      if (p.cost !== null) {
-        totalCost += p.cost;
-      }
+      if (p.status === RunStatus.COMPLETED) completedCount++;
+      if (p.status === RunStatus.RUNNING) activeRuns++;
+      if (p.durationMs !== null) { totalDurationMs += p.durationMs; durationCount++; }
+      if (p.cost !== null) totalCost += p.cost;
     }
 
+    const totalRuns = runs.length;
     const successRate = totalRuns > 0 ? completedCount / totalRuns : 0;
     const avgDurationMs = durationCount > 0 ? totalDurationMs / durationCount : 0;
 
-    return {
+    return DashboardMetrics.create({
+      totalAgents: agentIds.length,
       totalRuns,
       successRate,
       avgDurationMs,
+      avgResponseTimeMs: avgDurationMs,
       totalCost,
       activeRuns,
-    };
+    });
   }
 }

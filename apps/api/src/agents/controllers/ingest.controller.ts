@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Post, Req, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Inject, Post, Req, UseGuards } from "@nestjs/common";
 import {
   IngestEventRequestSchema,
   RunResponseSchema,
@@ -7,47 +7,18 @@ import {
 import {
   IngestEvent,
   IngestSessionEvent,
+  IngestToolCall,
   type RunRepository,
   type SessionRepository,
+  type ToolCallRepository,
 } from "@repo/contexts/monitoring";
 import type { IdGenerator, EventBus } from "@repo/contexts/_shared";
 import { ConnectionTokenGuard } from "../guards/connection-token.guard";
+import { formatRun } from "../mappers/format-run";
+import { formatSession } from "../mappers/format-session";
 
 interface AgentRequest {
   agent: { agentId: string; organizationId: string };
-}
-
-function formatRun(run: ReturnType<import("@repo/contexts/monitoring").Run["toPrimitives"]>) {
-  return {
-    id: run.id,
-    agentId: run.agentId,
-    externalRunId: run.externalRunId,
-    sessionId: run.sessionId,
-    status: run.status,
-    startedAt: run.startedAt.toISOString(),
-    completedAt: run.completedAt?.toISOString() ?? null,
-    durationMs: run.durationMs,
-    tokensUsed: run.tokensUsed,
-    cost: run.cost,
-    error: run.error,
-    metadata: run.metadata,
-  };
-}
-
-function formatSession(session: ReturnType<import("@repo/contexts/monitoring").Session["toPrimitives"]>) {
-  return {
-    id: session.id,
-    agentId: session.agentId,
-    name: session.name,
-    status: session.status,
-    startedAt: session.startedAt.toISOString(),
-    completedAt: session.completedAt?.toISOString() ?? null,
-    totalDurationMs: session.totalDurationMs,
-    totalTokensUsed: session.totalTokensUsed,
-    totalCost: session.totalCost,
-    runCount: session.runCount,
-    metadata: session.metadata,
-  };
 }
 
 @Controller("ingest")
@@ -55,15 +26,18 @@ function formatSession(session: ReturnType<import("@repo/contexts/monitoring").S
 export class IngestController {
   private readonly ingestEvent: IngestEvent;
   private readonly ingestSessionEvent: IngestSessionEvent;
+  private readonly ingestToolCall: IngestToolCall;
 
   constructor(
     @Inject("AdminRunRepository") runRepo: RunRepository,
     @Inject("AdminSessionRepository") sessionRepo: SessionRepository,
+    @Inject("AdminToolCallRepository") toolCallRepo: ToolCallRepository,
     @Inject("EventBus") eventBus: EventBus,
     @Inject("IdGenerator") idGenerator: IdGenerator,
   ) {
-    this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus, sessionRepo);
-    this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator);
+    this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus);
+    this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
+    this.ingestToolCall = new IngestToolCall(toolCallRepo, runRepo, idGenerator);
   }
 
   @Post()
@@ -81,8 +55,22 @@ export class IngestController {
       return SessionResponseSchema.parse(formatSession(session.toPrimitives()));
     }
 
+    if (data.event === "tool.called") {
+      if (!data.runId) {
+        throw new BadRequestException("runId is required for tool.called events");
+      }
+      const toolCall = await this.ingestToolCall.execute({
+        agentId: req.agent.agentId,
+        externalRunId: data.runId,
+        toolName: data.data?.toolName ?? "unknown",
+        durationMs: data.data?.durationMs,
+        success: data.data?.success,
+      });
+      return { id: toolCall.id, toolName: toolCall.toPrimitives().toolName };
+    }
+
     if (!data.runId) {
-      throw new Error("runId is required for run events");
+      throw new BadRequestException("runId is required for run events");
     }
 
     const run = await this.ingestEvent.execute({

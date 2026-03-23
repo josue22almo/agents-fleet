@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { SupabaseAgentRepository } from "@repo/contexts/agents";
-import { SupabaseRunRepository, SupabaseSessionRepository } from "@repo/contexts/monitoring";
+import { SupabaseRunRepository, SupabaseSessionRepository, SupabaseToolCallRepository } from "@repo/contexts/monitoring";
 
 import { SUPABASE_ADMIN, supabaseAdminProvider } from "../common/providers/supabase-admin.provider";
 import { McpController } from "./mcp.controller";
@@ -25,6 +25,11 @@ import { McpController } from "./mcp.controller";
     {
       provide: "AdminSessionRepository",
       useFactory: (client: SupabaseClient) => new SupabaseSessionRepository(client),
+      inject: [SUPABASE_ADMIN],
+    },
+    {
+      provide: "AdminToolCallRepository",
+      useFactory: (client: SupabaseClient) => new SupabaseToolCallRepository(client),
       inject: [SUPABASE_ADMIN],
     },
     {

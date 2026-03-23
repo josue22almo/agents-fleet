@@ -1,7 +1,8 @@
 import { Run } from "../../domain/entities/run";
 import { RunIngestedEvent } from "../../domain/events/run-ingested.event";
+import { RunCompletedEvent } from "../../domain/events/run-completed.event";
+import { RunFailedEvent } from "../../domain/events/run-failed.event";
 import type { RunRepository } from "../../ports/repositories/run-repository";
-import type { SessionRepository } from "../../ports/repositories/session-repository";
 import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
 import type { EventBus } from "../../../_shared/domain/events/event-bus";
 
@@ -26,8 +27,7 @@ export class IngestEvent {
   constructor(
     private readonly runRepo: RunRepository,
     private readonly idGenerator: IdGenerator,
-    private readonly eventBus?: EventBus,
-    private readonly sessionRepo?: SessionRepository,
+    private readonly eventBus: EventBus,
   ) {}
 
   async execute(params: IngestEventParams): Promise<Run> {
@@ -36,28 +36,16 @@ export class IngestEvent {
       params.externalRunId,
     );
 
-    let run: Run;
-
     if (params.event === "run.started") {
-      run = await this.handleStarted(existing, params);
+      return this.handleStarted(existing, params);
     } else if (params.event === "run.completed") {
-      run = await this.handleCompleted(existing, params);
+      return this.handleCompleted(existing, params);
     } else {
-      run = await this.handleFailed(existing, params);
+      return this.handleFailed(existing, params);
     }
-
-    await this.eventBus?.publish([
-      new RunIngestedEvent(run.toPrimitives().id, params.agentId),
-    ]);
-
-    return run;
   }
 
-  private async handleStarted(
-    existing: Run | null,
-    params: IngestEventParams,
-  ): Promise<Run> {
-    // Idempotent: if a running run already exists for this externalRunId, return it
+  private async handleStarted(existing: Run | null, params: IngestEventParams): Promise<Run> {
     if (existing && existing.isRunning) {
       return existing;
     }
@@ -71,30 +59,18 @@ export class IngestEvent {
     });
 
     await this.runRepo.save(run);
-
-    // Update session run count if linked to a session
-    if (params.sessionId && this.sessionRepo) {
-      const session = await this.sessionRepo.findById(params.sessionId);
-      if (session) {
-        session.addRun();
-        await this.sessionRepo.save(session);
-      }
-    }
-
+    await this.eventBus.publish([
+      new RunIngestedEvent(run.toPrimitives().id, params.agentId),
+    ]);
     return run;
   }
 
-  private async handleCompleted(
-    existing: Run | null,
-    params: IngestEventParams,
-  ): Promise<Run> {
-    // Idempotent: if already completed, return as-is
+  private async handleCompleted(existing: Run | null, params: IngestEventParams): Promise<Run> {
     if (existing && existing.isCompleted) {
       return existing;
     }
 
     const run = existing ?? this.createImplicitRun(params);
-
     run.complete({
       durationMs: params.data?.durationMs,
       tokensUsed: params.data?.tokensUsed,
@@ -103,23 +79,24 @@ export class IngestEvent {
     });
 
     await this.runRepo.save(run);
+    await this.eventBus.publish([
+      new RunCompletedEvent(run.toPrimitives().id, params.agentId, params.data?.durationMs ?? 0),
+    ]);
     return run;
   }
 
-  private async handleFailed(
-    existing: Run | null,
-    params: IngestEventParams,
-  ): Promise<Run> {
-    // Idempotent: if already failed, return as-is
+  private async handleFailed(existing: Run | null, params: IngestEventParams): Promise<Run> {
     if (existing && existing.isFailed) {
       return existing;
     }
 
     const run = existing ?? this.createImplicitRun(params);
-
     run.fail(params.data?.error);
 
     await this.runRepo.save(run);
+    await this.eventBus.publish([
+      new RunFailedEvent(run.toPrimitives().id, params.agentId, params.data?.error ?? "Unknown error"),
+    ]);
     return run;
   }
 

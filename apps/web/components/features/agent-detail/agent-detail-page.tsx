@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Settings, ChevronRight, Play, CheckCircle, Clock, DollarSign, Layers, CirclePlay } from "lucide-react";
+import { Settings, ChevronRight, Play, CheckCircle, Clock, DollarSign, Layers, CirclePlay, Wrench } from "lucide-react";
 import { useAgent } from "@/hooks/use-agents";
 import { useAgentRuns, useAgentMetrics } from "@/hooks/use-agent-runs";
+import { useAgentCharts } from "@/hooks/use-agent-charts";
 import { buttonVariants } from "@/components/ui/button";
 import { RunsTable } from "@/components/features/agent-detail/runs-table";
 import { SessionsList } from "@/components/features/agent-detail/sessions-list";
+import { AgentCharts } from "@/components/features/agent-detail/agent-charts";
+import { AgentUsageStats } from "@/components/features/agent-detail/agent-usage-stats";
+import { ToolUsageTable } from "@/components/features/agent-detail/tool-usage-table";
 import { Spinner } from "@/components/ui/spinner";
 
 const typeColors: Record<string, { bg: string; text: string }> = {
@@ -22,7 +26,7 @@ const statusStyles: Record<string, { bg: string; text: string; dot: string }> = 
   error: { bg: "bg-red-100", text: "text-red-700", dot: "bg-red-500" },
 };
 
-type Tab = "sessions" | "runs";
+type Tab = "sessions" | "runs" | "tools";
 
 export function AgentDetailPage({ id }: { id: string }) {
   const [activeTab, setActiveTab] = useState<Tab>("sessions");
@@ -30,6 +34,7 @@ export function AgentDetailPage({ id }: { id: string }) {
   const { data: agent, isLoading: agentLoading } = useAgent(id);
   const { data: metrics } = useAgentMetrics(id);
   const { data: runsData, isLoading: runsLoading } = useAgentRuns(id, runsPage);
+  const { data: chartData, isLoading: chartsLoading } = useAgentCharts(id);
 
   if (agentLoading) return <Spinner className="mx-auto mt-16" />;
   if (!agent) return <p className="text-muted-foreground">Agent not found</p>;
@@ -106,6 +111,9 @@ export function AgentDetailPage({ id }: { id: string }) {
         </div>
       </div>
 
+      {/* Charts */}
+      <AgentCharts chartData={chartData} isLoading={chartsLoading} />
+
       {/* Tabs */}
       <div className="flex items-center gap-1 mb-6 border-b border-border">
         <button
@@ -130,11 +138,21 @@ export function AgentDetailPage({ id }: { id: string }) {
           <CirclePlay className="h-4 w-4" />
           Runs
         </button>
+        <button
+          onClick={() => setActiveTab("tools")}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium -mb-px transition-colors ${
+            activeTab === "tools"
+              ? "text-primary border-b-2 border-primary"
+              : "text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-gray-300"
+          }`}
+        >
+          <Wrench className="h-4 w-4" />
+          Tools
+        </button>
       </div>
 
-      {activeTab === "sessions" ? (
-        <SessionsList agentId={id} />
-      ) : (
+      {activeTab === "sessions" && <SessionsList agentId={id} />}
+      {activeTab === "runs" && (
         <RunsTable
           data={runsData}
           isLoading={runsLoading}
@@ -142,6 +160,10 @@ export function AgentDetailPage({ id }: { id: string }) {
           onPageChange={setRunsPage}
         />
       )}
+      {activeTab === "tools" && <ToolUsageTable agentId={id} />}
+
+      {/* Usage Stats */}
+      <AgentUsageStats agentId={id} />
     </>
   );
 }

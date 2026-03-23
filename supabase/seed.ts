@@ -301,6 +301,23 @@ async function seed() {
               data: { metadata: { source: "seed", session: s, index: i } },
             }, agent.connectionToken);
 
+            // Add tool calls for this run
+            const toolNames = ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "WebFetch"];
+            const toolCount = randomInt(2, 6);
+            for (let t = 0; t < toolCount; t++) {
+              try {
+                await apiPost("/ingest", {
+                  event: "tool.called",
+                  runId,
+                  data: {
+                    toolName: toolNames[randomInt(0, toolNames.length - 1)],
+                    durationMs: randomInt(50, 3000),
+                    success: Math.random() > 0.1,
+                  },
+                }, agent.connectionToken);
+              } catch { /* ignore tool call failures */ }
+            }
+
             if (statusRoll < 0.6) {
               // Complete
               await apiPost("/ingest", {
@@ -356,6 +373,23 @@ async function seed() {
             runId,
             data: { metadata: { source: "seed", standalone: true, index: i } },
           }, agent.connectionToken);
+
+          // Add tool calls for standalone runs
+          const toolNames = ["Read", "Write", "Edit", "Bash", "Grep", "Glob", "Agent", "WebFetch"];
+          const toolCount = randomInt(1, 4);
+          for (let t = 0; t < toolCount; t++) {
+            try {
+              await apiPost("/ingest", {
+                event: "tool.called",
+                runId,
+                data: {
+                  toolName: toolNames[randomInt(0, toolNames.length - 1)],
+                  durationMs: randomInt(50, 3000),
+                  success: Math.random() > 0.1,
+                },
+              }, agent.connectionToken);
+            } catch { /* ignore tool call failures */ }
+          }
 
           if (statusRoll < 0.6) {
             await apiPost("/ingest", {

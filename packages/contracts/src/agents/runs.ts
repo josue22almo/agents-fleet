@@ -8,21 +8,26 @@ export const IngestEventRequestSchema = z.object({
     "session.started",
     "session.completed",
     "session.failed",
+    "tool.called",
   ]),
   runId: z.string().min(1, "Run ID is required").optional(),
   sessionId: z.string().optional(),
   timestamp: z.string().optional(),
-  data: z.object({
-    name: z.string().optional(),
-    durationMs: z.number().optional(),
-    tokensUsed: z.number().optional(),
-    cost: z.number().optional(),
-    error: z.string().optional(),
-    metadata: z.record(z.unknown()).optional(),
-    totalDurationMs: z.number().optional(),
-    totalTokensUsed: z.number().optional(),
-    totalCost: z.number().optional(),
-  }).optional(),
+  data: z
+    .object({
+      name: z.string().optional(),
+      durationMs: z.number().optional(),
+      tokensUsed: z.number().optional(),
+      cost: z.number().optional(),
+      error: z.string().optional(),
+      metadata: z.record(z.unknown()).optional(),
+      totalDurationMs: z.number().optional(),
+      totalTokensUsed: z.number().optional(),
+      totalCost: z.number().optional(),
+      toolName: z.string().optional(),
+      success: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export const RunResponseSchema = z.object({
@@ -109,3 +114,50 @@ export type SessionWithRunsResponse = z.infer<typeof SessionWithRunsResponseSche
 export type AgentMetricsResponse = z.infer<typeof AgentMetricsResponseSchema>;
 export type DashboardMetricsResponse = z.infer<typeof DashboardMetricsResponseSchema>;
 export type PaginatedRunsResponse = z.infer<typeof PaginatedRunsResponseSchema>;
+
+export const DashboardChartDataResponseSchema = z.object({
+  durationHistogram: z.array(z.object({ bucket: z.string(), count: z.number() })),
+  tokensByAgent: z.array(z.object({ agentId: z.string(), agentName: z.string().optional(), tokens: z.number() })),
+  errorBreakdown: z.array(z.object({ type: z.string(), count: z.number() })),
+});
+export type DashboardChartDataResponse = z.infer<typeof DashboardChartDataResponseSchema>;
+
+export const AgentComparisonRowSchema = z.object({
+  agentId: z.string(),
+  agentName: z.string().optional(),
+  totalRuns: z.number(),
+  completedRuns: z.number(),
+  failedRuns: z.number(),
+  successRate: z.number(),
+  avgDurationMs: z.number(),
+  totalTokensUsed: z.number(),
+  totalCost: z.number(),
+});
+export const AgentComparisonResponseSchema = z.array(AgentComparisonRowSchema);
+export type AgentComparisonResponse = z.infer<typeof AgentComparisonResponseSchema>;
+
+export const AgentUsageStatsResponseSchema = z.object({
+  currentPeriod: z.object({
+    period: z.string(),
+    runs: z.number(),
+    tokens: z.number(),
+    cost: z.number(),
+    successRate: z.number(),
+  }),
+  history: z.array(
+    z.object({ period: z.string(), runs: z.number(), tokens: z.number(), cost: z.number(), successRate: z.number() }),
+  ),
+});
+export type AgentUsageStatsResponse = z.infer<typeof AgentUsageStatsResponseSchema>;
+
+export const ToolCallSummarySchema = z.object({
+  toolName: z.string(),
+  calls: z.number(),
+  avgDurationMs: z.number(),
+  successRate: z.number(),
+});
+export const ToolCallSummaryResponseSchema = z.object({
+  tools: z.array(ToolCallSummarySchema),
+  totalCalls: z.number(),
+});
+export type ToolCallSummaryResponse = z.infer<typeof ToolCallSummaryResponseSchema>;

@@ -1,22 +1,24 @@
 import { describe, it, expect } from "vitest";
 import { SessionStatus } from "../../domain/value-objects/session-status";
 import { InMemorySessionRepository } from "../../infrastructure/persistence/in-memory-session-repository";
+import { InMemoryEventBus } from "../../../_shared/application/in-memory-event-bus";
 import { IngestSessionEvent } from "./ingest-session-event";
 import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
 
 function createDeps() {
   let idCounter = 0;
   const sessionRepo = new InMemorySessionRepository();
+  const eventBus = new InMemoryEventBus();
   const idGenerator: IdGenerator = {
     generate: () => `sid-${++idCounter}`,
   };
-  return { sessionRepo, idGenerator };
+  return { sessionRepo, idGenerator, eventBus };
 }
 
 describe("IngestSessionEvent", () => {
   it("creates a session on session.started", async () => {
-    const { sessionRepo, idGenerator } = createDeps();
-    const useCase = new IngestSessionEvent(sessionRepo, idGenerator);
+    const { sessionRepo, idGenerator, eventBus } = createDeps();
+    const useCase = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
 
     const session = await useCase.execute({
       agentId: "agent-1",
@@ -31,8 +33,8 @@ describe("IngestSessionEvent", () => {
   });
 
   it("creates a session with a given sessionId", async () => {
-    const { sessionRepo, idGenerator } = createDeps();
-    const useCase = new IngestSessionEvent(sessionRepo, idGenerator);
+    const { sessionRepo, idGenerator, eventBus } = createDeps();
+    const useCase = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
 
     const session = await useCase.execute({
       agentId: "agent-1",
@@ -44,8 +46,8 @@ describe("IngestSessionEvent", () => {
   });
 
   it("is idempotent for duplicate session.started", async () => {
-    const { sessionRepo, idGenerator } = createDeps();
-    const useCase = new IngestSessionEvent(sessionRepo, idGenerator);
+    const { sessionRepo, idGenerator, eventBus } = createDeps();
+    const useCase = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
 
     const s1 = await useCase.execute({
       agentId: "agent-1",
@@ -62,8 +64,8 @@ describe("IngestSessionEvent", () => {
   });
 
   it("completes a session on session.completed", async () => {
-    const { sessionRepo, idGenerator } = createDeps();
-    const useCase = new IngestSessionEvent(sessionRepo, idGenerator);
+    const { sessionRepo, idGenerator, eventBus } = createDeps();
+    const useCase = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
 
     const created = await useCase.execute({
       agentId: "agent-1",
@@ -86,8 +88,8 @@ describe("IngestSessionEvent", () => {
   });
 
   it("is idempotent for duplicate session.completed", async () => {
-    const { sessionRepo, idGenerator } = createDeps();
-    const useCase = new IngestSessionEvent(sessionRepo, idGenerator);
+    const { sessionRepo, idGenerator, eventBus } = createDeps();
+    const useCase = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
 
     await useCase.execute({
       agentId: "agent-1",
@@ -114,8 +116,8 @@ describe("IngestSessionEvent", () => {
   });
 
   it("fails a session on session.failed", async () => {
-    const { sessionRepo, idGenerator } = createDeps();
-    const useCase = new IngestSessionEvent(sessionRepo, idGenerator);
+    const { sessionRepo, idGenerator, eventBus } = createDeps();
+    const useCase = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
 
     await useCase.execute({
       agentId: "agent-1",
@@ -133,8 +135,8 @@ describe("IngestSessionEvent", () => {
   });
 
   it("is idempotent for duplicate session.failed", async () => {
-    const { sessionRepo, idGenerator } = createDeps();
-    const useCase = new IngestSessionEvent(sessionRepo, idGenerator);
+    const { sessionRepo, idGenerator, eventBus } = createDeps();
+    const useCase = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
 
     await useCase.execute({
       agentId: "agent-1",
@@ -158,8 +160,8 @@ describe("IngestSessionEvent", () => {
   });
 
   it("throws when completing non-existent session", async () => {
-    const { sessionRepo, idGenerator } = createDeps();
-    const useCase = new IngestSessionEvent(sessionRepo, idGenerator);
+    const { sessionRepo, idGenerator, eventBus } = createDeps();
+    const useCase = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
 
     await expect(
       useCase.execute({
@@ -171,8 +173,8 @@ describe("IngestSessionEvent", () => {
   });
 
   it("throws when failing non-existent session", async () => {
-    const { sessionRepo, idGenerator } = createDeps();
-    const useCase = new IngestSessionEvent(sessionRepo, idGenerator);
+    const { sessionRepo, idGenerator, eventBus } = createDeps();
+    const useCase = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
 
     await expect(
       useCase.execute({

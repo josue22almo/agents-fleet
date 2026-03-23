@@ -11,6 +11,10 @@ vi.mock("@/hooks/use-organizations", () => ({
   useOrganizations: () => ({ data: mockOrgs() }),
 }));
 
+vi.mock("@/providers/auth-provider", () => ({
+  useAuth: () => ({ isAuthenticated: true }),
+}));
+
 function TestConsumer() {
   const { orgs, currentOrg, selectOrg } = useCurrentOrg();
 
