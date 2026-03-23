@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Detail Enhanced — Agents Fleet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(0 0% 100%)',
+            foreground: 'hsl(240 10% 3.9%)',
+            card: 'hsl(0 0% 100%)',
+            primary: 'hsl(262 83% 58%)',
+            muted: 'hsl(240 4.8% 95.9%)',
+            'muted-foreground': 'hsl(240 3.8% 46.1%)',
+            border: 'hsl(240 5.9% 90%)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background: hsl(240 4.8% 95.9%); color: hsl(240 10% 3.9%); font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="flex min-h-screen">
+  <!-- Sidebar (collapsed for space) -->
+  <aside class="w-60 bg-white border-r border-border flex flex-col p-4 shrink-0">
+    <div class="flex items-center gap-2 mb-6 p-2 rounded-lg border border-border">
+      <div class="h-8 w-8 rounded-lg bg-primary text-white flex items-center justify-center text-sm font-bold">A</div>
+      <span class="text-sm font-medium">Acme Corp</span>
+    </div>
+    <nav class="space-y-1">
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground text-sm">Dashboard</a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium">Agents</a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground text-sm">Organizations</a>
+    </nav>
+  </aside>
+
+  <main class="flex-1 p-8 overflow-y-auto">
+    <!-- Breadcrumb + Header -->
+    <div class="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+      <a href="#" class="hover:text-foreground">Agents</a>
+      <span>›</span>
+      <span>Detail</span>
+    </div>
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-semibold">Claude Code — Production</h1>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 font-medium">Claude</span>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+        </span>
+      </div>
+      <a href="#" class="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Settings
+      </a>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <p class="text-sm text-muted-foreground mb-1">Total Runs</p>
+        <p class="text-2xl font-bold">142</p>
+      </div>
+      <div class="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <p class="text-sm text-muted-foreground mb-1">Success Rate</p>
+        <p class="text-2xl font-bold text-emerald-600">92%</p>
+      </div>
+      <div class="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <p class="text-sm text-muted-foreground mb-1">Avg Duration</p>
+        <p class="text-2xl font-bold">2.1s</p>
+      </div>
+      <div class="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <p class="text-sm text-muted-foreground mb-1">Total Cost</p>
+        <p class="text-2xl font-bold">$4.82</p>
+      </div>
+    </div>
+
+    <!-- Charts Row (agent-specific) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <!-- Duration Distribution -->
+      <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <h3 class="text-sm font-semibold mb-1">Run Duration</h3>
+        <p class="text-xs text-muted-foreground mb-4">Distribution of run times</p>
+        <div class="flex items-end gap-3 h-32">
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full bg-violet-500 rounded-t-md" style="height: 100px"></div>
+            <span class="text-xs text-muted-foreground">&lt;1s</span>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full bg-violet-500 rounded-t-md" style="height: 75px"></div>
+            <span class="text-xs text-muted-foreground">1-3s</span>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full bg-violet-400 rounded-t-md" style="height: 35px"></div>
+            <span class="text-xs text-muted-foreground">3-5s</span>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full bg-violet-300 rounded-t-md" style="height: 15px"></div>
+            <span class="text-xs text-muted-foreground">5-10s</span>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full bg-violet-200 rounded-t-md" style="height: 5px"></div>
+            <span class="text-xs text-muted-foreground">&gt;10s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Breakdown -->
+      <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <h3 class="text-sm font-semibold mb-1">Error Breakdown</h3>
+        <p class="text-xs text-muted-foreground mb-4">Failure reasons</p>
+        <div class="flex items-center gap-6">
+          <div class="relative w-24 h-24 shrink-0">
+            <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#f87171" stroke-width="4" stroke-dasharray="50 50" stroke-dashoffset="0"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#fb923c" stroke-width="4" stroke-dasharray="30 70" stroke-dashoffset="-50"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#d1d5db" stroke-width="4" stroke-dasharray="20 80" stroke-dashoffset="-80"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-lg font-bold">11</span>
+            </div>
+          </div>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-red-400"></div>
+              <span class="text-muted-foreground">Rate limit</span>
+              <span class="font-medium ml-auto">5</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-orange-400"></div>
+              <span class="text-muted-foreground">Timeout</span>
+              <span class="font-medium ml-auto">4</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+              <span class="text-muted-foreground">Other</span>
+              <span class="font-medium ml-auto">2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Tools Chart -->
+      <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <h3 class="text-sm font-semibold mb-1">Top Tools</h3>
+        <p class="text-xs text-muted-foreground mb-4">Most used tools</p>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-muted-foreground w-12">Edit</span>
+            <div class="flex-1 bg-muted rounded-full h-4 overflow-hidden">
+              <div class="bg-violet-500 h-full rounded-full" style="width: 90%"></div>
+            </div>
+            <span class="text-xs font-medium w-8 text-right">456</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-muted-foreground w-12">Bash</span>
+            <div class="flex-1 bg-muted rounded-full h-4 overflow-hidden">
+              <div class="bg-violet-400 h-full rounded-full" style="width: 52%"></div>
+            </div>
+            <span class="text-xs font-medium w-8 text-right">234</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-muted-foreground w-12">Read</span>
+            <div class="flex-1 bg-muted rounded-full h-4 overflow-hidden">
+              <div class="bg-violet-300 h-full rounded-full" style="width: 42%"></div>
+            </div>
+            <span class="text-xs font-medium w-8 text-right">189</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-muted-foreground w-12">Grep</span>
+            <div class="flex-1 bg-muted rounded-full h-4 overflow-hidden">
+              <div class="bg-violet-200 h-full rounded-full" style="width: 22%"></div>
+            </div>
+            <span class="text-xs font-medium w-8 text-right">98</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs: Sessions | Runs | Tools -->
+    <div class="rounded-xl border border-border bg-card shadow-sm">
+      <div class="border-b border-border px-6">
+        <div class="flex gap-6">
+          <button onclick="switchTab('sessions')" id="tab-sessions" class="tab-btn py-3 text-sm font-medium border-b-2 border-primary text-primary">Sessions</button>
+          <button onclick="switchTab('runs')" id="tab-runs" class="tab-btn py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent">Runs</button>
+          <button onclick="switchTab('tools')" id="tab-tools" class="tab-btn py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent">Tools</button>
+        </div>
+      </div>
+
+      <!-- Sessions Tab -->
+      <div id="content-sessions" class="tab-content p-6">
+        <div class="space-y-3">
+          <div class="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+              <div>
+                <p class="text-sm font-medium">Code Review PR #42</p>
+                <p class="text-xs text-muted-foreground">3 runs · 8.2s total · 1,240 tokens</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Completed</span>
+              <span class="text-xs text-muted-foreground">2 min ago</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+              <div>
+                <p class="text-sm font-medium">Bug Fix: Auth Middleware</p>
+                <p class="text-xs text-muted-foreground">2 runs · in progress</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Active</span>
+              <span class="text-xs text-muted-foreground">just now</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-red-500"></div>
+              <div>
+                <p class="text-sm font-medium">Refactor: Database Layer</p>
+                <p class="text-xs text-muted-foreground">5 runs · 15.4s total · 2,890 tokens</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Failed</span>
+              <span class="text-xs text-muted-foreground">1 hour ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Runs Tab -->
+      <div id="content-runs" class="tab-content p-6 hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left py-2 px-2 text-muted-foreground font-medium">Run ID</th>
+              <th class="text-left py-2 px-2 text-muted-foreground font-medium">Status</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Duration</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Tokens</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Cost</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Started</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-border/50">
+              <td class="py-2.5 px-2 font-mono text-xs">run_a8f3c1</td>
+              <td class="py-2.5 px-2"><span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Completed</span></td>
+              <td class="text-right py-2.5 px-2">1.8s</td>
+              <td class="text-right py-2.5 px-2">450</td>
+              <td class="text-right py-2.5 px-2">$0.12</td>
+              <td class="text-right py-2.5 px-2 text-muted-foreground">2 min ago</td>
+            </tr>
+            <tr class="border-b border-border/50">
+              <td class="py-2.5 px-2 font-mono text-xs">run_b2d4e5</td>
+              <td class="py-2.5 px-2"><span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Failed</span><br><span class="text-xs text-red-500">Rate limit exceeded</span></td>
+              <td class="text-right py-2.5 px-2">--</td>
+              <td class="text-right py-2.5 px-2">--</td>
+              <td class="text-right py-2.5 px-2">--</td>
+              <td class="text-right py-2.5 px-2 text-muted-foreground">5 min ago</td>
+            </tr>
+            <tr class="border-b border-border/50">
+              <td class="py-2.5 px-2 font-mono text-xs">run_c7f2a9</td>
+              <td class="py-2.5 px-2"><span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Completed</span></td>
+              <td class="text-right py-2.5 px-2">3.2s</td>
+              <td class="text-right py-2.5 px-2">680</td>
+              <td class="text-right py-2.5 px-2">$0.18</td>
+              <td class="text-right py-2.5 px-2 text-muted-foreground">12 min ago</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tools Tab -->
+      <div id="content-tools" class="tab-content p-6 hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left py-2 px-2 text-muted-foreground font-medium">Tool</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Calls</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Avg Duration</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Success Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-border/50">
+              <td class="py-2.5 px-2 font-medium flex items-center gap-2">
+                <div class="h-7 w-7 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                </div>
+                Edit
+              </td>
+              <td class="text-right py-2.5 px-2">456</td>
+              <td class="text-right py-2.5 px-2">120ms</td>
+              <td class="text-right py-2.5 px-2 text-emerald-600">99%</td>
+            </tr>
+            <tr class="border-b border-border/50">
+              <td class="py-2.5 px-2 font-medium flex items-center gap-2">
+                <div class="h-7 w-7 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                Bash
+              </td>
+              <td class="text-right py-2.5 px-2">234</td>
+              <td class="text-right py-2.5 px-2">890ms</td>
+              <td class="text-right py-2.5 px-2 text-emerald-600">94%</td>
+            </tr>
+            <tr class="border-b border-border/50">
+              <td class="py-2.5 px-2 font-medium flex items-center gap-2">
+                <div class="h-7 w-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                Read
+              </td>
+              <td class="text-right py-2.5 px-2">189</td>
+              <td class="text-right py-2.5 px-2">45ms</td>
+              <td class="text-right py-2.5 px-2 text-emerald-600">100%</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-2 font-medium flex items-center gap-2">
+                <div class="h-7 w-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                Grep
+              </td>
+              <td class="text-right py-2.5 px-2">98</td>
+              <td class="text-right py-2.5 px-2">210ms</td>
+              <td class="text-right py-2.5 px-2 text-emerald-600">97%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Usage Stats -->
+    <div class="rounded-xl border border-border bg-card shadow-sm mt-6">
+      <div class="p-6">
+        <h3 class="text-sm font-semibold mb-1">Usage</h3>
+        <p class="text-xs text-muted-foreground mb-4">Current period and history for this agent</p>
+
+        <!-- Current Period -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 p-4 rounded-lg bg-muted/30">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Tokens (March 2026)</p>
+            <p class="text-xl font-bold">12,450</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Cost (March 2026)</p>
+            <p class="text-xl font-bold">$4.82</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Runs (March 2026)</p>
+            <p class="text-xl font-bold">142</p>
+          </div>
+        </div>
+
+        <!-- Usage History -->
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left py-2 px-2 text-muted-foreground font-medium">Period</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Runs</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Tokens</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Cost</th>
+              <th class="text-right py-2 px-2 text-muted-foreground font-medium">Success Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-border/50">
+              <td class="py-2.5 px-2 font-medium">March 2026</td>
+              <td class="text-right py-2.5 px-2">142</td>
+              <td class="text-right py-2.5 px-2">12,450</td>
+              <td class="text-right py-2.5 px-2">$4.82</td>
+              <td class="text-right py-2.5 px-2 text-emerald-600">92%</td>
+            </tr>
+            <tr class="border-b border-border/50">
+              <td class="py-2.5 px-2 font-medium">February 2026</td>
+              <td class="text-right py-2.5 px-2">118</td>
+              <td class="text-right py-2.5 px-2">10,200</td>
+              <td class="text-right py-2.5 px-2">$3.95</td>
+              <td class="text-right py-2.5 px-2 text-emerald-600">89%</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-2 font-medium">January 2026</td>
+              <td class="text-right py-2.5 px-2">95</td>
+              <td class="text-right py-2.5 px-2">8,100</td>
+              <td class="text-right py-2.5 px-2">$3.10</td>
+              <td class="text-right py-2.5 px-2 text-emerald-600">94%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-primary', 'text-primary', 'font-medium');
+        btn.classList.add('text-muted-foreground', 'border-transparent');
+      });
+      document.getElementById('content-' + name).classList.remove('hidden');
+      const btn = document.getElementById('tab-' + name);
+      btn.classList.add('border-primary', 'text-primary', 'font-medium');
+      btn.classList.remove('text-muted-foreground', 'border-transparent');
+    }
+  </script>
+</body>
+</html>

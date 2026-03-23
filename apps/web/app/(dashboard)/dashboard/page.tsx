@@ -5,19 +5,27 @@ import { Zap, Play, Clock, CheckCircle, Loader2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { useOrgSwitcher } from "@/hooks/use-org-switcher";
 import { useDashboardMetrics } from "@/hooks/use-dashboard-metrics";
+import { useDashboardCharts } from "@/hooks/use-dashboard-charts";
+import { useAgentComparison } from "@/hooks/use-agent-comparison";
+import { RunDurationHistogram } from "@/components/features/dashboard-charts/run-duration-histogram";
+import { TokensByAgentChart } from "@/components/features/dashboard-charts/tokens-by-agent-chart";
+import { ErrorBreakdownChart } from "@/components/features/dashboard-charts/error-breakdown-chart";
+import { AgentComparisonTable } from "@/components/features/dashboard-comparison/agent-comparison-table";
 
 function formatResponseTime(ms: number): string {
-  if (ms === 0) return "—";
+  if (ms === 0) return "\u2014";
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
 export default function DashboardPage() {
   const { currentOrg } = useOrgSwitcher();
   const { data: metrics, isLoading } = useDashboardMetrics(currentOrg?.id ?? "");
+  const { data: chartData } = useDashboardCharts(currentOrg?.id ?? "");
+  const { data: comparisonData } = useAgentComparison(currentOrg?.id ?? "");
 
   const totalAgents = metrics?.totalAgents ?? 0;
   const activeRuns = metrics?.activeRuns ?? 0;
-  const avgResponseTime = metrics ? formatResponseTime(metrics.avgResponseTimeMs) : "—";
+  const avgResponseTime = metrics ? formatResponseTime(metrics.avgResponseTimeMs) : "\u2014";
   const showEmptyState = !isLoading && totalAgents === 0;
 
   return (
@@ -94,6 +102,25 @@ export default function DashboardPage() {
           <Link href="/agents/new" className={buttonVariants()}>Connect Agent</Link>
         </div>
       )}
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <RunDurationHistogram data={chartData?.durationHistogram ?? []} />
+        <TokensByAgentChart data={chartData?.tokensByAgent ?? []} />
+      </div>
+
+      {/* Error Breakdown + Activity Feed placeholder */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <ErrorBreakdownChart data={chartData?.errorBreakdown ?? []} />
+        {/* Activity feed placeholder */}
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="text-sm font-semibold">Activity Feed</h3>
+          <p className="text-xs text-muted-foreground">Coming soon</p>
+        </div>
+      </div>
+
+      {/* Comparison Table */}
+      <AgentComparisonTable data={comparisonData ?? []} />
     </>
   );
 }

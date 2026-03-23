@@ -25,6 +25,9 @@ import type {
   AgentWithTokenResponse,
   AgentMetricsResponse,
   DashboardMetricsResponse,
+  DashboardChartDataResponse,
+  AgentComparisonResponse,
+  AgentUsageStatsResponse,
   PaginatedRunsResponse,
   PaginatedSessionsResponse,
   SessionWithRunsResponse,
@@ -132,6 +135,10 @@ export const api = {
     sessions: (id: string, page?: number) => get<PaginatedSessionsResponse>(`/agents/${id}/sessions?page=${page ?? 1}`),
     session: (id: string, sessionId: string) => get<SessionWithRunsResponse>(`/agents/${id}/sessions/${sessionId}`),
     dashboardMetrics: (orgId: string) => get<DashboardMetricsResponse>(`/dashboard/metrics?organizationId=${orgId}`),
+    dashboardCharts: (orgId: string) => get<DashboardChartDataResponse>(`/dashboard/charts?organizationId=${orgId}`),
+    dashboardComparison: (orgId: string) => get<AgentComparisonResponse>(`/dashboard/comparison?organizationId=${orgId}`),
+    agentCharts: (id: string) => get<DashboardChartDataResponse>(`/agents/${id}/charts`),
+    agentUsage: (id: string) => get<AgentUsageStatsResponse>(`/agents/${id}/usage`),
   },
   avatars: {
     upload: async (userId: string, file: File): Promise<string> => {

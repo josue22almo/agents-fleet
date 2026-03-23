@@ -189,6 +189,12 @@ export class RunsController {
     return AgentComparisonResponseSchema.parse(result);
   }
 
+  @Get("agents/:id/charts")
+  async handleAgentCharts(@Param("id") agentId: string) {
+    const result = await this.getDashboardChartData.execute({ agentIds: [agentId] });
+    return DashboardChartDataResponseSchema.parse(result);
+  }
+
   @Get("agents/:id/usage")
   async handleAgentUsage(@Param("id") agentId: string) {
     const result = await this.getAgentUsageStats.execute({ agentId });
