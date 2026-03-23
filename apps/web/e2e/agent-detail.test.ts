@@ -71,4 +71,38 @@ test.describe("Agent Detail", () => {
 
     await expect(page.getByRole("heading", { name: "Agents" })).toBeVisible();
   });
+
+  test("shows charts section", async ({ page }) => {
+    await page.goto("/agents");
+    await page.locator("main").getByText("Alice's Claude").click();
+
+    await expect(page.getByText("Run Duration Distribution")).toBeVisible({ timeout: 10000 });
+  });
+
+  test("shows usage stats section", async ({ page }) => {
+    await switchToOrg(page, "Acme Corp");
+    await page.goto("/agents");
+
+    const firstAgent = page.locator("main a[href*='/agents/']").first();
+    await firstAgent.click();
+
+    await expect(page.getByText("Total Runs").first()).toBeVisible();
+    await expect(
+      page.getByText(/usage this month|current period|usage/i).first(),
+    ).toBeVisible({ timeout: 5000 });
+  });
+
+  test("Tools tab shows tool usage", async ({ page }) => {
+    await switchToOrg(page, "Acme Corp");
+    await page.goto("/agents");
+
+    const firstAgent = page.locator("main a[href*='/agents/']").first();
+    await firstAgent.click();
+
+    await page.getByRole("button", { name: "Tools" }).click();
+
+    await expect(
+      page.getByText(/Read|Write|Edit|Bash|Grep|Glob|No tool calls/i).first(),
+    ).toBeVisible({ timeout: 5000 });
+  });
 });

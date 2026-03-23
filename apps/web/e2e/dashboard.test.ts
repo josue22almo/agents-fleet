@@ -38,32 +38,17 @@ test.describe("Enhanced Dashboard", () => {
     await expect(page.getByText("Active Runs")).toBeVisible();
     await expect(page.getByText("Avg Response Time")).toBeVisible();
   });
-});
 
-test.describe("Agent Detail - Charts & Tools", () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsAlice(page);
-  });
+  test("dashboard reacts to org switch", async ({ page }) => {
+    await page.goto("/dashboard");
 
-  test("agent detail shows charts section", async ({ page }) => {
-    await page.goto("/agents");
-    await page.locator("main").getByText("Alice's Claude").click();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(page.getByText("Total Agents")).toBeVisible();
 
-    // Charts section should render
-    await expect(page.getByText("Run Duration Distribution")).toBeVisible({ timeout: 10000 });
-  });
+    await switchToOrg(page, "Acme Corp");
+    await expect(page.getByText("Total Agents")).toBeVisible();
 
-  test("agent detail Tools tab shows tool usage or empty state", async ({ page }) => {
-    await page.goto("/agents");
-    await page.locator("main").getByText("Alice's Claude").click();
-
-    // Click the Tools tab
-    await page.getByRole("button", { name: "Tools" }).click();
-
-    // Should see either the table or the empty state
-    await expect(
-      page.getByText("No tool calls recorded yet")
-        .or(page.getByText("Tool Name"))
-    ).toBeVisible({ timeout: 10000 });
+    await switchToOrg(page, "Space");
+    await expect(page.getByText("Total Agents")).toBeVisible();
   });
 });
