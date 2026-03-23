@@ -1,6 +1,6 @@
-import { Controller, Query, Sse } from "@nestjs/common";
+import { Controller, Inject, Query, Sse } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { Observable, fromEvent, map } from "rxjs";
+import { Observable } from "rxjs";
 
 interface ActivityEvent {
   agentId: string;
@@ -11,7 +11,7 @@ interface ActivityEvent {
 
 @Controller("dashboard")
 export class EventsController {
-  constructor(private readonly eventEmitter: EventEmitter2) {}
+  constructor(@Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2) {}
 
   @Sse("events")
   handleEvents(

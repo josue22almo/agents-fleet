@@ -1,8 +1,10 @@
 import { RunStatus } from "../../domain/value-objects/run-status";
 import type { RunRepository } from "../../ports/repositories/run-repository";
+import type { AgentsContextPort } from "../../../_shared/domain/ports/agents-context-port";
 
 interface AgentComparisonEntry {
   agentId: string;
+  agentName?: string;
   totalRuns: number;
   completedRuns: number;
   failedRuns: number;
@@ -13,16 +15,24 @@ interface AgentComparisonEntry {
 }
 
 export class GetAgentComparison {
-  constructor(private readonly runRepo: RunRepository) {}
+  constructor(
+    private readonly runRepo: RunRepository,
+    private readonly agentsPort: AgentsContextPort,
+  ) {}
 
   async execute(params: {
-    agentIds: string[];
+    organizationId: string;
   }): Promise<AgentComparisonEntry[]> {
-    if (params.agentIds.length === 0) {
+    const agentIds = await this.agentsPort.getAgentIdsForOrganization(params.organizationId);
+
+    if (agentIds.length === 0) {
       return [];
     }
 
-    const runs = await this.runRepo.findByAgentIds(params.agentIds);
+    const [runs, agentNames] = await Promise.all([
+      this.runRepo.findByAgentIds(agentIds),
+      this.agentsPort.getAgentNamesByIds(agentIds),
+    ]);
 
     if (runs.length === 0) {
       return [];
@@ -80,6 +90,7 @@ export class GetAgentComparison {
     return Array.from(agentMap.entries())
       .map(([agentId, stats]) => ({
         agentId,
+        agentName: agentNames[agentId],
         totalRuns: stats.totalRuns,
         completedRuns: stats.completedRuns,
         failedRuns: stats.failedRuns,

@@ -1,4 +1,5 @@
 import type { RunRepository } from "../../ports/repositories/run-repository";
+import type { AgentsContextPort } from "../../../_shared/domain/ports/agents-context-port";
 
 interface DurationBucket {
   bucket: string;
@@ -7,6 +8,7 @@ interface DurationBucket {
 
 interface TokensByAgent {
   agentId: string;
+  agentName?: string;
   tokens: number;
 }
 
@@ -30,14 +32,22 @@ const DURATION_BUCKETS = [
 ] as const;
 
 export class GetDashboardChartData {
-  constructor(private readonly runRepo: RunRepository) {}
+  constructor(
+    private readonly runRepo: RunRepository,
+    private readonly agentsPort: AgentsContextPort,
+  ) {}
 
-  async execute(params: { agentIds: string[] }): Promise<DashboardChartData> {
-    if (params.agentIds.length === 0) {
+  async execute(params: { organizationId?: string; agentIds?: string[] }): Promise<DashboardChartData> {
+    const agentIds = params.agentIds ?? await this.agentsPort.getAgentIdsForOrganization(params.organizationId!);
+
+    if (agentIds.length === 0) {
       return { durationHistogram: [], tokensByAgent: [], errorBreakdown: [] };
     }
 
-    const runs = await this.runRepo.findByAgentIds(params.agentIds);
+    const [runs, agentNames] = await Promise.all([
+      this.runRepo.findByAgentIds(agentIds),
+      this.agentsPort.getAgentNamesByIds(agentIds),
+    ]);
 
     const bucketCounts = new Map<string, number>();
     const tokensByAgent = new Map<string, number>();
@@ -46,7 +56,6 @@ export class GetDashboardChartData {
     for (const run of runs) {
       const p = run.toPrimitives();
 
-      // Duration histogram
       if (p.durationMs !== null) {
         for (const bucket of DURATION_BUCKETS) {
           if (p.durationMs < bucket.max || bucket.max === Infinity) {
@@ -59,7 +68,6 @@ export class GetDashboardChartData {
         }
       }
 
-      // Tokens by agent
       if (p.tokensUsed !== null) {
         tokensByAgent.set(
           p.agentId,
@@ -67,25 +75,25 @@ export class GetDashboardChartData {
         );
       }
 
-      // Error breakdown
       if (p.error !== null) {
         errorCounts.set(p.error, (errorCounts.get(p.error) ?? 0) + 1);
       }
     }
 
-    // Build histogram preserving bucket order, excluding zero counts
     const durationHistogram: DurationBucket[] = DURATION_BUCKETS.filter(
       (b) => (bucketCounts.get(b.label) ?? 0) > 0,
     ).map((b) => ({ bucket: b.label, count: bucketCounts.get(b.label)! }));
 
-    // Sort tokens by agent desc
     const tokensByAgentResult: TokensByAgent[] = Array.from(
       tokensByAgent.entries(),
     )
-      .map(([agentId, tokens]) => ({ agentId, tokens }))
+      .map(([agentId, tokens]) => ({
+        agentId,
+        agentName: agentNames[agentId],
+        tokens,
+      }))
       .sort((a, b) => b.tokens - a.tokens);
 
-    // Sort errors by count desc
     const errorBreakdown: ErrorBreakdown[] = Array.from(
       errorCounts.entries(),
     )

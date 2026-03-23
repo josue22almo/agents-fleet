@@ -36,6 +36,13 @@ let idCounter = 0;
       },
     },
     {
+      provide: "AgentsContextPort",
+      useValue: {
+        getAgentIdsForOrganization: async () => [],
+        getAgentNamesByIds: async () => ({}),
+      },
+    },
+    {
       provide: "RunRepository",
       useFactory: () => new InMemoryRunRepository(),
     },

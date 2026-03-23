@@ -1,15 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { Run } from "../../domain/entities/run";
 import { RunStatus } from "../../domain/value-objects/run-status";
-import { createTestDeps } from "./_test-helpers";
+import { createTestDeps, createStubAgentsPort } from "./_test-helpers";
 import { GetDashboardChartData } from "./get-dashboard-chart-data";
 
 describe("GetDashboardChartData", () => {
-  it("returns empty arrays for empty agentIds", async () => {
+  it("returns empty arrays for org with no agents", async () => {
     const deps = createTestDeps();
-    const useCase = new GetDashboardChartData(deps.runRepo);
+    const useCase = new GetDashboardChartData(deps.runRepo, createStubAgentsPort([], {}));
 
-    const result = await useCase.execute({ agentIds: [] });
+    const result = await useCase.execute({ organizationId: "empty-org" });
 
     expect(result.durationHistogram).toEqual([]);
     expect(result.tokensByAgent).toEqual([]);
@@ -18,7 +18,14 @@ describe("GetDashboardChartData", () => {
 
   it("builds duration histogram with correct buckets", async () => {
     const deps = createTestDeps();
-    const useCase = new GetDashboardChartData(deps.runRepo);
+    const useCase = new GetDashboardChartData(
+      deps.runRepo,
+      createStubAgentsPort(["agent-1", "agent-2", "agent-3"], {
+        "agent-1": "Agent One",
+        "agent-2": "Agent Two",
+        "agent-3": "Agent Three",
+      }),
+    );
 
     const durations = [500, 2000, 4000, 7000, 15000]; // <1s, 1-3s, 3-5s, 5-10s, >10s
     for (let i = 0; i < durations.length; i++) {
@@ -40,7 +47,7 @@ describe("GetDashboardChartData", () => {
       );
     }
 
-    const result = await useCase.execute({ agentIds: ["agent-1"] });
+    const result = await useCase.execute({ organizationId: "org-1" });
 
     expect(result.durationHistogram).toEqual([
       { bucket: "<1s", count: 1 },
@@ -53,7 +60,14 @@ describe("GetDashboardChartData", () => {
 
   it("omits zero-count buckets from histogram", async () => {
     const deps = createTestDeps();
-    const useCase = new GetDashboardChartData(deps.runRepo);
+    const useCase = new GetDashboardChartData(
+      deps.runRepo,
+      createStubAgentsPort(["agent-1", "agent-2", "agent-3"], {
+        "agent-1": "Agent One",
+        "agent-2": "Agent Two",
+        "agent-3": "Agent Three",
+      }),
+    );
 
     await deps.runRepo.save(
       Run.create({
@@ -72,14 +86,21 @@ describe("GetDashboardChartData", () => {
       }),
     );
 
-    const result = await useCase.execute({ agentIds: ["agent-1"] });
+    const result = await useCase.execute({ organizationId: "org-1" });
 
     expect(result.durationHistogram).toEqual([{ bucket: "<1s", count: 1 }]);
   });
 
   it("groups tokens by agent sorted desc", async () => {
     const deps = createTestDeps();
-    const useCase = new GetDashboardChartData(deps.runRepo);
+    const useCase = new GetDashboardChartData(
+      deps.runRepo,
+      createStubAgentsPort(["agent-1", "agent-2", "agent-3"], {
+        "agent-1": "Agent One",
+        "agent-2": "Agent Two",
+        "agent-3": "Agent Three",
+      }),
+    );
 
     // Agent 1: 100 tokens
     await deps.runRepo.save(
@@ -133,19 +154,24 @@ describe("GetDashboardChartData", () => {
       }),
     );
 
-    const result = await useCase.execute({
-      agentIds: ["agent-1", "agent-2"],
-    });
+    const result = await useCase.execute({ organizationId: "org-1" });
 
     expect(result.tokensByAgent).toEqual([
-      { agentId: "agent-2", tokens: 300 },
-      { agentId: "agent-1", tokens: 100 },
+      { agentId: "agent-2", agentName: "Agent Two", tokens: 300 },
+      { agentId: "agent-1", agentName: "Agent One", tokens: 100 },
     ]);
   });
 
   it("groups errors by type sorted by count desc", async () => {
     const deps = createTestDeps();
-    const useCase = new GetDashboardChartData(deps.runRepo);
+    const useCase = new GetDashboardChartData(
+      deps.runRepo,
+      createStubAgentsPort(["agent-1", "agent-2", "agent-3"], {
+        "agent-1": "Agent One",
+        "agent-2": "Agent Two",
+        "agent-3": "Agent Three",
+      }),
+    );
 
     const errors = ["timeout", "timeout", "timeout", "rate_limit", "crash"];
     for (let i = 0; i < errors.length; i++) {
@@ -167,7 +193,7 @@ describe("GetDashboardChartData", () => {
       );
     }
 
-    const result = await useCase.execute({ agentIds: ["agent-1"] });
+    const result = await useCase.execute({ organizationId: "org-1" });
 
     expect(result.errorBreakdown).toEqual([
       { type: "timeout", count: 3 },

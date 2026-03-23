@@ -31,3 +31,4 @@ export { ValidateConnectionToken } from "./application/use-cases/validate-connec
 // Infrastructure
 export { SupabaseAgentRepository } from "./infrastructure/persistence/supabase-agent.repository";
 export { InMemoryAgentRepository } from "./infrastructure/persistence/in-memory-agent-repository";
+export { AgentsContextAdapter } from "./infrastructure/agents-context.adapter";

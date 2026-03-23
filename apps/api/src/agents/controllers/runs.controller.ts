@@ -24,7 +24,7 @@ import {
   type SessionRepository,
   type ToolCallRepository,
 } from "@repo/contexts/monitoring";
-import { ListAgents, type AgentRepository } from "@repo/contexts/agents";
+import type { AgentsContextPort } from "@repo/contexts/_shared";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser, type AuthenticatedUser } from "../../common/decorators/current-user.decorator";
 
@@ -81,7 +81,6 @@ export class RunsController {
   private readonly listRuns: ListRuns;
   private readonly getAgentMetrics: GetAgentMetrics;
   private readonly getDashboardMetrics: GetDashboardMetrics;
-  private readonly listAgents: ListAgents;
   private readonly listSessions: ListSessions;
   private readonly getSession: GetSession;
   private readonly getDashboardChartData: GetDashboardChartData;
@@ -91,18 +90,17 @@ export class RunsController {
 
   constructor(
     @Inject("RunRepository") runRepo: RunRepository,
-    @Inject("AgentRepository") agentRepo: AgentRepository,
+    @Inject("AgentsContextPort") agentsPort: AgentsContextPort,
     @Inject("SessionRepository") sessionRepo: SessionRepository,
     @Inject("ToolCallRepository") toolCallRepo: ToolCallRepository,
   ) {
     this.listRuns = new ListRuns(runRepo);
     this.getAgentMetrics = new GetAgentMetrics(runRepo);
-    this.getDashboardMetrics = new GetDashboardMetrics(runRepo);
-    this.getDashboardChartData = new GetDashboardChartData(runRepo);
-    this.getAgentComparison = new GetAgentComparison(runRepo);
+    this.getDashboardMetrics = new GetDashboardMetrics(runRepo, agentsPort);
+    this.getDashboardChartData = new GetDashboardChartData(runRepo, agentsPort);
+    this.getAgentComparison = new GetAgentComparison(runRepo, agentsPort);
     this.getAgentUsageStats = new GetAgentUsageStats(runRepo);
     this.getAgentToolCalls = new GetAgentToolCalls(toolCallRepo);
-    this.listAgents = new ListAgents(agentRepo);
     this.listSessions = new ListSessions(sessionRepo);
     this.getSession = new GetSession(sessionRepo, runRepo);
   }
@@ -163,16 +161,8 @@ export class RunsController {
     @CurrentUser() user: AuthenticatedUser,
     @Query("organizationId") organizationId: string,
   ) {
-    const agents = await this.listAgents.execute(organizationId);
-    const agentIds = agents.map((a) => a.id);
-    const metrics = await this.getDashboardMetrics.execute(agentIds);
-
-    return DashboardMetricsResponseSchema.parse({
-      totalAgents: agents.length,
-      activeRuns: metrics.activeRuns,
-      avgResponseTimeMs: metrics.avgDurationMs,
-      totalCost: metrics.totalCost,
-    });
+    const metrics = await this.getDashboardMetrics.execute(organizationId);
+    return DashboardMetricsResponseSchema.parse(metrics);
   }
 
   @Get("dashboard/charts")
@@ -180,8 +170,7 @@ export class RunsController {
     @CurrentUser() user: AuthenticatedUser,
     @Query("organizationId") organizationId: string,
   ) {
-    const agentIds = await this.getAgentIdsForOrg(organizationId);
-    const result = await this.getDashboardChartData.execute({ agentIds });
+    const result = await this.getDashboardChartData.execute({ organizationId });
     return DashboardChartDataResponseSchema.parse(result);
   }
 
@@ -190,8 +179,7 @@ export class RunsController {
     @CurrentUser() user: AuthenticatedUser,
     @Query("organizationId") organizationId: string,
   ) {
-    const agentIds = await this.getAgentIdsForOrg(organizationId);
-    const result = await this.getAgentComparison.execute({ agentIds });
+    const result = await this.getAgentComparison.execute({ organizationId });
     return AgentComparisonResponseSchema.parse(result);
   }
 
@@ -213,8 +201,4 @@ export class RunsController {
     return ToolCallSummaryResponseSchema.parse(result);
   }
 
-  private async getAgentIdsForOrg(organizationId: string): Promise<string[]> {
-    const agents = await this.listAgents.execute(organizationId);
-    return agents.map((a) => a.id);
-  }
 }

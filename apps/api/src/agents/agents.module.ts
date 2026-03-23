@@ -3,7 +3,7 @@ import { Inject } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { SupabaseAgentRepository, UpdateAgentOnRunIngestedEventHandler } from "@repo/contexts/agents";
+import { SupabaseAgentRepository, UpdateAgentOnRunIngestedEventHandler, AgentsContextAdapter } from "@repo/contexts/agents";
 import { SupabaseRunRepository, SupabaseSessionRepository, SupabaseToolCallRepository } from "@repo/contexts/monitoring";
 import { SupabaseOrganizationRepository, IAMContextAdapter } from "@repo/contexts/iam";
 import type { EventBus, Logger } from "@repo/contexts/_shared";
@@ -77,6 +77,12 @@ import { RunsController } from "./controllers/runs.controller";
       provide: "AdminToolCallRepository",
       useFactory: (client: SupabaseClient) => new SupabaseToolCallRepository(client),
       inject: [SUPABASE_ADMIN],
+    },
+    {
+      provide: "AgentsContextPort",
+      scope: Scope.REQUEST,
+      useFactory: (supabase: SupabaseRequestClient) => new AgentsContextAdapter(new SupabaseAgentRepository(supabase.client)),
+      inject: [SupabaseRequestClient],
     },
     {
       provide: "IdGenerator",

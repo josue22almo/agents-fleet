@@ -1,31 +1,31 @@
 import { describe, it, expect } from "vitest";
 import { Run } from "../../domain/entities/run";
 import { RunStatus } from "../../domain/value-objects/run-status";
-import { createTestDeps } from "./_test-helpers";
+import { createTestDeps, createStubAgentsPort } from "./_test-helpers";
 import { GetAgentComparison } from "./get-agent-comparison";
 
 describe("GetAgentComparison", () => {
-  it("returns empty array for empty agentIds", async () => {
+  it("returns empty array for org with no agents", async () => {
     const deps = createTestDeps();
-    const useCase = new GetAgentComparison(deps.runRepo);
+    const useCase = new GetAgentComparison(deps.runRepo, createStubAgentsPort([], {}));
 
-    const result = await useCase.execute({ agentIds: [] });
+    const result = await useCase.execute({ organizationId: "empty-org" });
 
     expect(result).toEqual([]);
   });
 
   it("returns empty array when agents have no runs", async () => {
     const deps = createTestDeps();
-    const useCase = new GetAgentComparison(deps.runRepo);
+    const useCase = new GetAgentComparison(deps.runRepo, createStubAgentsPort(["agent-1", "agent-2"], { "agent-1": "Agent One", "agent-2": "Agent Two" }));
 
-    const result = await useCase.execute({ agentIds: ["agent-1"] });
+    const result = await useCase.execute({ organizationId: "org-1" });
 
     expect(result).toEqual([]);
   });
 
   it("compares multiple agents sorted by totalRuns desc", async () => {
     const deps = createTestDeps();
-    const useCase = new GetAgentComparison(deps.runRepo);
+    const useCase = new GetAgentComparison(deps.runRepo, createStubAgentsPort(["agent-1", "agent-2"], { "agent-1": "Agent One", "agent-2": "Agent Two" }));
 
     // Agent 1: 3 runs (2 completed, 1 failed)
     await deps.runRepo.save(
@@ -96,7 +96,7 @@ describe("GetAgentComparison", () => {
     );
 
     const result = await useCase.execute({
-      agentIds: ["agent-1", "agent-2"],
+      organizationId: "org-1",
     });
 
     expect(result).toHaveLength(2);
@@ -104,6 +104,7 @@ describe("GetAgentComparison", () => {
     // Agent 1 first (more runs)
     expect(result[0]).toEqual({
       agentId: "agent-1",
+      agentName: "Agent One",
       totalRuns: 3,
       completedRuns: 2,
       failedRuns: 1,
@@ -116,6 +117,7 @@ describe("GetAgentComparison", () => {
     // Agent 2 second
     expect(result[1]).toEqual({
       agentId: "agent-2",
+      agentName: "Agent Two",
       totalRuns: 1,
       completedRuns: 1,
       failedRuns: 0,
@@ -128,7 +130,7 @@ describe("GetAgentComparison", () => {
 
   it("calculates correct success rate", async () => {
     const deps = createTestDeps();
-    const useCase = new GetAgentComparison(deps.runRepo);
+    const useCase = new GetAgentComparison(deps.runRepo, createStubAgentsPort(["agent-1", "agent-2"], { "agent-1": "Agent One", "agent-2": "Agent Two" }));
 
     // 1 completed, 1 failed => 50%
     await deps.runRepo.save(
@@ -164,7 +166,7 @@ describe("GetAgentComparison", () => {
       }),
     );
 
-    const result = await useCase.execute({ agentIds: ["agent-1"] });
+    const result = await useCase.execute({ organizationId: "org-1" });
 
     expect(result[0]!.successRate).toBe(50);
   });

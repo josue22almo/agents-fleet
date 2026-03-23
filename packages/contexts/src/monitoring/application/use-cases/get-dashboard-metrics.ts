@@ -1,24 +1,33 @@
-import { AgentMetrics } from "../../domain/read-models/agent-metrics";
 import { RunStatus } from "../../domain/value-objects/run-status";
 import type { RunRepository } from "../../ports/repositories/run-repository";
+import type { AgentsContextPort } from "../../../_shared/domain/ports/agents-context-port";
 
 interface DashboardMetrics {
+  totalAgents: number;
   totalRuns: number;
   successRate: number;
   avgDurationMs: number;
+  avgResponseTimeMs: number;
   totalCost: number;
   activeRuns: number;
 }
 
 export class GetDashboardMetrics {
-  constructor(private readonly runRepo: RunRepository) {}
+  constructor(
+    private readonly runRepo: RunRepository,
+    private readonly agentsPort: AgentsContextPort,
+  ) {}
 
-  async execute(agentIds: string[]): Promise<DashboardMetrics> {
+  async execute(organizationId: string): Promise<DashboardMetrics> {
+    const agentIds = await this.agentsPort.getAgentIdsForOrganization(organizationId);
+
     if (agentIds.length === 0) {
       return {
+        totalAgents: 0,
         totalRuns: 0,
         successRate: 0,
         avgDurationMs: 0,
+        avgResponseTimeMs: 0,
         totalCost: 0,
         activeRuns: 0,
       };
@@ -58,9 +67,11 @@ export class GetDashboardMetrics {
     const avgDurationMs = durationCount > 0 ? totalDurationMs / durationCount : 0;
 
     return {
+      totalAgents: agentIds.length,
       totalRuns,
       successRate,
       avgDurationMs,
+      avgResponseTimeMs: avgDurationMs,
       totalCost,
       activeRuns,
     };

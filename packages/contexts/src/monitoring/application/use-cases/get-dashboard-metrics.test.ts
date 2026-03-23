@@ -1,16 +1,17 @@
 import { describe, it, expect } from "vitest";
 import { Run } from "../../domain/entities/run";
 import { RunStatus } from "../../domain/value-objects/run-status";
-import { createTestDeps } from "./_test-helpers";
+import { createTestDeps, createStubAgentsPort } from "./_test-helpers";
 import { GetDashboardMetrics } from "./get-dashboard-metrics";
 
 describe("GetDashboardMetrics", () => {
-  it("returns zero metrics for empty agentIds list", async () => {
+  it("returns zero metrics for org with no agents", async () => {
     const deps = createTestDeps();
-    const getDashboard = new GetDashboardMetrics(deps.runRepo);
+    const getDashboard = new GetDashboardMetrics(deps.runRepo, createStubAgentsPort([], {}));
 
-    const result = await getDashboard.execute([]);
+    const result = await getDashboard.execute("empty-org");
 
+    expect(result.totalAgents).toBe(0);
     expect(result.totalRuns).toBe(0);
     expect(result.successRate).toBe(0);
     expect(result.avgDurationMs).toBe(0);
@@ -20,7 +21,10 @@ describe("GetDashboardMetrics", () => {
 
   it("aggregates metrics across multiple agents", async () => {
     const deps = createTestDeps();
-    const getDashboard = new GetDashboardMetrics(deps.runRepo);
+    const getDashboard = new GetDashboardMetrics(
+      deps.runRepo,
+      createStubAgentsPort(["agent-1", "agent-2"]),
+    );
 
     // Agent 1: 1 completed run
     await deps.runRepo.save(
@@ -61,13 +65,14 @@ describe("GetDashboardMetrics", () => {
       }),
     );
 
-    // Agent 3 (NOT in list): should be excluded
+    // Agent 3 (NOT in org): should be excluded
     await deps.runRepo.save(
       Run.start({ id: "run-4", agentId: "agent-3", externalRunId: "ext-4" }),
     );
 
-    const result = await getDashboard.execute(["agent-1", "agent-2"]);
+    const result = await getDashboard.execute("org-1");
 
+    expect(result.totalAgents).toBe(2);
     expect(result.totalRuns).toBe(3);
     expect(result.successRate).toBeCloseTo(1 / 3);
     expect(result.avgDurationMs).toBe((1000 + 500) / 2);
@@ -77,10 +82,14 @@ describe("GetDashboardMetrics", () => {
 
   it("returns zero metrics when agents have no runs", async () => {
     const deps = createTestDeps();
-    const getDashboard = new GetDashboardMetrics(deps.runRepo);
+    const getDashboard = new GetDashboardMetrics(
+      deps.runRepo,
+      createStubAgentsPort(["agent-1", "agent-2"]),
+    );
 
-    const result = await getDashboard.execute(["agent-1", "agent-2"]);
+    const result = await getDashboard.execute("org-1");
 
+    expect(result.totalAgents).toBe(2);
     expect(result.totalRuns).toBe(0);
     expect(result.successRate).toBe(0);
   });

@@ -1,7 +1,7 @@
 "use client";
 
 interface Props {
-  data: { agentId: string; tokens: number }[];
+  data: { agentId: string; agentName?: string; tokens: number }[];
 }
 
 export function TokensByAgentChart({ data }: Props) {
@@ -16,8 +16,8 @@ export function TokensByAgentChart({ data }: Props) {
         <div className="space-y-3">
           {data.map((row) => (
             <div key={row.agentId} className="flex items-center gap-3">
-              <span className="text-xs text-muted-foreground w-24 truncate" title={row.agentId}>
-                {row.agentId.slice(0, 8)}
+              <span className="text-xs text-muted-foreground w-24 truncate" title={row.agentName ?? row.agentId}>
+                {row.agentName ?? row.agentId.slice(0, 8)}
               </span>
               <div className="flex-1 h-5 bg-muted rounded-full overflow-hidden">
                 <div

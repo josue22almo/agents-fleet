@@ -88,8 +88,8 @@ export function AgentComparisonTable({ data }: Props) {
                   className="border-b border-border last:border-0 hover:bg-muted/50 cursor-pointer"
                   onClick={() => router.push(`/agents/${row.agentId}`)}
                 >
-                  <td className="py-2 px-3 font-medium truncate max-w-[160px]" title={row.agentId}>
-                    {row.agentId.slice(0, 8)}...
+                  <td className="py-2 px-3 font-medium truncate max-w-[160px]" title={row.agentName ?? row.agentId}>
+                    {row.agentName ?? row.agentId.slice(0, 8) + "..."}
                   </td>
                   <td className="py-2 px-3 tabular-nums">{row.totalRuns}</td>
                   <td className={`py-2 px-3 tabular-nums font-medium ${successRateColor(row.successRate)}`}>
