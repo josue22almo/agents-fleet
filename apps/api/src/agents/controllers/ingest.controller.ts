@@ -1,5 +1,4 @@
 import { Body, Controller, Inject, Post, Req, UseGuards } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 import {
   IngestEventRequestSchema,
   RunResponseSchema,
@@ -66,10 +65,9 @@ export class IngestController {
     @Inject("AdminToolCallRepository") toolCallRepo: ToolCallRepository,
     @Inject("EventBus") eventBus: EventBus,
     @Inject("IdGenerator") idGenerator: IdGenerator,
-    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {
     this.ingestEvent = new IngestEvent(runRepo, idGenerator, eventBus, sessionRepo);
-    this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator);
+    this.ingestSessionEvent = new IngestSessionEvent(sessionRepo, idGenerator, eventBus);
     this.ingestToolCall = new IngestToolCall(toolCallRepo, runRepo, idGenerator);
   }
 
@@ -83,12 +81,6 @@ export class IngestController {
         event: data.event as "session.started" | "session.completed" | "session.failed",
         sessionId: data.sessionId,
         data: data.data,
-      });
-
-      this.eventEmitter.emit("activity.session", {
-        agentId: req.agent.agentId,
-        type: data.event,
-        timestamp: new Date().toISOString(),
       });
 
       return SessionResponseSchema.parse(formatSession(session.toPrimitives()));
@@ -119,13 +111,6 @@ export class IngestController {
       sessionId: data.sessionId,
       timestamp: data.timestamp,
       data: data.data,
-    });
-
-    this.eventEmitter.emit("activity.run", {
-      agentId: req.agent.agentId,
-      type: data.event,
-      detail: data.data?.error || (data.data?.durationMs ? `${data.data.durationMs}ms` : undefined),
-      timestamp: new Date().toISOString(),
     });
 
     return RunResponseSchema.parse(formatRun(run.toPrimitives()));

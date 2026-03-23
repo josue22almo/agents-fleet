@@ -6,7 +6,16 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { SupabaseAgentRepository, UpdateAgentOnRunIngestedEventHandler, AgentsContextAdapter } from "@repo/contexts/agents";
 import { SupabaseRunRepository, SupabaseSessionRepository, SupabaseToolCallRepository } from "@repo/contexts/monitoring";
 import { SupabaseOrganizationRepository, IAMContextAdapter } from "@repo/contexts/iam";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { EventBus, Logger } from "@repo/contexts/_shared";
+import {
+  OnRunIngestedEmitActivity,
+  OnRunCompletedEmitActivity,
+  OnRunFailedEmitActivity,
+  OnSessionStartedEmitActivity,
+  OnSessionCompletedEmitActivity,
+  OnSessionFailedEmitActivity,
+} from "./event-handlers/activity-bridge.handlers";
 
 import { SUPABASE_ADMIN, supabaseAdminProvider } from "../common/providers/supabase-admin.provider";
 import { SupabaseRequestClient } from "../common/providers/supabase-request.provider";
@@ -95,11 +104,20 @@ export class AgentsModule implements OnModuleInit {
     @Inject("EventBus") private readonly eventBus: EventBus,
     @Inject("AdminAgentRepository") private readonly adminAgentRepo: SupabaseAgentRepository,
     @Inject("Logger") private readonly logger: Logger,
+    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
 
   onModuleInit() {
     this.eventBus.register(
       new UpdateAgentOnRunIngestedEventHandler(this.adminAgentRepo, this.logger),
     );
+
+    // Bridge domain events to SSE activity feed
+    this.eventBus.register(new OnRunIngestedEmitActivity(this.eventEmitter));
+    this.eventBus.register(new OnRunCompletedEmitActivity(this.eventEmitter));
+    this.eventBus.register(new OnRunFailedEmitActivity(this.eventEmitter));
+    this.eventBus.register(new OnSessionStartedEmitActivity(this.eventEmitter));
+    this.eventBus.register(new OnSessionCompletedEmitActivity(this.eventEmitter));
+    this.eventBus.register(new OnSessionFailedEmitActivity(this.eventEmitter));
   }
 }

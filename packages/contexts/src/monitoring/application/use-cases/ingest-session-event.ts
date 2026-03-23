@@ -1,6 +1,10 @@
 import { Session } from "../../domain/entities/session";
+import { SessionStartedEvent } from "../../domain/events/session-started.event";
+import { SessionCompletedEvent } from "../../domain/events/session-completed.event";
+import { SessionFailedEvent } from "../../domain/events/session-failed.event";
 import type { SessionRepository } from "../../ports/repositories/session-repository";
 import type { IdGenerator } from "../../../_shared/domain/models/id-generator";
+import type { EventBus } from "../../../_shared/domain/events/event-bus";
 
 type SessionEventType = "session.started" | "session.completed" | "session.failed";
 
@@ -21,6 +25,7 @@ export class IngestSessionEvent {
   constructor(
     private readonly sessionRepo: SessionRepository,
     private readonly idGenerator: IdGenerator,
+    private readonly eventBus: EventBus,
   ) {}
 
   async execute(params: IngestSessionEventParams): Promise<Session> {
@@ -36,7 +41,6 @@ export class IngestSessionEvent {
   }
 
   private async handleStarted(params: IngestSessionEventParams): Promise<Session> {
-    // If a sessionId is provided and it already exists as active, return idempotently
     if (params.sessionId) {
       const existing = await this.sessionRepo.findById(params.sessionId);
       if (existing && existing.isActive) {
@@ -52,6 +56,9 @@ export class IngestSessionEvent {
     });
 
     await this.sessionRepo.save(session);
+    await this.eventBus.publish([
+      new SessionStartedEvent(session.toPrimitives().id, params.agentId),
+    ]);
     return session;
   }
 
@@ -65,7 +72,6 @@ export class IngestSessionEvent {
       throw new Error(`Session "${params.sessionId}" not found`);
     }
 
-    // Idempotent
     if (session.isCompleted) {
       return session;
     }
@@ -77,6 +83,9 @@ export class IngestSessionEvent {
     });
 
     await this.sessionRepo.save(session);
+    await this.eventBus.publish([
+      new SessionCompletedEvent(session.toPrimitives().id, params.agentId),
+    ]);
     return session;
   }
 
@@ -90,7 +99,6 @@ export class IngestSessionEvent {
       throw new Error(`Session "${params.sessionId}" not found`);
     }
 
-    // Idempotent
     if (session.isFailed) {
       return session;
     }
@@ -98,6 +106,9 @@ export class IngestSessionEvent {
     session.fail();
 
     await this.sessionRepo.save(session);
+    await this.eventBus.publish([
+      new SessionFailedEvent(session.toPrimitives().id, params.agentId),
+    ]);
     return session;
   }
 }

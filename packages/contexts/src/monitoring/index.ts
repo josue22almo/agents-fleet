@@ -18,6 +18,9 @@ export { SessionNotFoundError } from "./domain/errors/session-not-found.error";
 export { RunCompletedEvent } from "./domain/events/run-completed.event";
 export { RunFailedEvent } from "./domain/events/run-failed.event";
 export { RunIngestedEvent } from "./domain/events/run-ingested.event";
+export { SessionStartedEvent } from "./domain/events/session-started.event";
+export { SessionCompletedEvent } from "./domain/events/session-completed.event";
+export { SessionFailedEvent } from "./domain/events/session-failed.event";
 
 // Read Models
 export { AgentMetrics } from "./domain/read-models/agent-metrics";

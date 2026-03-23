@@ -6,7 +6,7 @@ import { IngestEvent } from "./ingest-event";
 describe("IngestEvent", () => {
   it("creates a run on run.started", async () => {
     const deps = createTestDeps();
-    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator);
+    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator, deps.eventBus);
 
     const run = await ingest.execute({
       agentId: "agent-1",
@@ -22,7 +22,7 @@ describe("IngestEvent", () => {
 
   it("is idempotent for duplicate run.started", async () => {
     const deps = createTestDeps();
-    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator);
+    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator, deps.eventBus);
 
     const run1 = await ingest.execute({
       agentId: "agent-1",
@@ -40,7 +40,7 @@ describe("IngestEvent", () => {
 
   it("completes an existing run on run.completed", async () => {
     const deps = createTestDeps();
-    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator);
+    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator, deps.eventBus);
 
     await ingest.execute({
       agentId: "agent-1",
@@ -64,7 +64,7 @@ describe("IngestEvent", () => {
 
   it("creates run implicitly on run.completed without prior start", async () => {
     const deps = createTestDeps();
-    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator);
+    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator, deps.eventBus);
 
     const run = await ingest.execute({
       agentId: "agent-1",
@@ -81,7 +81,7 @@ describe("IngestEvent", () => {
 
   it("fails an existing run on run.failed", async () => {
     const deps = createTestDeps();
-    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator);
+    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator, deps.eventBus);
 
     await ingest.execute({
       agentId: "agent-1",
@@ -103,7 +103,7 @@ describe("IngestEvent", () => {
 
   it("creates run implicitly on run.failed without prior start", async () => {
     const deps = createTestDeps();
-    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator);
+    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator, deps.eventBus);
 
     const run = await ingest.execute({
       agentId: "agent-1",
@@ -119,7 +119,7 @@ describe("IngestEvent", () => {
 
   it("is idempotent for duplicate run.completed", async () => {
     const deps = createTestDeps();
-    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator);
+    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator, deps.eventBus);
 
     const run1 = await ingest.execute({
       agentId: "agent-1",
@@ -142,7 +142,7 @@ describe("IngestEvent", () => {
 
   it("is idempotent for duplicate run.failed", async () => {
     const deps = createTestDeps();
-    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator);
+    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator, deps.eventBus);
 
     const run1 = await ingest.execute({
       agentId: "agent-1",
@@ -164,7 +164,7 @@ describe("IngestEvent", () => {
 
   it("stores metadata from run.started", async () => {
     const deps = createTestDeps();
-    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator);
+    const ingest = new IngestEvent(deps.runRepo, deps.idGenerator, deps.eventBus);
 
     const run = await ingest.execute({
       agentId: "agent-1",

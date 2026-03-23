@@ -24,12 +24,10 @@ export class EventsController {
         } as MessageEvent);
       };
 
-      this.eventEmitter.on("activity.run", handler);
-      this.eventEmitter.on("activity.session", handler);
+      this.eventEmitter.on("activity", handler);
 
       return () => {
-        this.eventEmitter.off("activity.run", handler);
-        this.eventEmitter.off("activity.session", handler);
+        this.eventEmitter.off("activity", handler);
       };
     });
   }
