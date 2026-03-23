@@ -33,6 +33,9 @@ export { ListSessions } from "./application/use-cases/list-sessions";
 export { GetSession } from "./application/use-cases/get-session";
 export { GetAgentMetrics } from "./application/use-cases/get-agent-metrics";
 export { GetDashboardMetrics } from "./application/use-cases/get-dashboard-metrics";
+export { GetDashboardChartData } from "./application/use-cases/get-dashboard-chart-data";
+export { GetAgentComparison } from "./application/use-cases/get-agent-comparison";
+export { GetAgentUsageStats } from "./application/use-cases/get-agent-usage-stats";
 
 // Infrastructure
 export { SupabaseRunRepository } from "./infrastructure/persistence/supabase-run.repository";
